@@ -1,0 +1,837 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{28369A6E-46FA-41B6-893A-6D970A890047}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GT_Common</RootNamespace>
+    <AssemblyName>GT_Common</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
+    <OutputPath>bin\ARM64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AYNETTEK.HFModbus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\AYNETTEK.HFModbus.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.1.79\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="HslCommunication, Version=11.5.0.0, Culture=neutral, PublicKeyToken=3d72ad3b6b5ec0e3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\HslCommunication.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.10.0.10\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.2\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.8.0.2\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.8.0.0\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="MySqlConnector, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d33d3e53aa5f8c92, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySqlConnector.2.6.1\lib\net471\MySqlConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Serilog, Version=4.4.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.4.4.0\lib\net471\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.7.0.0\lib\net471\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.5.0.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Common, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.Common.4.3.0\lib\net451\System.Data.Common.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.SqlClient, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.9.1\lib\net462\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite, Version=2.0.3.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.2.0.3\lib\net471\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Design" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.10.0.3\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IO.FileSystem.AccessControl, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.AccessControl.5.0.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=10.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipelines.10.0.10\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.6.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Pkcs, Version=8.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Pkcs.8.0.1\lib\net462\System.Security.Cryptography.Pkcs.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.ProtectedData, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.ProtectedData.4.5.0\lib\net461\System.Security.Cryptography.ProtectedData.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=9.0.0.6, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.9.0.6\lib\net462\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=10.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.10.0.10\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=10.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.10.0.10\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.RegularExpressions.4.3.1\lib\net463\System.Text.RegularExpressions.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.8.0.0\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TaskContracts, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\TaskContracts.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseMainForm .cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\ActionTipsUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\ActionTipsUI.Designer.cs">
+      <DependentUpon>ActionTipsUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\ConnectionStatusUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\ConnectionStatusUI.Designer.cs">
+      <DependentUpon>ConnectionStatusUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\CurrentProductDataUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\CurrentProductDataUI.Designer.cs">
+      <DependentUpon>CurrentProductDataUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\DataUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\DataUI.Designer.cs">
+      <DependentUpon>DataUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\OperationalStatusUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\OperationalStatusUI.Designer.cs">
+      <DependentUpon>OperationalStatusUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\ProductionInformationUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\ProductionInformationUI.Designer.cs">
+      <DependentUpon>ProductionInformationUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\ProductStatusUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\ProductStatusUI.Designer.cs">
+      <DependentUpon>ProductStatusUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\WorkStatusUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\WorkStatusUI.Designer.cs">
+      <DependentUpon>WorkStatusUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config.cs" />
+    <Compile Include="ControlEngineBase.cs" />
+    <Compile Include="ControlEngine.cs" />
+    <Compile Include="DriverForm\Alarm\AlarmForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Alarm\AlarmForm.Designer.cs">
+      <DependentUpon>AlarmForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Aynettek\AynettekMethode.cs" />
+    <Compile Include="DriverForm\Aynettek\IRfidService.cs" />
+    <Compile Include="DriverForm\Aynettek\RfidService.cs" />
+    <Compile Include="DriverForm\Batch\BatchConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Batch\BatchConfigForm.Designer.cs">
+      <DependentUpon>BatchConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Batch\BatchConfigLoader.cs" />
+    <Compile Include="DriverForm\Batch\BatchCore.cs" />
+    <Compile Include="DriverForm\Batch\BatchLog.cs" />
+    <Compile Include="DriverForm\Batch\BatchRuntimeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Batch\BatchRuntimeManager.cs" />
+    <Compile Include="DriverForm\Batch\BatchScanForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Batch\BatchScanForm.Designer.cs">
+      <DependentUpon>BatchScanForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Batch\ClientBatchConfig.cs" />
+    <Compile Include="DriverForm\Batch\PartCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Batch\PartRuntime.cs" />
+    <Compile Include="DriverForm\CacheViewer\CacheViewerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\CacheViewer\CacheViewerForm.Designer.cs">
+      <DependentUpon>CacheViewerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\CacheViewer\DataItemDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\CacheViewer\DataItemDetailForm.Designer.cs">
+      <DependentUpon>DataItemDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ComponentCache\ComponentCacheForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ComponentCache\ComponentCacheForm.Designer.cs">
+      <DependentUpon>ComponentCacheForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ConfigCenter\CategoryWrapper.cs" />
+    <Compile Include="DriverForm\ConsumableEdit\ConsumableEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ConsumableEdit\ConsumableEditForm.Designer.cs">
+      <DependentUpon>ConsumableEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Database\SyncMonitorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Database\SyncMonitorForm.Designer.cs">
+      <DependentUpon>SyncMonitorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\DataDetail\DataDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\DataDetail\DataDetailForm.Designer.cs">
+      <DependentUpon>DataDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\DataDetail\ProductionDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\DataDetail\ProductionDetailForm.Designer.cs">
+      <DependentUpon>ProductionDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\CheckResultInfoEditorForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\CheckResultInfoEditorForm.Designer.cs">
+      <DependentUpon>CheckResultInfoEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\DataItemEditorForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\DataItemEditorForm.Designer.cs">
+      <DependentUpon>DataItemEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\FileConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\FileConfigEditor.Designer.cs">
+      <DependentUpon>FileConfigEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\FixtureConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\FixtureConfigEditor.Designer.cs">
+      <DependentUpon>FixtureConfigEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\PlcReadConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\PlcReadConfigEditor.Designer.cs">
+      <DependentUpon>PlcReadConfigEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\ResultConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\ResultConfigEditor.Designer.cs">
+      <DependentUpon>ResultConfigEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\ResultWriteConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\ResultWriteConfigEditor.Designer.cs">
+      <DependentUpon>ResultWriteConfigEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\ConfigValidator.cs" />
+    <Compile Include="DriverForm\EditJson\DescriptiveWrapper.cs" />
+    <Compile Include="DriverForm\EditJson\IApplyChanges.cs" />
+    <Compile Include="DriverForm\EditJson\JsonService.cs" />
+    <Compile Include="DriverForm\EditJson\EditJsonForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\EditJsonForm.Designer.cs">
+      <DependentUpon>EditJsonForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\ProcessEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\ProcessEditorForm.Designer.cs">
+      <DependentUpon>ProcessEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ConfigCenter\ConfigCenterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ConfigCenter\ConfigCenterForm.Designer.cs">
+      <DependentUpon>ConfigCenterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\InputDialog\InputDialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Login\AccountIdentityProvider.cs" />
+    <Compile Include="DriverForm\Login\CardIdentityProvider.cs" />
+    <Compile Include="DriverForm\Login\IdentityProviderFactory.cs" />
+    <Compile Include="DriverForm\Login\IIdentityProvider.cs" />
+    <Compile Include="DriverForm\Login\ILoginView.cs" />
+    <Compile Include="DriverForm\Login\LoginConfig.cs" />
+    <Compile Include="DriverForm\Login\LoginForm .cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Login\LoginForm .Designer.cs">
+      <DependentUpon>LoginForm .cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Login\LoginService.cs" />
+    <Compile Include="DriverForm\Login\PasswordDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Login\PasswordDialog.Designer.cs">
+      <DependentUpon>PasswordDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Login\RoleIdentityProvider.cs" />
+    <Compile Include="DriverForm\Login\RoleLoginView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Login\RoleLoginView.Designer.cs">
+      <DependentUpon>RoleLoginView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ModelSelectForm\ModelSelectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ModelSelectForm\ModelSelectForm.Designer.cs">
+      <DependentUpon>ModelSelectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ProductCode\CodeTypeHelper.cs" />
+    <Compile Include="DriverForm\ProductCode\ProductCodeConfig.cs" />
+    <Compile Include="DriverForm\ProductCode\ProductCodeConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ProductCode\ProductCodeConfigForm.Designer.cs">
+      <DependentUpon>ProductCodeConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\ProductCode\ProductCodeRule.cs" />
+    <Compile Include="DriverForm\ProductCode\ProductCodeSettingService.cs" />
+    <Compile Include="DriverForm\ProductCode\ProductCodeValidator.cs" />
+    <Compile Include="DriverForm\ProductCode\ScanTestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\ProductCode\TreeTag.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeChangeLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\RecipeChangeLogForm.Designer.cs">
+      <DependentUpon>RecipeChangeLogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\SearchRecipeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\SearchRecipeForm.Designer.cs">
+      <DependentUpon>SearchRecipeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\SearchForm\SearchCheckForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\SearchForm\SearchCheckForm.Designer.cs">
+      <DependentUpon>SearchCheckForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Twh\TwhForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Twh\TwhForm.Designer.cs">
+      <DependentUpon>TwhForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Keithley2790\Keithley2790Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Keithley2790\Keithley2790Form.Designer.cs">
+      <DependentUpon>Keithley2790Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Order\BydMesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Order\BydMesForm.Designer.cs">
+      <DependentUpon>BydMesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\RecipeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\RecipeForm.Designer.cs">
+      <DependentUpon>RecipeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\ParameterTypeSelectorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\ParameterTypeSelectorForm.Designer.cs">
+      <DependentUpon>ParameterTypeSelectorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Recipe\RecipeParameter\LimitConfigManager.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\LimitParameter.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\ParameterConverter.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\ParameterListConverter.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\ParameterWrapper.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\RecipeChangeLog.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\SingleParameterConverter.cs" />
+    <Compile Include="DriverForm\Recipe\RecipeParameter\ParameterServer.cs" />
+    <Compile Include="DriverForm\SearchForm\SearchForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\SearchForm\SearchForm.Designer.cs">
+      <DependentUpon>SearchForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\SpecialForm\SpecialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\SpecialForm\SpecialForm.Designer.cs">
+      <DependentUpon>SpecialForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\UserEdit\UserEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\UserEdit\UserEditForm.Designer.cs">
+      <DependentUpon>UserEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\UserEdit\UserManageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\UserEdit\UserManageForm.Designer.cs">
+      <DependentUpon>UserManageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\AccessDbManager.cs" />
+    <Compile Include="Helper\AccessMdbHelper.cs" />
+    <Compile Include="Helper\AccessShortConnectionHelper.cs" />
+    <Compile Include="Helper\Alarms\Alarm.cs" />
+    <Compile Include="Helper\Alarms\UploadAlarm.cs" />
+    <Compile Include="Helper\AuthHelper.cs" />
+    <Compile Include="Helper\BydMes\BydMesCom.cs" />
+    <Compile Include="Helper\BydMes\BydMesComAsync.cs" />
+    <Compile Include="Helper\BydMes\IMesService.cs" />
+    <Compile Include="Helper\BydMes\MesService.cs" />
+    <Compile Include="Helper\BydUser\ILocalUserService.cs" />
+    <Compile Include="Helper\BydUser\IUserService.cs" />
+    <Compile Include="Helper\BydUser\LocalUserService.cs" />
+    <Compile Include="Helper\BydUser\UserApiService.cs" />
+    <Compile Include="Helper\ClientTask\ClientTaskSender.cs" />
+    <Compile Include="Helper\CommMethod.cs" />
+    <Compile Include="Helper\ComponentManager.cs" />
+    <Compile Include="Helper\ConsumablesConfigManager.cs" />
+    <Compile Include="Helper\CsvSaver.cs" />
+    <Compile Include="Helper\CsvSaverAsync.cs" />
+    <Compile Include="Helper\DatabaseInitializer.cs" />
+    <Compile Include="Helper\DatabaseSessionManager.cs" />
+    <Compile Include="Helper\Database\Abstractions\IDatabaseTransaction.cs" />
+    <Compile Include="Helper\Database\Core\DatabaseNodeOptions.cs" />
+    <Compile Include="Helper\Database\Core\MultiDatabaseOptions.cs" />
+    <Compile Include="Helper\Database\Core\DatabaseFactory.cs" />
+    <Compile Include="Helper\Database\Core\DatabaseManager.cs" />
+    <Compile Include="Helper\Database\Abstractions\IDatabase.cs" />
+    <Compile Include="Helper\Database\Providers\AccessDatabase.cs" />
+    <Compile Include="Helper\Database\Providers\AccessDatabaseTransaction.cs" />
+    <Compile Include="Helper\Database\Providers\MySqlDatabase.cs" />
+    <Compile Include="Helper\Database\Providers\MySqlDatabaseTransaction.cs" />
+    <Compile Include="Helper\Database\Providers\SqliteDatabase.cs" />
+    <Compile Include="Helper\Database\Providers\SqliteTransaction.cs" />
+    <Compile Include="Helper\Database\Providers\SqlServerDatabase.cs" />
+    <Compile Include="Helper\Database\Providers\SqlServerTransaction.cs" />
+    <Compile Include="Helper\Database\Repository\AccessRepository.cs" />
+    <Compile Include="Helper\Database\Repository\EquipmentStatusRepository.cs" />
+    <Compile Include="Helper\Database\Repository\PartRepository.cs" />
+    <Compile Include="Helper\Database\Repository\ProcessRepository.cs" />
+    <Compile Include="Helper\Database\Repository\RepositoryContainer.cs" />
+    <Compile Include="Helper\Database\Repository\SyncQueueRepository.cs" />
+    <Compile Include="Helper\Database\Routing\DatabaseProvisionService.cs" />
+    <Compile Include="Helper\Database\Routing\IDatabaseRouter.cs" />
+    <Compile Include="Helper\Database\Routing\RoutingDatabaseDecorator.cs" />
+    <Compile Include="Helper\Database\Routing\YearDatabaseRouter.cs" />
+    <Compile Include="Helper\Database\Service\DatabaseHealthMonitor.cs" />
+    <Compile Include="Helper\Database\Service\ProcessService.cs" />
+    <Compile Include="Helper\Database\Service\SyncService.cs" />
+    <Compile Include="Helper\DbContext.cs" />
+    <Compile Include="Helper\EnumHelper.cs" />
+    <Compile Include="Helper\FacilityState.cs" />
+    <Compile Include="Helper\FtpHelper.cs" />
+    <Compile Include="Helper\HightFindFiles.cs" />
+    <Compile Include="Helper\LanModelSync\DeviceStatus.cs" />
+    <Compile Include="Helper\Logging\DisplayLog.cs" />
+    <Compile Include="Helper\Logging\ILogDisplay.cs" />
+    <Compile Include="Helper\Logging\ILogWriter.cs" />
+    <Compile Include="Helper\Logging\LogLevel.cs" />
+    <Compile Include="Helper\Logging\MesLog.cs" />
+    <Compile Include="Helper\Logging\RichTextBoxLogDisplay.cs" />
+    <Compile Include="Helper\Logging\SerilogWriter.cs" />
+    <Compile Include="Helper\MelsecPlc\MelsecPlcComm.cs" />
+    <Compile Include="Helper\MelsecPlc\MyDataType.cs" />
+    <Compile Include="Helper\MonthlyAccessDbManager.cs" />
+    <Compile Include="Helper\Mssql\DbShiftManager.cs" />
+    <Compile Include="Helper\Mssql\ShiftService.cs" />
+    <Compile Include="Helper\MySqlHelper.cs" />
+    <Compile Include="Helper\NetworkShareConnector.cs" />
+    <Compile Include="Helper\Keithley2790Helper.cs" />
+    <Compile Include="Helper\ObjectExtensions.cs" />
+    <Compile Include="Helper\Oee\OeeCalculator.cs" />
+    <Compile Include="Helper\Oee\OeeService.cs" />
+    <Compile Include="Helper\PasswordHelper.cs" />
+    <Compile Include="Helper\PathCenter.cs" />
+    <Compile Include="Helper\ProductionMonitorIndustrial.cs" />
+    <Compile Include="Helper\QueryClient\QueryClient.cs" />
+    <Compile Include="Helper\QueryClient\ConsumablesApiClient.cs" />
+    <Compile Include="Helper\QueryClient\UserApiClient.cs" />
+    <Compile Include="Helper\TwhHelper.cs" />
+    <Compile Include="Helper\TwhPowerDataParser.cs" />
+    <Compile Include="Helper\UIHelp\UiRefreshCenter.cs" />
+    <Compile Include="Helper\UIHelp\UiState.cs" />
+    <Compile Include="Helper\UpdateSql.cs" />
+    <Compile Include="Helper\UploadSql.cs" />
+    <Compile Include="Helper\UserLevelHelper.cs" />
+    <Compile Include="LocalConfig.cs" />
+    <Compile Include="LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ActionTipModel.cs" />
+    <Compile Include="Model\AlarmParse.cs" />
+    <Compile Include="Model\BydMesApi.cs" />
+    <Compile Include="Model\ChangeModel.cs" />
+    <Compile Include="Model\CommonConfig.cs" />
+    <Compile Include="Model\Consumables.cs" />
+    <Compile Include="Model\currentProductDataModel.cs" />
+    <Compile Include="Model\ModelParameter.cs" />
+    <Compile Include="Model\PlcTestGroup.cs" />
+    <Compile Include="Model\ProcessClient.cs" />
+    <Compile Include="Model\ProcessPropertyPayload.cs" />
+    <Compile Include="Model\ProductionOeeRecord.cs" />
+    <Compile Include="Model\ProductRecipe.cs" />
+    <Compile Include="Model\RequestModel.cs" />
+    <Compile Include="Model\ResponseModel.cs" />
+    <Compile Include="Model\RowDataModel.cs" />
+    <Compile Include="Model\SaveItem.cs" />
+    <Compile Include="Model\StatusColor.cs" />
+    <Compile Include="Model\SyncItem.cs" />
+    <Compile Include="Model\TestDispItem.cs" />
+    <Compile Include="Model\User.cs" />
+    <Compile Include="Model\ConsumablesMapper.cs" />
+    <Compile Include="Model\UserMapper.cs" />
+    <Compile Include="ProcessConfig\BaseProcessExecutor.cs" />
+    <Compile Include="ProcessConfig\DynamicExecutorFactory.cs" />
+    <Compile Include="ProcessConfig\DynamicProcessExecutor.cs" />
+    <Compile Include="ProcessConfig\IProcessStageHandler.cs" />
+    <Compile Include="ProcessConfig\ITestDataProcessor.cs" />
+    <Compile Include="ProcessConfig\Measurement.cs" />
+    <Compile Include="ProcessConfig\PlcConfig.cs" />
+    <Compile Include="ProcessConfig\PlcFactory.cs" />
+    <Compile Include="ProcessConfig\ProcessContext.cs" />
+    <Compile Include="ProcessConfig\ProcessMethods.cs" />
+    <Compile Include="ProcessConfig\ProcessStageKeys.cs" />
+    <Compile Include="ProcessConfig\SnContext.cs" />
+    <Compile Include="ProcessConfig\SnContextManager.cs" />
+    <Compile Include="ProcessConfig\StageStep.cs" />
+    <Compile Include="ProcessConfig\TestDataProcessor.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Shared.cs" />
+    <Compile Include="Util\DataProvider.cs" />
+    <Compile Include="DriverForm\Aynettek\AynettekForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DriverForm\Aynettek\AynettekForm.Designer.cs">
+      <DependentUpon>AynettekForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DriverForm\Aynettek\ErrReason.cs" />
+    <Compile Include="DriverForm\Aynettek\BaseConversion.cs" />
+    <Compile Include="Helper\LanModelSync\DeviceStatusReporter.cs" />
+    <Compile Include="Helper\LanModelSync\MasterHeartbeatMonitor.cs" />
+    <Compile Include="Helper\LanModelSync\ModelConfig.cs" />
+    <Compile Include="Helper\LanModelSync\ModelConfigReceiver.cs" />
+    <Compile Include="Helper\Mssql\MSSqlHelper.cs" />
+    <Compile Include="Helper\PlcComm\Int16Block.cs" />
+    <Compile Include="Helper\PlcComm\PatchReader.cs" />
+    <Compile Include="Helper\PlcComm\ValueMonitorBool.cs" />
+    <Compile Include="Helper\PlcComm\ValueMonitorShort.cs" />
+    <Compile Include="Helper\SerializeHelper.cs" />
+    <Compile Include="Helper\StrHelper.cs" />
+    <Compile Include="Helper\UploadManager.cs" />
+    <Compile Include="MyEnum\MyEnum.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Components\TitleUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\TitleUI.Designer.cs">
+      <DependentUpon>TitleUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Util\BaseParaFileConfiguration.cs" />
+    <Compile Include="Util\DraggableTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Util\LableStatus\StatusLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Util\LableStatus\StatusStyle.cs" />
+    <Compile Include="Util\MergedDataGridView.cs" />
+    <EmbeddedResource Include="Components\ActionTipsUI.resx">
+      <DependentUpon>ActionTipsUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\ConnectionStatusUI.resx">
+      <DependentUpon>ConnectionStatusUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\CurrentProductDataUI.resx">
+      <DependentUpon>CurrentProductDataUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\DataUI.resx">
+      <DependentUpon>DataUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\OperationalStatusUI.resx">
+      <DependentUpon>OperationalStatusUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\ProductionInformationUI.resx">
+      <DependentUpon>ProductionInformationUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\ProductStatusUI.resx">
+      <DependentUpon>ProductStatusUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\WorkStatusUI.resx">
+      <DependentUpon>WorkStatusUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\Alarm\AlarmForm.resx">
+      <DependentUpon>AlarmForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\Aynettek\AynettekForm.resx">
+      <DependentUpon>AynettekForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\CheckResultInfoEditorForm.resx">
+      <DependentUpon>CheckResultInfoEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\DataItemEditorForm.resx">
+      <DependentUpon>DataItemEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\FileConfigEditor.resx">
+      <DependentUpon>FileConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\FixtureConfigEditor.resx">
+      <DependentUpon>FixtureConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\PlcReadConfigEditor.resx">
+      <DependentUpon>PlcReadConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\ResultConfigEditor.resx">
+      <DependentUpon>ResultConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\Components\ResultWriteConfigEditor.resx">
+      <DependentUpon>ResultWriteConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\EditJsonForm.resx">
+      <DependentUpon>EditJsonForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\EditJson\ProcessEditorForm.resx">
+      <DependentUpon>ProcessEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\ConfigCenter\ConfigCenterForm.resx">
+      <DependentUpon>ConfigCenterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\Recipe\RecipeForm.resx">
+      <DependentUpon>RecipeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\SearchForm\SearchCheckForm.resx">
+      <DependentUpon>SearchCheckForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DriverForm\SearchForm\SearchForm.resx">
+      <DependentUpon>SearchForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Components\TitleUI.resx">
+      <DependentUpon>TitleUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="Images\green.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\red.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Serilog.4.4.0\build\Serilog.targets" Condition="Exists('..\packages\Serilog.4.4.0\build\Serilog.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Serilog.4.4.0\build\Serilog.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Serilog.4.4.0\build\Serilog.targets'))" />
+    <Error Condition="!Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets'))" />
+  </Target>
+  <Import Project="..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
+</Project>

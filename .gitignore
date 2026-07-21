@@ -1,0 +1,25 @@
+# Build
+bin/
+obj/
+Debug/
+Release/
+Data/
+
+# VS
+.vs/
+*.user
+*.suo
+
+# Logs
+Logs/
+*.log
+
+# SQLite
+*.db
+
+# Publish
+publish/
+
+# NuGet
+packages/
+*.nupkg
