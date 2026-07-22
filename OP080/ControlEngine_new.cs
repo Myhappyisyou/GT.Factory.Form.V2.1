@@ -1,32 +1,12 @@
 ﻿using GT_Common;
 using GT_Common.Helper;
-using GT_Common.MyEnum;
 using GT_Common.ProcessConfig;
-using GT_Common.Model;
-using GT_Common.Helper.PlcComm;
-using GT_Common.Helper.ClientTask;
-using GT_Common.Helper.BydMes;
-using GT_Common.Helper.LanModelSync;
-using GT_Common.DriverForm.Recipe.RecipeParameter;
-using GT_Common.DriverForm.Batch;
-using GT_Common.Helper.Mssql;
-using GT_Common.DriverForm.ProductCode;
 using GT_Common.Helper.Logging;
-using static GT_Common.UploadSql;
-using HslCommunication.Profinet.Siemens;
-using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Data;
-using System.IO;
-using GT_Common.Helper.QueryClient;
-using GT_Common.Util.LableStatus;
-using System.CodeDom.Compiler;
 
 namespace OP080
 {

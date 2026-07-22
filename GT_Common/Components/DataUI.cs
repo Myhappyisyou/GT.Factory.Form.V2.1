@@ -1,8 +1,7 @@
-﻿using GT_Common;
+﻿using GT.Factory.Common.Models;
 using GT_Common.DriverForm.DataDetail;
 using GT_Common.Helper.Logging;
 using GT_Common.Helper.UIHelp;
-using GT_Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;

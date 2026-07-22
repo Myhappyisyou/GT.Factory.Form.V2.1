@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GT_Common;
-using GT_Common.Model;
+using GT.Factory.Common.Models;
 
 namespace GT_Common.Helper.BydUser
 {

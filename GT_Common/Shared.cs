@@ -3,7 +3,6 @@ using GT_Common.MyEnum;
 using GT_Common.DriverForm.Batch;
 using GT_Common.Helper;
 using GT_Common.Helper.LanModelSync;
-using GT_Common.Model;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,7 +13,10 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using TaskContracts.Models;
-using User = GT_Common.Model.User;
+using GT.Factory.Common.Models;
+using GT_Common.Model;
+using SaveItem = GT_Common.Model.SaveItem;
+using TestDispItem = GT.Factory.Common.Models.TestDispItem;
 
 namespace GT_Common
 {
@@ -41,7 +43,7 @@ namespace GT_Common
 
 
         //  
-        public static  User user;
+        public static  GT.Factory.Common.Models.User user;
 
 
         public static bool isBind = true;

@@ -10,10 +10,16 @@ namespace OP040
     public class ControlEngine_new : ControlEngineBase
     {
 
-        //protected override async Task UpdateDatabaseStatus()
-        //{
-        //    Shared.sqlSatus = await MSSqlHelper.CheckConnnected(MSSqlHelper.Conn1) ? IndicatorStatus.Normal : IndicatorStatus.Error;
-        //    Shared.accessSatus = db.ConnectionState == ConnectionState.Open ? IndicatorStatus.Normal : IndicatorStatus.Error;
-        //}
+        protected override void AfterInit()
+        {
+
+            Shared.ProcessName = LocalConfig.Instance.ProcessName.Replace("&", "");
+
+            Shared.orderNub = Shared.shopOrder != null ? Shared.shopOrder.OrderNum : "1000";
+
+            Shared.workOrder = Shared.shopOrder != null ? Shared.shopOrder.Order : "111111111111";
+
+            Shared.monitor = monitor;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using GT_Common.Model;
+﻿using GT.Factory.Common.Models;
 using Newtonsoft.Json;
 using RecipeParameter.RecipeParameter;
 using System;
@@ -92,39 +92,6 @@ namespace GT_Common.Helper.Alarms
                 }          
             }
         }
-    }
-
-    public class AlarmInfo
-    {
-        //  ID
-        public int Id { get;  set; }
-        //  工序号
-        public string ProcessNo { get; set; }
-
-        //  故障发生工位
-        public string AlarmStation { get;  set; }
-
-        //  机台名称
-        public string ProcessName { get;  set; }
-
-        //  故障类型
-        public string AlarmGrade { get;  set; }
-
-        //  PLC地址
-        public string PlcAddr { get; set; }
-
-        //  故障描述
-        public string Description { get;  set; }
-
-        //  发生时间
-        public string CreateTime { get;  set; }
-
-        //  结束时间
-        public string CloseTime { get;  set; }
-
-        //  更新标识
-        public string Flag { get;  set; } = "F";
-
     }
 
     public static class AlarmConfigManager

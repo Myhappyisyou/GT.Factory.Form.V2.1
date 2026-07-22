@@ -38,6 +38,9 @@
     <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GT.Factory.Common">
+      <HintPath>..\GT.Factory.Common\bin\Debug\GT.Factory.Common.dll</HintPath>
+    </Reference>
     <Reference Include="GT_Common">
       <HintPath>..\GT_Common\bin\Debug\GT_Common.dll</HintPath>
     </Reference>

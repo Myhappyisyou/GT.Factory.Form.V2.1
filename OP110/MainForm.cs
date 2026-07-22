@@ -8,10 +8,10 @@ using System.IO;
 using GT_Common;
 using GT_Common.DriverForm.Batch;
 using GT_Common.Helper;
-using GT_Common.Model;
-using GT_Common.MyEnum;
 using GT_Common.DriverForm.Keithley2790;
 using GT_Common.Helper.LanModelSync;
+using GT.Factory.Common.Models;
+using GT.Factory.Common.Enums;
 
 namespace OP110
 {
@@ -19,7 +19,7 @@ namespace OP110
     {
         private Keithley2790Form keithley2790Form;
 
-        protected ControlEngine controlEngine;
+        protected ControlEngine_new controlEngine;
 
         public MainForm() : base()
         {
@@ -63,7 +63,7 @@ namespace OP110
             Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
                 PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
 
-            controlEngine = new ControlEngine();
+            controlEngine = new ControlEngine_new();
             controlEngine.Init();
         }
 

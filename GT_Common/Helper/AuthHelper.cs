@@ -1,8 +1,8 @@
-﻿using GT_Common.MyEnum;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Common.Models;
 using GT_Common.DriverForm.Aynettek;
 using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
-using GT_Common.Model;
 using System;
 using System.Windows.Forms;
 

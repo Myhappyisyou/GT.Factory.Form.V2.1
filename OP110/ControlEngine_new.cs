@@ -1,30 +1,11 @@
 ﻿using GT_Common;
 using GT_Common.Helper;
-using GT_Common.MyEnum;
 using GT_Common.ProcessConfig;
-using GT_Common.Model;
 using GT_Common.Helper.PlcComm;
-using GT_Common.Helper.ClientTask;
-using GT_Common.Helper.BydMes;
-using GT_Common.Helper.LanModelSync;
-using GT_Common.DriverForm.Recipe.RecipeParameter;
-using GT_Common.DriverForm.Batch;
-using GT_Common.Helper.Mssql;
-using GT_Common.DriverForm.ProductCode;
 using GT_Common.Helper.Logging;
-using static GT_Common.UploadSql;
-using HslCommunication.Profinet.Siemens;
-using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Data;
-using System.IO;
-using System.CodeDom.Compiler;
 
 namespace OP110
 {
@@ -55,6 +36,18 @@ namespace OP110
 
         //绝缘电阻 绝缘测试
         public static string CommandVOLT = "SOUR:VOLT 500, (@128)\r\n CALC1:FORM S1V\r\n CALC1:STAT ON\r\n TRIG:DEL 2\r\n ROUT:MULT:CLOS (@101,103,108,116,118,121,122,123)\r\n READ?\r\n TRIG:DEL 0\r\n ROUT:OPEN:ALL\r\n";
+
+        protected override void AfterInit()
+        {
+
+            Shared.ProcessName = LocalConfig.Instance.ProcessName.Replace("&", "");
+
+            Shared.orderNub = Shared.shopOrder != null ? Shared.shopOrder.OrderNum : "1000";
+
+            Shared.workOrder = Shared.shopOrder != null ? Shared.shopOrder.Order : "111111111111";
+
+            Shared.monitor = monitor;
+        }
 
         protected override void InitExternalDevices()
         {

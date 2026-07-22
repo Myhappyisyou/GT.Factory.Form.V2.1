@@ -256,7 +256,6 @@
     </Compile>
     <Compile Include="Config.cs" />
     <Compile Include="ControlEngineBase.cs" />
-    <Compile Include="ControlEngine.cs" />
     <Compile Include="DriverForm\Alarm\AlarmForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -623,12 +622,6 @@
     <Compile Include="LoginForm.Designer.cs">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Model\ActionTipModel.cs" />
     <Compile Include="Model\AlarmParse.cs" />
     <Compile Include="Model\BydMesApi.cs" />
@@ -779,9 +772,6 @@
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -809,7 +799,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.Common\GT.Factory.Common.csproj">
+      <Project>{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}</Project>
+      <Name>GT.Factory.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Data\GT.Factory.Data.csproj">
+      <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
+      <Name>GT.Factory.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Images\green.jpg" />
   </ItemGroup>

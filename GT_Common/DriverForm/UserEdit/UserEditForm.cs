@@ -1,5 +1,5 @@
-﻿using GT_Common.MyEnum;
-using GT_Common.Model;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Common.Models;
 using System;
 using System.Drawing;
 using System.Windows.Forms;

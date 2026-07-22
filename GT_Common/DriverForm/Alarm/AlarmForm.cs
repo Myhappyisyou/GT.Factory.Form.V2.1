@@ -1,7 +1,6 @@
 ﻿using GT_Common.Helper;
 using GT_Common.ProcessConfig;
 using GT_Common.Helper.Alarms;
-using GT_Common.Model;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using GT.Factory.Common.Models;
 
 namespace GT_Common.DriverForm.Alarm
 {

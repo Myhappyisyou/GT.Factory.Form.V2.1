@@ -1,7 +1,6 @@
-﻿using GT_Common.Helper.Database.Abstractions;
+﻿using GT.Factory.Common.Enums;
+using GT_Common.Helper.Database.Abstractions;
 using GT_Common.Helper.Database.Core;
-using GT_Common.Helper.Logging;
-using GT_Common.MyEnum;
 using System;
 using System.Collections.Generic;
 using System.Linq;

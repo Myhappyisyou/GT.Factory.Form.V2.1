@@ -1,6 +1,6 @@
-﻿using GT_Common.Helper.BydMes;
+﻿using GT.Factory.Common.Models;
+using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
-using GT_Common.Model;
 using GT_Common.MyEnum;
 using System;
 using System.Collections.Generic;

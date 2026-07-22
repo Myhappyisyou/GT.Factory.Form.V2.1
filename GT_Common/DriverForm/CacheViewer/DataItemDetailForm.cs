@@ -1,4 +1,5 @@
-﻿using GT_Common;
+﻿using GT.Factory.Common.Models;
+using GT_Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

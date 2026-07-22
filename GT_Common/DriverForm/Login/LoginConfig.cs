@@ -1,4 +1,4 @@
-﻿using GT_Common.MyEnum;
+﻿using GT.Factory.Common.Enums;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

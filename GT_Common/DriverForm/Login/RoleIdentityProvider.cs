@@ -1,5 +1,6 @@
-﻿using GT_Common.Model;
-using GT_Common.MyEnum;
+﻿
+using GT.Factory.Common.Enums;
+using GT.Factory.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

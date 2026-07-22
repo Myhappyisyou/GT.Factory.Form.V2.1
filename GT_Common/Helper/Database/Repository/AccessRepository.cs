@@ -1,4 +1,5 @@
-﻿using GT_Common.Helper.Alarms;
+﻿using GT.Factory.Common.Models;
+using GT_Common.Helper.Alarms;
 using GT_Common.Helper.Database.Abstractions;
 using GT_Common.Helper.Database.Core;
 using GT_Common.Model;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using User = GT.Factory.Common.Models.User;
 
 namespace GT_Common.Helper.Database.Repository
 {

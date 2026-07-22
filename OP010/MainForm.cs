@@ -4,18 +4,18 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GT.Factory.Common.Enums;
+using GT.Factory.Common.Models;
 using GT_Common;
 using GT_Common.DriverForm.Batch;
 using GT_Common.Helper;
 using GT_Common.Helper.LanModelSync;
-using GT_Common.Model;
-using GT_Common.MyEnum;
 
 namespace OP010
 {
     public partial class MainForm : BaseMainForm
     {
-        protected ControlEngine controlEngine;
+        protected ControlEngine_new controlEngine;
 
         public MainForm() : base()
         {
@@ -58,7 +58,7 @@ namespace OP010
             Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
                 PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
 
-            controlEngine = new ControlEngine();
+            controlEngine = new ControlEngine_new();
             controlEngine.Init();
         }
 

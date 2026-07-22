@@ -1,4 +1,6 @@
-﻿using GT_Common.Model;
+﻿
+using GT.Factory.Common.Enums;
+using GT_Common.Model;
 using GT_Common.MyEnum;
 using GT_Common.ProcessConfig;
 using GT_Common.Util;
@@ -16,6 +18,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static GT_Common.Config;
 using Consumables = TaskContracts.Models.Consumables;
+using LogicalTable = GT.Factory.Common.Enums.LogicalTable;
+using TablePrefixType = GT.Factory.Common.Enums.TablePrefixType;
 
 namespace GT_Common.Helper
 {

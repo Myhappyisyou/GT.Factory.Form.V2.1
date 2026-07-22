@@ -9,6 +9,7 @@ using GT_Common.Helper.PlcComm;
 using System.Text.RegularExpressions;
 using GT_Common.Helper.Logging;
 using GT_Common.MyEnum;
+using GT.Factory.Common.Models;
 
 namespace GT_Common.ProcessConfig
 {

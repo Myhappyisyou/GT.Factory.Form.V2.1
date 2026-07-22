@@ -1,4 +1,4 @@
-﻿namespace OP070
+﻿namespace OP100
 {
     partial class MainForm
     {

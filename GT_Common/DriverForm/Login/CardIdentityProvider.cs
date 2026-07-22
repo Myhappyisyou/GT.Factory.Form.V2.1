@@ -1,5 +1,5 @@
-﻿using GT_Common.DriverForm.Aynettek;
-using GT_Common.Model;
+﻿using GT.Factory.Common.Models;
+using GT_Common.DriverForm.Aynettek;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

@@ -1,5 +1,5 @@
-﻿using GT_Common.DriverForm.Aynettek;
-using GT_Common.MyEnum;
+﻿using GT.Factory.Common.Enums;
+using GT_Common.DriverForm.Aynettek;
 using System;
 using System.Collections.Generic;
 using System.Linq;

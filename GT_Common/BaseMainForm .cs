@@ -1,4 +1,9 @@
 ﻿using EditJson;
+using GT.Factory.Common.Enums;
+using GT.Factory.Common.Models;
+using GT.Factory.Data.Core;
+using GT.Factory.Data.Repository;
+using GT.Factory.Data.Service;
 using GT_Common.Components;
 using GT_Common.DriverForm.Alarm;
 using GT_Common.DriverForm.Aynettek;
@@ -7,7 +12,6 @@ using GT_Common.DriverForm.CacheViewer;
 using GT_Common.DriverForm.ConfigCenter;
 using GT_Common.DriverForm.ConsumableEdit;
 using GT_Common.DriverForm.Database;
-using GT_Common.DriverForm.Keithley2790;
 using GT_Common.DriverForm.Login;
 using GT_Common.DriverForm.ModelSelectForm;
 using GT_Common.DriverForm.Order;
@@ -19,31 +23,20 @@ using GT_Common.DriverForm.UserEdit;
 using GT_Common.Helper;
 using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
-using GT_Common.Helper.Database;
-using GT_Common.Helper.Database.Core;
-using GT_Common.Helper.Database.Repository;
-using GT_Common.Helper.Database.Service;
 using GT_Common.Helper.LanModelSync;
 using GT_Common.Helper.Logging;
 using GT_Common.Helper.Mssql;
-using GT_Common.Helper.Oee;
 using GT_Common.Helper.UIHelp;
-using GT_Common.Model;
-using GT_Common.MyEnum;
 using RecipeParameter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using IndicatorStatus = GT_Common.MyEnum.IndicatorStatus;
-using LoginForm = GT_Common.DriverForm.Login.LoginForm;
 
 namespace GT_Common
 {
@@ -461,14 +454,17 @@ namespace GT_Common
         /// <param name="e"></param>
         protected virtual void tsm_SyncMonitorFormClicked(object sender, EventArgs e)
         {
+            var _dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
+
             // 创建数据库管理器
             var dbManager = new DatabaseManager(Config.Instance.DatabaseOptions);
 
             // 创建缓存仓储
             var syncRepo = new SyncQueueRepository(dbManager);
 
+            var processRepo = new ProcessRepository(dbManager);
             // 创建业务服务
-            var processService = new ProcessService(dbManager, syncRepo);
+            var processService = new ProcessService(processRepo, syncRepo);
 
             // 创建回传服务
             var syncService = new SyncService(dbManager, syncRepo);
@@ -487,7 +483,7 @@ namespace GT_Common
                 Data = new[] { "12.3", "45.6", "78.9" }
             };
 
-             processService.UploadAsync(payload);
+            _dataRuntime.ProcessService.UploadAsync(payload);
 
             if (syncMonitorForm?.IsDisposed != false)
                 syncMonitorForm = new SyncMonitorForm(healthMonitor,syncRepo,syncService, dbManager.Primary);

@@ -1,4 +1,4 @@
-﻿using GT_Common.Model;
+﻿using GT.Factory.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

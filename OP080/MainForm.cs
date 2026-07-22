@@ -9,9 +9,9 @@ using GT_Common;
 using GT_Common.DriverForm.Batch;
 using GT_Common.Helper;
 using GT_Common.Helper.LanModelSync;
-using GT_Common.Model;
-using GT_Common.MyEnum;
 using GT_Common.DriverForm.Twh;
+using GT.Factory.Common.Models;
+using GT.Factory.Common.Enums;
 
 namespace OP080
 {

@@ -54,7 +54,7 @@ namespace GT_Common.DriverForm.Aynettek
                     var user = loginForm.currentUser;
                     AuthHelper.RecordLogin(user); // ✅ 记录用户到 AuthHelper
                     // 登录成功，显示主测试界面
-                    Application.Run(new MainForm());
+                    Application.Run(new BaseMainForm());
                 }
                 else
                 {

@@ -34,6 +34,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GT.Factory.Data", "GT.Factory.Data\GT.Factory.Data.csproj", "{6869136E-4F00-4914-A7AC-666518F6942A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GT.Factory.Common", "GT.Factory.Common\GT.Factory.Common.csproj", "{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +96,14 @@ Global
 		{95F360EF-B0BB-4B56-A826-1232935E57B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95F360EF-B0BB-4B56-A826-1232935E57B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95F360EF-B0BB-4B56-A826-1232935E57B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6869136E-4F00-4914-A7AC-666518F6942A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6869136E-4F00-4914-A7AC-666518F6942A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6869136E-4F00-4914-A7AC-666518F6942A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6869136E-4F00-4914-A7AC-666518F6942A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -31,7 +31,7 @@ namespace GT_Common.Helper
         }
 
         public static string Config =>
-     Path.Combine(StationRoot, "Config");
+            Path.Combine(StationRoot, "Config");
 
         public static string Data =>
             Path.Combine(StationRoot, "Data");

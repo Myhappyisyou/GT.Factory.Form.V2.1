@@ -14,11 +14,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GT_Common.Helper.Logging;
+using GT.Factory.Common.Models;
+using User = GT.Factory.Common.Models.User;
+using AlarmInfo = GT.Factory.Common.Models.AlarmInfo;
+using SaveItem = GT.Factory.Common.Models.SaveItem;
+using AlarmParse = GT.Factory.Common.Models.AlarmParse;
+using GT.Factory.Data.Service;
+using ProcessPropertyPayload = GT.Factory.Common.Models.ProcessPropertyPayload;
 
 namespace GT_Common
 {
     public static class UploadSql
     {
+        private static ProcessService _service;
+
+
+        public static void Initialize(
+            ProcessService service)
+        {
+            _service = service;
+        }
+
         #region access
 
         #region 用户相关操作
@@ -1422,78 +1438,66 @@ namespace GT_Common
         ///  Sql Server
 
         #region 
+
         /// <summary>
         /// 上传基础数据
         /// </summary>
-        /// <param name="process_no"></param>
-        /// <param name="ok_flag"></param>
-        /// <param name="ng_msg"></param>
-        /// <param name="bar_no"></param>
-        /// <param name="process_data"></param>
-        public static Task<bool> UploadBasicData(UpdateSql updateSql,string process_no, string ok_flag, string ng_msg, string bar_no, params string[] process_data)
+        public static async Task UploadBasicData(string sn, string processNo, string workOrder, string result, string ngMsg, string userId, DataItem item)
         {
-            return Task.Run(() =>
-            {
-                string sqlStr1 = $"Insert into GTProcessProperty (bar_no,process_no,do_time,vou_no,ok_flag,ng_msg,user_id,flag,eqpt_loc_id,major_state,second_state,aux_state,{GenerateFieldStr1(process_data)}) " +
-                    $"values ('{bar_no}','{process_no}',GETDATE(),'0','{ok_flag}','{ng_msg}','','','','0','0','0',{TransArrayToStr(process_data)})";
-               
-                if (string.IsNullOrWhiteSpace(bar_no))
+            var payload =
+                new ProcessPropertyPayload
                 {
-                    DisplayLog.Info($"{sqlStr1}");
-                    DisplayLog.Warn($"Upload skipped: bar_no is empty.");
-                    return false;
-                }
-                try
-                {
-                    // 生成字段名和值参数（@p0,@p1...）
-                    var fieldStr = GenerateFieldStr1(process_data); // 如：data1,data2,...
-                    var paramNames = string.Join(",", process_data.Select((_, i) => $"@p{i}")); // @p0,@p1,...
-                    var sql = $"INSERT INTO GTProcessProperty (bar_no, process_no, do_time, vou_no, ok_flag, ng_msg, user_id, flag, eqpt_loc_id, major_state, second_state, aux_state, {fieldStr}) " +
-                              $"VALUES (@bar_no, @process_no, GETDATE(), '0', @ok_flag, @ng_msg, '', '', '', '0', '0', '0', {paramNames})";
+                    BarNo = sn,
 
-                    // 参数构造
-                    var paramList = new List<SqlParameter>
-                    {
-                        new SqlParameter("@bar_no", bar_no),
-                        new SqlParameter("@process_no", process_no),
-                        new SqlParameter("@ok_flag", ok_flag),
-                        new SqlParameter("@ng_msg", ng_msg)
-                    };
+                    ProcessNo = processNo,
 
-                    for (int i = 0; i < process_data.Length; i++)
-                    {
-                        paramList.Add(new SqlParameter($"@p{i}", process_data[i]));
-                    }
-                    MSSqlHelper.ExecuteNonQuery(MSSqlHelper.Conn1, CommandType.Text, sql, paramList.ToArray());
+                    VouNo = workOrder,
 
-                    DisplayLog.Info($"产品码--{bar_no}--数据上传成功");
-                    return true; // ✅ 写入成功;
+                    OkFlag = result,
 
-                }
-                catch (Exception ex)
-                {
-                    DisplayLog.Error($"产品码--{bar_no}--数据上传失败",ex);
-                    SqlDataItem item = new SqlDataItem()
-                    {
-                        Sn = process_no,
-                        Process = process_no,
-                        SqlData = sqlStr1
-                    };
-                    updateSql.Update(item);
-                    return false; // ❌ 写入失败
-                }
-            });
+                    NgMsg = ngMsg,
+
+                    UserId = userId,
+
+                    Data = item.Data
+                };
+
+            await _service.UploadAsync(payload);
+
         }
 
         /// <summary>
-        /// 上传基础数据
+        /// 上传基础数据 特殊版本，上限，下限，测试值，结果。
         /// </summary>
-        /// <param name="process_no"></param>
-        /// <param name="ok_flag"></param>
-        /// <param name="ng_msg"></param>
-        /// <param name="bar_no"></param>
-        /// <param name="process_data"></param>
-        public static Task<bool> UploadBasicData1(UpdateSql updateSql, string bar_no, string process_no,string vou_no, string ok_flag, string ng_msg, string user_id, params string[] process_data)
+        public static async Task UploadBasicFourData(string sn, string processNo, string workOrder, string result, string ngMsg, string userId, DataItem item)
+        {
+            var payload =
+                new ProcessPropertyFourPayload
+                {
+                    BarNo = sn,
+
+                    ProcessNo = processNo,
+
+                    VouNo = workOrder,
+
+                    OkFlag = result,
+
+                    NgMsg = ngMsg,
+
+                    UserId = userId,
+
+                    Data = item
+                };
+
+            await _service.UploadFourAsync(payload);
+        }
+
+
+
+        /// <summary>
+        /// 上传基础数据 
+        /// </summary>
+        public static Task<bool> UploadBasicData(string bar_no, string process_no,string vou_no, string ok_flag, string ng_msg, string user_id, params string[] process_data)
         {
             return Task.Run(() =>
             {
@@ -1535,14 +1539,6 @@ namespace GT_Common
                 {
                     DisplayLog.Error($"产品码--{bar_no}--数据上传失败", ex);
 
-                    //SqlDataItem item = new SqlDataItem()
-                    //{
-                    //    Sn = process_no,
-                    //    Process = process_no,
-                    //    SqlData = ex.Message
-                    //};
-                    //updateSql.Update(item);
-
                     return false;
                 }
             });
@@ -1551,8 +1547,11 @@ namespace GT_Common
 
         #region 特殊版本，上限，下限，测试值，结果。
 
-        public static Task<bool> UploadBasicData1(UpdateSql updateSql,
-        string bar_no, string process_no, string vou_no, string ok_flag,
+
+        /// <summary>
+        /// 上传基础数据 上限，下限，测试值，结果。
+        /// </summary>
+        public static Task<bool> UploadProcessFourData(string bar_no, string process_no, string vou_no, string ok_flag,
         string ng_msg, string user_id, DataItem dataItem)
         {
             return Task.Run(() =>
@@ -1617,8 +1616,7 @@ namespace GT_Common
                 catch (Exception ex)
                 {
                     DisplayLog.Error($"产品码--{bar_no}--数据上传失败", ex);
-                    // 可选：补偿写入 updateSql
-                    // updateSql.Update(new SqlDataItem { Sn = bar_no, Process = process_no, SqlData = ex.Message });
+                  
                     return false;
                 }
             });
@@ -2856,7 +2854,7 @@ namespace GT_Common
         /// <param name="starttime"></param>
         /// <param name="endtime"></param>
         /// <param name="state"></param>
-        public static void UpdateAlarmInfor(AlarmInfo info)
+        public static void UpdateAlarmInfor(GT.Factory.Common.Models.AlarmInfo info)
         {    
             Task.Factory.StartNew(() =>
             {

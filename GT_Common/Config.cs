@@ -1,9 +1,7 @@
-﻿using GT_Common.DriverForm.Login;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Data.Core;
+using GT_Common.DriverForm.Login;
 using GT_Common.Helper;
-using GT_Common.Helper.Database.Core;
-using GT_Common.Model;
-using GT_Common.MyEnum;
-using GT_Common.ProcessConfig;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

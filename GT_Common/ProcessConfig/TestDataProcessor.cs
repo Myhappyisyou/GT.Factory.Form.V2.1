@@ -1,23 +1,21 @@
-﻿using GT_Common.Model;
+﻿using GT.Factory.Common.Models;
+using GT_Common.DriverForm.Batch;
+using GT_Common.Helper;
+using GT_Common.Helper.ClientTask;
+using GT_Common.Helper.Logging;
+using GT_Common.Model;
+using GT_Common.MyEnum;
+using GT_Common.Util.LableStatus;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ComponentModel;
-using GT_Common;
-using GT_Common.Helper.ClientTask;
-using Consumables = GT_Common.Model.Consumables;
-using GT_Common.Helper;
 using System.IO;
-using GT_Common.Helper.Logging;
-using GT_Common.MyEnum;
-using GT_Common.DriverForm.Batch;
-using AYNETTEK.HFModbus;
+using System.Linq;
 using System.Text;
-using GT_Common.Util.LableStatus;
-using System.Runtime.Remoting.Contexts;
-using TaskContracts.Models;
-using System.Threading;
+using System.Threading.Tasks;
+using Consumables = GT_Common.Model.Consumables;
+using SaveItem = GT.Factory.Common.Models.SaveItem;
+using TestDispItem = GT.Factory.Common.Models.TestDispItem;
 
 namespace GT_Common.ProcessConfig
 {

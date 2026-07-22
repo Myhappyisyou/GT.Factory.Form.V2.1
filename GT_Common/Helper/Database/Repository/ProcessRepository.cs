@@ -1,15 +1,12 @@
 ﻿using Dapper;
+using GT.Factory.Common.Enums;
 using GT_Common.Helper.Database.Abstractions;
 using GT_Common.Helper.Database.Core;
-using GT_Common.Helper.Logging;
 using GT_Common.Model;
-using GT_Common.MyEnum;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static GT_Common.Config;
 
 namespace GT_Common.Helper.Database.Repository
 {

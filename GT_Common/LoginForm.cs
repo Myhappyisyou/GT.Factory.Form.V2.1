@@ -1,5 +1,4 @@
-﻿using GT_Common.Model;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -9,6 +8,7 @@ using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
 using GT_Common.Helper.Logging;
 using System.Threading.Tasks;
+using GT.Factory.Common.Models;
 
 namespace GT_Common
 {

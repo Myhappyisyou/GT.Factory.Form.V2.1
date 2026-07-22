@@ -1,30 +1,34 @@
-﻿using GT_Common;
+﻿using GT.Factory.Common.Models;
+using GT.Factory.Data.Core;
+using GT_Common;
+using GT_Common.DriverForm.Batch;
+using GT_Common.DriverForm.ProductCode;
+using GT_Common.DriverForm.Recipe.RecipeParameter;
 using GT_Common.Helper;
-using GT_Common.MyEnum;
-using GT_Common.ProcessConfig;
+using GT_Common.Helper.BydMes;
+using GT_Common.Helper.ClientTask;
+using GT_Common.Helper.LanModelSync;
+using GT_Common.Helper.Logging;
+using GT_Common.Helper.Mssql;
 using GT_Common.Helper.PlcComm;
 using GT_Common.Model;
+using GT_Common.MyEnum;
+using GT_Common.ProcessConfig;
 using HslCommunication.Profinet.Siemens;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Drawing;
-using System.Data;
-using System.IO;
-using GT_Common.DriverForm.Recipe.RecipeParameter;
-using GT_Common.Helper.LanModelSync;
-using GT_Common.Helper.ClientTask;
-using GT_Common.Helper.Logging;
-using GT_Common.Helper.Mssql;
-using GT_Common.DriverForm.Batch;
-using GT_Common.DriverForm.ProductCode;
-using GT_Common.Helper.BydMes;
+using TaskContracts.Models;
 using static GT_Common.UploadSql;
+using DataItem = GT.Factory.Common.Models.DataItem;
 
 namespace GT_Common
 {
@@ -85,6 +89,8 @@ namespace GT_Common
 
         private MesService mesServer = new MesService();
 
+        private DataRuntime dataRuntime;
+
         #region ===== 生命周期 =====
 
         public void Init()
@@ -121,38 +127,6 @@ namespace GT_Common
 
         #endregion
         
-        //public void Init()
-        //{
-        //    try
-        //    {
-        //        ConnectNetworkShare();
-
-        //        InitDatabases();
-
-        //        InitLoadLocalCache();
-
-        //        LoadConfigs();
-
-        //        InitPLC();
-
-        //        var plcConsumablesDict = lsPlcConsumables.ToDictionary(x => x.Name);
-
-        //        ParameterServer.WriteParameterToPlc(RecipeConfig, reader, Shared.productModel);
-
-        //        // 启动后台周期更新
-        //        _cts = new CancellationTokenSource();
-        //        _backgroundTask = Task.Run(() => BackgroundUpdateLoop(plcConsumablesDict, _cts.Token));
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DisplayLog.Error("初始化失败", ex, true);
-        //    }
-
-        //    Shared.orderNub = Shared.isOffline ? "1000" : "2000";
-        //    Shared.workOrder = Shared.isOffline ? "111111111111" : "222222222222";
-        //    Shared.monitor = monitor;
-        //}
 
         private void ConnectNetworkShare()
         {
@@ -174,6 +148,10 @@ namespace GT_Common
             DbContext.Set(db, month);
 
             DatabaseInitializer.InitMonthlyDatabase(db, result.isNew);
+
+            dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
+
+            UploadSql.Initialize(dataRuntime.ProcessService);
         }
 
         private void LoadConfigs()
@@ -330,7 +308,7 @@ namespace GT_Common
                 //Thread.Sleep(500);
                 uploadAlarm = new UploadAlarm(reader, plcConfig.AlarmConfig.AlarmStartAddress, plcConfig.AlarmConfig.AlarmLength, clientTask);
                 uploadAlarm.Init();
-                MainForm.OnAppClosing += () => uploadAlarm?.Stop();
+                BaseMainForm.OnAppClosing += () => uploadAlarm?.Stop();
             }
         }
 
@@ -342,7 +320,7 @@ namespace GT_Common
                 //Thread.Sleep(1000);
                 FacilityState FacilityState = new FacilityState(reader, plcConfig.EquipmentStata.EquipmentStataAddress);
                 FacilityState.Init(plcConfig.EquipmentStata.EquipmentId);
-                MainForm.OnAppClosing += () => FacilityState.Stop(); // 订阅窗体关闭事件
+                BaseMainForm.OnAppClosing += () => FacilityState.Stop(); // 订阅窗体关闭事件
             }
         }
 
@@ -350,16 +328,6 @@ namespace GT_Common
         {
             #region 加载本地缓存
 
-            //加载上传语句
-            try
-            {
-                updateSql.Load();
-            }
-            catch (Exception)
-            {
-                // 加载分步上传缓存数据失败，可能会丢失部分数据
-            }
-            updateSql.SqlValueReady += UpdateSql_ValueReady;
             //加载缓存
             try
             {
@@ -791,16 +759,29 @@ namespace GT_Common
 
         #region 私有方法
 
-        //  数据上传异常事件触发
-        private void UpdateSql_ValueReady(object sender, SqlDataItem e)
-        {
-            UploadSql.InsetSql(updateSql, e.Sn, e.Process, e.SqlData);
-        }
-
         //  数据上传事件触发
-        private void UploadManager_ValueReady(object sender, DataItem e)
+        private async void UploadManager_ValueReady(object sender, DataItem e)
         {
-            UploadSql.UploadBasicData1(updateSql, e.Sn, PlcConfig.Instance.ProcessNo, Shared.workOrder, e.Result, e.NgMsg, Shared.user.JobNub, e);
+            var payload =
+                new ProcessPropertyFourPayload
+                {
+                    BarNo = e.Sn,
+
+                    ProcessNo = PlcConfig.Instance.ProcessNo,
+
+                    VouNo = Shared.workOrder,
+
+                    OkFlag = e.Result,
+
+                    NgMsg = e.NgMsg,
+
+                    UserId = Shared.user.JobNub,
+
+                    Data = e
+                };
+
+            await dataRuntime.ProcessService.UploadFourAsync(payload);
+
         }
 
         #endregion

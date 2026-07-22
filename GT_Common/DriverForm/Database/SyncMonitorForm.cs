@@ -1,6 +1,6 @@
-﻿using GT_Common.Helper.Database.Abstractions;
-using GT_Common.Helper.Database.Repository;
-using GT_Common.Helper.Database.Service;
+﻿using GT.Factory.Data.Abstractions;
+using GT.Factory.Data.Repository;
+using GT.Factory.Data.Service;
 using System;
 using System.Collections.Generic;
 using System.Data;

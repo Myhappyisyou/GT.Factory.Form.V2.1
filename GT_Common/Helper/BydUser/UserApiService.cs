@@ -1,6 +1,6 @@
-﻿using GT_Common.Helper.ClientTask;
+﻿using GT.Factory.Common.Models;
+using GT_Common.Helper.ClientTask;
 using GT_Common.Helper.QueryClient;
-using GT_Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
-using GT_Common;
-using GT_Common.Model;
 using System.Diagnostics;
 using GT_Common.Helper.Logging;
 using System.Linq;
 using GT_Common.Helper.ClientTask;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using GT.Factory.Common.Models;
+using AlarmInfo = GT.Factory.Common.Models.AlarmInfo;
 
 namespace GT_Common.Helper
 {
