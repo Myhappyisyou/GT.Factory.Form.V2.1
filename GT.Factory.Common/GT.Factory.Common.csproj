@@ -61,7 +61,6 @@
     <Compile Include="Models\ReworkQueryResult.cs" />
     <Compile Include="Models\SaveItem.cs" />
     <Compile Include="Models\SyncItem.cs" />
-    <Compile Include="Models\TestDispItem.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\RequestModel.cs" />

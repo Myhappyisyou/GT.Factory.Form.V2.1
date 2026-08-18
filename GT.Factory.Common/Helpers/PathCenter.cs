@@ -9,7 +9,7 @@ namespace GT.Factory.Common.Helper
         public static readonly string AppRoot =
             AppDomain.CurrentDomain.BaseDirectory;
 
-       
+
         private static string _stationRoot;
 
         public static string StationRoot
@@ -74,6 +74,59 @@ namespace GT.Factory.Common.Helper
           => Path.Combine(Log, name);
         public static string HistoryFile(string name)
            => Path.Combine(History, name);
+
+
+        public static string Model(
+      string modelName)
+        {
+            return Path.Combine(
+                Config,
+                modelName);
+        }
+
+
+        /// <summary>
+        /// LIN模型目录
+        ///
+        /// 例如:
+        ///
+        /// Config
+        ///   └── BYD_300W_HEV
+        ///       ├── LinProject.json
+        ///       ├── xxx.ldf
+        ///       └── LinConfig.json
+        ///
+        /// </summary>
+        public static string ModelLin(
+            string model)
+        {
+            return Path.Combine(
+                Config,
+                model,
+                "LIN");
+        }
+
+
+        public static string ModelFile(
+       string modelName,
+       string file)
+        {
+            return Path.Combine(
+                Model(modelName),
+                file);
+        }
+
+
+
+        public static string ModelLinFile(
+            string modelName,
+            string file)
+        {
+            return Path.Combine(
+                ModelLin(modelName),
+                file);
+        }
+
     }
 
     public enum HistoryKind
