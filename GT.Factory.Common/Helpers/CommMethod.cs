@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GT.Factory.Common.Helper
+namespace GT.Factory.Common.Helpers
 {
     public static class CommMethod
     {
