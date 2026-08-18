@@ -125,8 +125,8 @@ namespace GT_Common
 
         [Category("数据库配置"), DisplayName("SQL连接字符串"),]
         [Browsable(false)]
-        public string ServerIP { get; set; } = "192.168.1.232"; //服务器IP 
-        //public string ServerIP { get; set; } = "127.0.0.1"; //服务器IP 
+        //public string ServerIP { get; set; } = "192.168.1.232"; //服务器IP 
+        public string ServerIP { get; set; } = "127.0.0.1"; //服务器IP 
 
         #endregion
 

@@ -1,5 +1,10 @@
 ﻿using GT.Factory.Common.Models;
+using GT.Factory.Data.Core;
+using GT.Factory.UI.Apply;
+using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
 using GT_Common;
+using GT_Common.DriverForm.Login;
 using GT_Common.Helper;
 using System;
 using System.Collections.Generic;
@@ -15,23 +20,24 @@ namespace GT_Common.DriverForm.UserEdit
 {
     public partial class UserManageForm : Form
     {
+        private UIToolPage page;
+
         private DataGridView dgvUsers;
 
-        private Button btnAdd;
-        private Button btnEdit;
-        private Button btnDelete;
-        private Button btnRefresh;
+        private readonly DataRuntime _dataRuntime;
 
-        private AccessMdbHelper db;
-
-        public UserManageForm()
+        public UserManageForm(DataRuntime dataRuntime)
         {
             InitializeComponent();
+
             Init();
 
-            db = new AccessMdbHelper(Config.Instance.UserdbPath);
+            _dataRuntime = dataRuntime;
 
             LoadUsers();
+
+            UIStyle.ApplyWidget(this);
+
         }
 
         private void Init()
@@ -39,78 +45,38 @@ namespace GT_Common.DriverForm.UserEdit
             Text = "用户管理";
             StartPosition = FormStartPosition.CenterScreen;
             WindowState = FormWindowState.Maximized;
-            Font = new Font("微软雅黑", 10F);
 
-            var toolPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 60
-            };
+            page = new UIToolPage();
 
-            btnAdd = CreateButton("新增", 10);
-            btnEdit = CreateButton("编辑", 120);
-            btnDelete = CreateButton("删除", 230);
-            btnRefresh = CreateButton("刷新", 340);
+            var btnAdd = UIButton.Primary("新增");
+            var btnEdit = UIButton.Primary("编辑");
+            var btnDelete = UIButton.Primary("删除");
+            var btnRefresh = UIButton.Primary("刷新");
 
             btnAdd.Click += BtnAdd_Click;
             btnEdit.Click += BtnEdit_Click;
             btnDelete.Click += BtnDelete_Click;
-            btnRefresh.Click += (s, e) => LoadUsers();
+            btnRefresh.Click += (sender, e) => LoadUsers();
 
-            toolPanel.Controls.Add(btnAdd);
-            toolPanel.Controls.Add(btnEdit);
-            toolPanel.Controls.Add(btnDelete);
-            toolPanel.Controls.Add(btnRefresh);
+            page.AddButton(btnAdd);
+            page.AddButton(btnEdit);
+            page.AddButton(btnDelete);
+            page.AddButton(btnRefresh);
 
-            dgvUsers = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                RowHeadersVisible = false
-            };
-            dgvUsers.ColumnHeadersHeight = 45;
-            dgvUsers.EnableHeadersVisualStyles = false;
-
-            dgvUsers.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(45, 45, 48);
-            dgvUsers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvUsers.ColumnHeadersDefaultCellStyle.Font = new Font("微软雅黑", 10F, FontStyle.Bold);
-            dgvUsers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-            dgvUsers.BackgroundColor = Color.White;
-            dgvUsers.GridColor = Color.LightGray;
-
-            dgvUsers.DoubleClick += DgvUsers_DoubleClick;
+            page.Grid.DoubleClick += DgvUsers_DoubleClick;
 
             Controls.Add(dgvUsers);
-            Controls.Add(toolPanel);
+
+            Controls.Add(page);
         }
 
-        private Button CreateButton(string text, int left)
-        {
-            return new Button
-            {
-                Text = text,
-                Width = 100,
-                Height = 35,
-                Left = left,
-                Top = 12
-            };
-        }
-
-        private void LoadUsers()
+        private async void LoadUsers()
         {
             try
             {
-
-                List<User> users = UploadSql.Ac_SelectUsersInfors(db);
-
-                dgvUsers.DataSource = null;
-                dgvUsers.DataSource = users;
+                List<User> users = await _dataRuntime.Repositories.Access.GetAllAsync();
+                page.Grid.DataSource = null;
+                page.Grid.DataSource = users;
 
                 HideSensitiveColumns();
             }
@@ -122,36 +88,36 @@ namespace GT_Common.DriverForm.UserEdit
 
         private void HideSensitiveColumns()
         {
-            if (dgvUsers.Columns["UserPassword"] != null)
-                dgvUsers.Columns["UserPassword"].Visible = false;
+            if (page.Grid.Columns["UserPassword"] != null)
+                page.Grid.Columns["UserPassword"].Visible = false;
 
-            if (dgvUsers.Columns["MesPassword"] != null)
-                dgvUsers.Columns["MesPassword"].Visible = false;
+            if (page.Grid.Columns["MesPassword"] != null)
+                page.Grid.Columns["MesPassword"].Visible = false;
         }
 
-        private void BtnAdd_Click(object sender, EventArgs e)
+        private async void BtnAdd_Click(object sender, EventArgs e)
         {
             using (var frm = new UserEditForm())
             {
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
-                    UploadSql.Ac_InsertNewUserInfor(db, frm.UserData);
-                    LoadUsers();
+                    await _dataRuntime.Repositories.Access.InsertNewUserAsync(frm.UserData);
+                     LoadUsers();
                 }
             }
         }
 
-        private void BtnEdit_Click(object sender, EventArgs e)
+        private async void BtnEdit_Click(object sender, EventArgs e)
         {
-            EditCurrentUser();
+            await EditCurrentUser();
         }
 
-        private void DgvUsers_DoubleClick(object sender, EventArgs e)
+        private async void DgvUsers_DoubleClick(object sender, EventArgs e)
         {
-            EditCurrentUser();
+             await EditCurrentUser();
         }
 
-        private void EditCurrentUser()
+        private async Task EditCurrentUser()
         {
             var user = GetCurrentUser();
 
@@ -163,15 +129,16 @@ namespace GT_Common.DriverForm.UserEdit
 
             using (var frm = new UserEditForm(user))
             {
-                if (frm.ShowDialog() == DialogResult.OK)
+                if (UIHelper.ShowDialogWithMask(frm, this.FindForm()) == DialogResult.OK)
+
                 {
-                    UploadSql.Ac_UpdateUsersInfor(db, frm.UserData);
+                    await _dataRuntime.Repositories.Access.UpdateAsync(frm.UserData);
                     LoadUsers();
                 }
             }
         }
 
-        private void BtnDelete_Click(object sender, EventArgs e)
+        private async void BtnDelete_Click(object sender, EventArgs e)
         {
             var user = GetCurrentUser();
 
@@ -192,7 +159,7 @@ namespace GT_Common.DriverForm.UserEdit
 
             try
             {
-                UploadSql.Ac_DeleteUsersInfor(db, user);
+                await _dataRuntime.Repositories.Access.DeleteAsync(user.JobNub);
                 LoadUsers();
             }
             catch (Exception ex)
@@ -203,10 +170,10 @@ namespace GT_Common.DriverForm.UserEdit
 
         private User GetCurrentUser()
         {
-            if (dgvUsers.CurrentRow == null)
+            if (page.Grid.CurrentRow == null)
                 return null;
 
-            return dgvUsers.CurrentRow.DataBoundItem as User;
+            return page.Grid.CurrentRow.DataBoundItem as User;
         }
     }
 }

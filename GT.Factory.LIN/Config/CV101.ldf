@@ -1,0 +1,165 @@
+ 
+/* Description: LIN Description File of BDC_1                                */
+/* Created:     21.11.2016                                                  */
+/* Author:      Bin Zhang                                                   */
+/* Version:     1.0.1                                                       */
+
+LIN_description_file;
+LIN_protocol_version = "2.1";
+LIN_language_version = "2.1";
+LIN_speed = 19.2 kbps;
+
+Nodes {
+  Master: LDFMasterNode, 5 ms, 1 ms ;
+  Slaves: BDC_1 ;
+}
+
+Signals {
+  BDC_1_ReqMovePos: 8, 8, LDFMasterNode, BDC_1 ;
+  BDC_1_RespPos: 8, 0, BDC_1, LDFMasterNode ;
+  BDC_1_MotorStatus: 1, 0, BDC_1, LDFMasterNode ;
+  BDC_1_TempWarn: 1, 0, BDC_1, LDFMasterNode ;
+  BDC_1_MoveEnable: 1, 0, LDFMasterNode, BDC_1 ;
+  BDC_1_voltageErr: 2, 0, BDC_1, LDFMasterNode ;
+  BDC_1_Fault_Signal: 4, 0, BDC_1, LDFMasterNode ;
+  BDC_1_Rsp_Comm_Err: 2, 0, BDC_1, LDFMasterNode ;
+}
+
+Diagnostic_signals {
+  MasterReqB0: 8, 0 ;
+  MasterReqB1: 8, 0 ;
+  MasterReqB2: 8, 0 ;
+  MasterReqB3: 8, 0 ;
+  MasterReqB4: 8, 0 ;
+  MasterReqB5: 8, 0 ;
+  MasterReqB6: 8, 0 ;
+  MasterReqB7: 8, 0 ;
+  SlaveRespB0: 8, 0 ;
+  SlaveRespB1: 8, 0 ;
+  SlaveRespB2: 8, 0 ;
+  SlaveRespB3: 8, 0 ;
+  SlaveRespB4: 8, 0 ;
+  SlaveRespB5: 8, 0 ;
+  SlaveRespB6: 8, 0 ;
+  SlaveRespB7: 8, 0 ;
+}
+
+
+
+Frames {
+  BDC_1_Cmd: 25, LDFMasterNode, 8 {
+    BDC_1_ReqMovePos, 8 ;
+    BDC_1_MoveEnable, 0 ;
+  }
+  BDC_1_Rsp: 17, BDC_1, 8 {
+    BDC_1_RespPos, 16 ;
+    BDC_1_MotorStatus, 15 ;
+    BDC_1_TempWarn, 14 ;
+    BDC_1_voltageErr, 12 ;
+    BDC_1_Fault_Signal, 2 ;
+    BDC_1_Rsp_Comm_Err, 0 ;
+  }
+}
+
+
+
+Diagnostic_frames {
+  MasterReq: 0x3c {
+    MasterReqB0, 0 ;
+    MasterReqB1, 8 ;
+    MasterReqB2, 16 ;
+    MasterReqB3, 24 ;
+    MasterReqB4, 32 ;
+    MasterReqB5, 40 ;
+    MasterReqB6, 48 ;
+    MasterReqB7, 56 ;
+  }
+  SlaveResp: 0x3d {
+    SlaveRespB0, 0 ;
+    SlaveRespB1, 8 ;
+    SlaveRespB2, 16 ;
+    SlaveRespB3, 24 ;
+    SlaveRespB4, 32 ;
+    SlaveRespB5, 40 ;
+    SlaveRespB6, 48 ;
+    SlaveRespB7, 56 ;
+  }
+}
+
+Node_attributes {
+  BDC_1{
+    LIN_protocol = "2.1" ;
+    configured_NAD = 0xC4 ;
+    initial_NAD = 0xC4 ;
+    product_id = 0x124, 0xFFFE, 0 ;
+    P2_min = 50 ms ;
+    ST_min = 0 ms ;
+    N_As_timeout = 1000 ms ;
+    N_Cr_timeout = 1000 ms ;
+    configurable_frames {
+      BDC_1_Cmd ;
+      BDC_1_Rsp ;
+    }
+  }
+}
+
+Schedule_tables {
+ VCU1LIN25DiagRequestSchedule {
+    MasterReq delay 15 ms ;
+  }
+ VCU1LIN25DiagResponseSchedule {
+    SlaveResp delay 15 ms ;
+  }
+ VCU1LinScheduleTable01 {
+    BDC_1_Cmd delay 20 ms ;
+    BDC_1_Rsp delay 20 ms ;
+  }
+}
+
+
+Signal_encoding_types {
+  BDC_1_Fault_Signal_Encoding {
+    logical_value, 0, "No Fault" ;
+    logical_value, 1, "Coil_Open Detected" ;
+    logical_value, 2, "Stall Detected" ;
+    logical_value, 3, "OverTemp Shutdown" ;
+    logical_value, 4, "Coil Short Detected" ;
+  }
+  BDC_1_MoveEnable_Encoding {
+    logical_value, 0, "NoReq" ;
+    logical_value, 1, "ReqMotorMove" ;
+  }
+  BDC_1_Pos_Encoding {
+    physical_value, 0, 255, 0.392, 0, "%" ;
+  }
+  BDC_1_Rsp_Comm_Err_Encoding {
+    logical_value, 0, "No Error" ;
+    logical_value, 1, "LIN Communication Error" ;
+  }
+  BDC_1_TempWarn_Encoding {
+    logical_value, 0, "No Error" ;
+    logical_value, 1, "Temperature Warning" ;
+  }
+  BDC_1_voltageErr_Encoding {
+    logical_value, 0, "No Error" ;
+    logical_value, 1, "overvoltage" ;
+    logical_value, 2, "lackvoltage" ;
+  }
+  MotorStatus_Encoding {
+    logical_value, 0, "Motor Stop" ;
+    logical_value, 1, "Motor Running" ;
+  }
+  Position_Encoding {
+    physical_value, 0, 255, 0.392, 0, "%" ;
+  }
+}
+
+Signal_representation {
+  BDC_1_Fault_Signal_Encoding: BDC_1_Fault_Signal ;
+  BDC_1_MoveEnable_Encoding: BDC_1_MoveEnable ;
+  BDC_1_Pos_Encoding: BDC_1_ReqMovePos, BDC_1_RespPos ;
+  BDC_1_Rsp_Comm_Err_Encoding: BDC_1_Rsp_Comm_Err ;
+  BDC_1_TempWarn_Encoding: BDC_1_TempWarn ;
+  BDC_1_voltageErr_Encoding: BDC_1_voltageErr ;
+  MotorStatus_Encoding: BDC_1_MotorStatus ;
+}

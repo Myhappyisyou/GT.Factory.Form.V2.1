@@ -1,7 +1,6 @@
 ﻿using GT.Factory.Common.Models;
 using GT.Factory.Data.Abstractions;
 using GT.Factory.Data.Core;
-using GT_Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,13 +14,13 @@ namespace GT.Factory.Data.Repository
     /// 
     /// 仅使用 LocalCache 或指定 Access 数据库
     /// </summary>
-    public class AccessUserRepository
+    public class AccessRepository
     {
         private readonly IDatabase _db;
 
-        public AccessUserRepository(DatabaseManager manager)
+        public AccessRepository(DatabaseManager manager)
         {
-            _db = manager.LocalCache
+            _db = manager.Master 
                 ?? throw new Exception("Access 本地数据库未配置");
         }
 
@@ -52,15 +51,15 @@ namespace GT.Factory.Data.Repository
             try
             {
                 string sql = @"
-            INSERT INTO 生产信息
-            (工位名称, 当前工单号, 产品条码,
-             操作人员, 测试时间,
-             测试结果, 测试节拍,
-             测试项名称, 测试项上限,
-             测试项下限, 测试项实际值,
-             更新标识)
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            INSERT INTO 生产信息
+                            (工位名称, 当前工单号, 产品条码,
+                             操作人员, 测试时间,
+                             测试结果, 测试节拍,
+                             测试项名称, 测试项上限,
+                             测试项下限, 测试项实际值,
+                             更新标识)
+                            VALUES
+                            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 for (int i = 0; i < testItemValue.Length; i++)
                 {
@@ -100,42 +99,36 @@ namespace GT.Factory.Data.Repository
 
         #region ✅ 查询生产数据
 
-        public async Task<List<dynamic>> SearchAccessDataAsync(
-            string processNo,
-            DateTime? startTime,
-            DateTime? endTime,
-            string okFlag,
-            string filterColumn,
-            string filterValue)
+        public async Task<List<AccessTestDataDto>> SearchAccessDataAsync(SearchDataPayload payload)
         {
             var sql = new StringBuilder();
             sql.Append("SELECT * FROM 生产信息 WHERE 工位名称 = ?");
 
-            var parameters = new List<object> { processNo };
+            var parameters = new List<object> { payload.ProcessNo };
 
-            if (!string.IsNullOrEmpty(filterColumn) &&
-                !string.IsNullOrEmpty(filterValue))
+            if (!string.IsNullOrEmpty(payload.FilterColumn) &&
+                !string.IsNullOrEmpty(payload.FilterValue))
             {
-                sql.Append($" AND {filterColumn} = ?");
-                parameters.Add(filterValue);
+                sql.Append($" AND {payload.FilterColumn} = ?");
+                parameters.Add(payload.FilterValue);
             }
 
-            if (startTime.HasValue && endTime.HasValue)
+            if (payload.StartTime.HasValue && payload.EndTime.HasValue)
             {
                 sql.Append(" AND 测试时间 >= ? AND 测试时间 <= ?");
-                parameters.Add(startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
-                parameters.Add(endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+                parameters.Add(payload.StartTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+                parameters.Add(payload.EndTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
 
-            if (!string.IsNullOrEmpty(okFlag) && okFlag != "All")
+            if (!string.IsNullOrEmpty(payload.OkFlag) && payload.OkFlag != "All")
             {
                 sql.Append(" AND 测试结果 = ?");
-                parameters.Add(okFlag);
+                parameters.Add(payload.OkFlag);
             }
 
             sql.Append(" ORDER BY ID");
 
-            return await _db.QueryAsync<dynamic>(sql.ToString(), parameters.ToArray());
+            return await _db.QueryAsync<AccessTestDataDto>(sql.ToString(), parameters.ToArray());
         }
 
         #endregion
@@ -206,8 +199,48 @@ namespace GT.Factory.Data.Repository
                 WHERE 工号 = @jobNub
                   AND 用户密码 = @password";
 
-            return await _db.QuerySingleAsync<User>(sql,
+            var row = await _db.QuerySingleAsync<dynamic>(
+                sql,
                 new { jobNub, password });
+
+
+            return new User
+            {
+                ID = Convert.ToInt32(row.ID),
+                UserName = row.用户名?.ToString(),
+                UserPassword = row.用户密码?.ToString(),
+                UserRole = row.用户权限?.ToString(),
+                UID = row.厂牌UID?.ToString(),
+                JobNub = row.工号?.ToString(),
+                MesAccount = row.MES账号?.ToString(),
+                MesPassword = row.MES密码?.ToString()
+            };
+
+        }
+
+        public async Task<User> GetByRoleIdAsync(string userName, string password)
+        {
+            const string sql = @"
+                SELECT *
+                FROM UsersInfor
+                WHERE 用户名 = @userName
+                  AND 用户密码 = @password";
+
+            var row = await _db.QuerySingleAsync<dynamic>(
+                sql,
+                new { userName, password });
+
+            return new User
+            {
+                ID = Convert.ToInt32(row.ID),
+                UserName = row.用户名?.ToString(),
+                UserPassword = row.用户密码?.ToString(),
+                UserRole = row.用户权限?.ToString(),
+                UID = row.厂牌UID?.ToString(),
+                JobNub = row.工号?.ToString(),
+                MesAccount = row.MES账号?.ToString(),
+                MesPassword = row.MES密码?.ToString()
+            };
         }
 
         public async Task<List<User>> GetAllAsync()

@@ -147,5 +147,67 @@ namespace GT.Factory.Data.Providers
         }
 
         #endregion
+
+        /// <summary>
+        /// 执行非查询语句（同步实现）
+        /// </summary>
+        public int Execute(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                conn.Open();
+                return conn.Execute(
+                    ConvertSql(sql),
+                    param);
+            }
+        }
+
+        /// <summary>
+        /// 查询单条数据（同步实现）
+        /// </summary>
+        public T QuerySingle<T>(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                conn.Open();
+                return conn.QuerySingleOrDefault<T>(
+                    ConvertSql(sql),
+                    param);
+            }
+        }
+
+        /// <summary>
+        /// 查询多条数据（同步实现）
+        /// </summary>
+        public List<T> Query<T>(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                conn.Open();
+                var result = conn.Query<T>(
+                    ConvertSql(sql),
+                    param);
+                return result.ToList();
+            }
+        }
+
+        /// <summary>
+        /// 是否连接（同步实现）
+        /// </summary>
+        public bool Ping()
+        {
+            try
+            {
+                using (var conn = CreateConnection())
+                {
+                    conn.Open();
+                    return conn.State == System.Data.ConnectionState.Open;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

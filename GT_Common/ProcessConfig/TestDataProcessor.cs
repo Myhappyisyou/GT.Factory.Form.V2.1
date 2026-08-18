@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Consumables = GT_Common.Model.Consumables;
+using Consumables = GT.Factory.Common.Models.Consumables;
 using SaveItem = GT.Factory.Common.Models.SaveItem;
 using TestDispItem = GT.Factory.Common.Models.TestDispItem;
 
@@ -225,7 +225,7 @@ namespace GT_Common.ProcessConfig
                     ShowOnUI(context);
                     await SendConsumablesTaskAsync(context);
                     StandardProcessSaveToAccess(context, dataItem);
-                    UpdateConsumables(context);
+                    await UpdateConsumables(context);
                     await SendProcessPropertyAsync(context, dataItem);
 
                 }
@@ -336,7 +336,7 @@ namespace GT_Common.ProcessConfig
             //  保存到ACCESS
             //SaveToAccess(context, newList);
 
-            UpdateSHPeriodOrCalibrationValues(context, newList);
+            await UpdateSHPeriodOrCalibrationValues(context, newList);
             //  本地
             await SaveLocally(context, context.Sn, newList);
 
@@ -431,28 +431,40 @@ namespace GT_Common.ProcessConfig
             {
 
                 DatabaseSessionManager.EnsureDatabase();
+                AppRuntime.Current.DataRuntime.Repositories.Access.InsertProcessPropertyAsync(
+                          context.Process.ProcessNo,
+                          Shared.workOrder,
+                          context.MainBar,
+                          Shared.user.JobNub,
+                          testData.Data_result,
+                          context.TaktTime,
+                          testData.Data_name,
+                          testData.Data_up,
+                          testData.Data_down,
+                          testData.Data,
+                          DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                        ).GetAwaiter().GetResult();
 
                 var db = DbContext.CurrentDb;
-
-                bool result = UploadSql.Ac_InsertProcessPropertyWithResult(
-                db,
-                context.Process.ProcessNo,
-                Shared.workOrder,
-                context.MainBar,
-                Shared.user.JobNub,
-                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                testData.Data_result,
-                context.TaktTime,
-                testData.Data_name,
-                testData.Data_up,
-                testData.Data_down,
-                testData.Data
-            );
+                //bool result = UploadSql.Ac_InsertProcessPropertyWithResult(
+                //db,
+                //context.Process.ProcessNo,
+                //Shared.workOrder,
+                //context.MainBar,
+                //Shared.user.JobNub,
+                //DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                //testData.Data_result,
+                //context.TaktTime,
+                //testData.Data_name,
+                //testData.Data_up,
+                //testData.Data_down,
+                //testData.Data
+                //);
             }
         }
 
         //  更新本地Access易损件
-        private void UpdateConsumables(ProcessContext context)
+        private async Task UpdateConsumables(ProcessContext context)
         {
             try
             {
@@ -463,7 +475,8 @@ namespace GT_Common.ProcessConfig
                 foreach (var item in _consumables)
                 {
                     
-                    UploadSql.Ac_UpdateConsumables(db, item);
+                    //UploadSql.Ac_UpdateConsumables(db, item);
+                    await AppRuntime.Current.DataRuntime.Repositories.Access.UpdateConsumableUsageAsync(item);
                 }
 
                 DisplayLog.Info($"流程 【{context.Process.Name}】 {context.MainBar}更新易损件信息成功", true);
@@ -493,14 +506,18 @@ namespace GT_Common.ProcessConfig
         }
 
         //  点检数据上传
-        private void UpdateSHPeriodOrCalibrationValues(ProcessContext context, List<SaveItem> testData)
+        private async Task UpdateSHPeriodOrCalibrationValues(ProcessContext context, List<SaveItem> testData)
         {
-            UploadSql.UpdateSHPeriodOrCalibrationValues(
-                context.Sn,
-                context.Process.ProcessNo.Substring(0,5),
+            //UploadSql.UpdateSHPeriodOrCalibrationValues(
+            //    context.Sn,
+            //    context.Process.ProcessNo.Substring(0,5),
+            //    DateTime.Now.ToString(),
+            //    testData
+            //    );
+            await AppRuntime.Current.DataRuntime.Repositories.Processes.UpdateSHPeriodOrCalibrationValues(context.Sn,
+                context.Process.ProcessNo.Substring(0, 5),
                 DateTime.Now.ToString(),
-                testData
-                );
+                testData);  
         }
 
         //  缓存绑定

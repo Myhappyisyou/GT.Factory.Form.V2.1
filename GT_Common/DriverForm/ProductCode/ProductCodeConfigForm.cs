@@ -1,4 +1,6 @@
-﻿using GT_Common.DriverForm.InputDialog;
+﻿using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
+using GT_Common.DriverForm.InputDialog;
 using GT_Common.Helper;
 using System;
 using System.Collections.Generic;
@@ -12,19 +14,12 @@ namespace GT_Common.DriverForm.ProductCode
 {
     public partial class ProductCodeConfigForm : Form
     {
-        private SplitContainer split;
+
+        private UIConfigPage page;
         private TreeView tree;
         private DataGridView grid;
+
         private BindingList<ProductCodeRule> list;
-
-        private FlowLayoutPanel panel;
-        private Button btnSave;
-        private Button btnAdd;
-        private Button btnDelete;
-        private Button btnTest;
-
-        private StatusStrip status;
-        private ToolStripStatusLabel lblStatus;
 
         private ContextMenuStrip treeMenu;
 
@@ -38,6 +33,7 @@ namespace GT_Common.DriverForm.ProductCode
         }
 
         #region UI初始化
+
         private void InitUI()
         {
             this.Text = "产品码规则配置";
@@ -45,21 +41,18 @@ namespace GT_Common.DriverForm.ProductCode
             this.Height = 650;
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            #region Split（关键：固定模式）
-            split = new SplitContainer();
-            split.Dock = DockStyle.Fill;
-            split.Orientation = Orientation.Vertical;
+            // ✅ 用 UIConfigPage
+            page = new UIConfigPage("产品码规则配置");
+            page.Dock = DockStyle.Fill;
 
-            //split.Panel1MinSize = 180;
-            //split.Panel2MinSize = 400;
-            #endregion
+            this.Controls.Add(page);
 
-            #region Tree
-            tree = new TreeView();
-            tree.Dock = DockStyle.Fill;
+            // ===== Tree =====
+            tree = page.Tree;
             tree.AfterSelect += Tree_AfterSelect;
 
             treeMenu = new ContextMenuStrip();
+
             var addModel = new ToolStripMenuItem("新增型号");
             addModel.Click += AddModel_Click;
 
@@ -70,56 +63,13 @@ namespace GT_Common.DriverForm.ProductCode
             treeMenu.Items.Add(copyModel);
 
             tree.ContextMenuStrip = treeMenu;
-            #endregion
 
-            #region Grid
-            grid = new DataGridView();
-            grid.Dock = DockStyle.Fill;
+            // ===== Grid =====
+            grid = page.Grid;
             grid.AutoGenerateColumns = false;
             grid.AllowUserToAddRows = false;
 
             InitGridColumns();
-            #endregion
-
-            #region 按钮
-            panel = new FlowLayoutPanel();
-            panel.Dock = DockStyle.Bottom;
-            panel.Height = 40;
-
-            btnAdd = new Button { Text = "新增" };
-            btnDelete = new Button { Text = "删除" };
-            btnSave = new Button { Text = "保存" };
-            btnTest = new Button { Text = "扫码测试" };
-            btnDelete.Enabled = false;
-
-            btnAdd.Click += BtnAdd_Click;
-            btnDelete.Click += BtnDelete_Click;
-            btnSave.Click += BtnSave_Click;
-            btnTest.Click += (s, e) => new ScanTestForm().ShowDialog();
-
-            panel.Controls.Add(btnAdd);
-            panel.Controls.Add(btnDelete);
-            panel.Controls.Add(btnSave);
-            panel.Controls.Add(btnTest);
-            #endregion
-
-            #region 状态栏
-            status = new StatusStrip();
-            lblStatus = new ToolStripStatusLabel();
-            status.Items.Add(lblStatus);
-            #endregion
-
-            split.Panel1.Controls.Add(tree);
-            split.Panel2.Controls.Add(grid);
-            split.Panel2.Controls.Add(panel);
-
-            this.Controls.Add(split);
-            this.Controls.Add(status);
-
-            grid.SelectionChanged += (s, e) =>
-            {
-                btnDelete.Enabled = grid.SelectedRows.Count > 0;
-            };
 
             grid.CellValueChanged += Grid_CellValueChanged;
             grid.CurrentCellDirtyStateChanged += (s, e) =>
@@ -128,12 +78,31 @@ namespace GT_Common.DriverForm.ProductCode
                     grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
             };
 
-            this.Load += (s, e) =>
+            // ===== 按钮 =====
+            var btnAdd = UIButton.Primary("新增");
+            var btnDelete = UIButton.Primary("删除");
+            var btnSave = UIButton.Primary("保存");
+            var btnTest = UIButton.Primary("扫码测试");
+
+            btnDelete.Enabled = false;
+
+            btnAdd.Click += BtnAdd_Click;
+            btnDelete.Click += BtnDelete_Click;
+            btnSave.Click += BtnSave_Click;
+            btnTest.Click += (s, e) => new ScanTestForm().ShowDialog();
+
+            grid.SelectionChanged += (s, e) =>
             {
-                // 窗体加载完成后设置 SplitterDistance
-                split.SplitterDistance = 260;
+                btnDelete.Enabled = grid.SelectedRows.Count > 0;
             };
+
+            page.AddButton(btnAdd);
+            page.AddButton(btnDelete);
+            page.AddButton(btnSave);
+            page.AddButton(btnTest);
+
         }
+
         #endregion
 
         #region Load
@@ -144,6 +113,7 @@ namespace GT_Common.DriverForm.ProductCode
         #endregion
 
         #region Grid列
+
         private void InitGridColumns()
         {
             grid.Columns.Add(new DataGridViewComboBoxColumn
@@ -192,41 +162,10 @@ namespace GT_Common.DriverForm.ProductCode
                 Width = 60
             });
         }
+
         #endregion
 
         #region Tree加载
-
-        //private void LoadTree()
-        //{
-        //    tree.Nodes.Clear();
-
-        //    var models = ProductCodeConfig.Instance.Rules
-        //        .Select(x => x.Model)
-        //        .Distinct()
-        //        .ToList();
-
-        //    foreach (var model in models)
-        //    {
-        //        var modelNode = new TreeNode(model);
-        //        modelNode.Tag = new TreeTag { Model = model };
-
-        //        foreach (CodeType type in Enum.GetValues(typeof(CodeType)))
-        //        {
-        //            var node = new TreeNode(EnumHelper.GetDescription(type));
-        //            node.Tag = new TreeTag
-        //            {
-        //                Model = model,
-        //                CodeType = type
-        //            };
-
-        //            modelNode.Nodes.Add(node);
-        //        }
-
-        //        tree.Nodes.Add(modelNode);
-        //    }
-
-        //    tree.ExpandAll();
-        //}
 
         private void LoadTree()
         {
@@ -280,7 +219,10 @@ namespace GT_Common.DriverForm.ProductCode
             currentModel = tag.Model;
             currentType = tag.CodeType;
 
-            lblStatus.Text = $"当前：{currentModel} / {(currentType?.ToString() ?? "全部")}";
+            //lblStatus.Text = $"当前：{currentModel} / {(currentType?.ToString() ?? "全部")}";
+
+            string partName = currentType.HasValue ? CodeTypeHelper.GetPartName(currentType.Value) : null;
+            page.SetStatus($"当前：{currentModel} / {partName ?? "全部"}");
 
             RefreshGrid();
         }
@@ -400,6 +342,7 @@ namespace GT_Common.DriverForm.ProductCode
         }
 
         #endregion
+
         #region 操作
         private void BtnAdd_Click(object sender, EventArgs e)
         {
@@ -475,7 +418,10 @@ namespace GT_Common.DriverForm.ProductCode
 
             ProductCodeConfig.Save();
 
-            lblStatus.Text = "保存成功 ✔";
+            //lblStatus.Text = "保存成功 ✔";
+
+            page.SetStatus("保存成功 ✔");
+
             LoadTree();
         }
         #endregion

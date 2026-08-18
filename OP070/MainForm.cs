@@ -53,7 +53,7 @@ namespace OP070
         }
 
         // 重写初始化
-        protected override void InitControlEngine()
+        protected override async Task InitControlEngine()
         {
             if (controlEngine != null)
             {
@@ -65,7 +65,7 @@ namespace OP070
                 PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
 
             controlEngine = new ControlEngine_new();
-            controlEngine.Init();
+            await controlEngine.Init();
         }
 
         protected override ControlEngineBase CreateControlEngine()
@@ -124,7 +124,7 @@ namespace OP070
         /// <param name="e"></param>
         private void tsm_BatchConfigFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (BatchConfigForm?.IsDisposed != false)
                     BatchConfigForm = new BatchConfigForm();

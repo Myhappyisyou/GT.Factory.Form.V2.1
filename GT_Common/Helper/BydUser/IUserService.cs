@@ -21,10 +21,16 @@ namespace GT_Common.Helper.BydUser
 
     public interface IUserService
     {
+        //  通过UID号获取用户信息
         Task<User> GetUserByCard(string cardId);
 
+        //  通过账号密码获取用户信息
         Task<User> GetUserByLogin(string username, string password);
 
+        //  通过账号密码获取用户信息
+        Task<User> GetUserByRoleId(string username, string password);
+
+        //  上传用户登录信息
         Task InsertUserSwipeLog(User user);
     }
 }

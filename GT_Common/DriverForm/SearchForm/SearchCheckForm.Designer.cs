@@ -26,15 +26,13 @@
         {
             this.SuspendLayout();
             // 
-            // SearchForm
+            // SearchCheckForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1141, 638);
-            this.Name = "SearchForm";
+            this.Name = "SearchCheckForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "数据查询";
-            this.Load += new System.EventHandler(this.SearchForm_Load);
             this.ResumeLayout(false);
 
         }

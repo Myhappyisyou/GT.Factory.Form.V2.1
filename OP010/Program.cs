@@ -1,5 +1,6 @@
 ﻿using GT_Common;
 using GT_Common.DriverForm.Aynettek;
+using GT_Common.DriverForm.Login;
 using GT_Common.Helper;
 using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
@@ -41,25 +42,45 @@ namespace OP010
 
             try
             {
-                using (var loginForm =
-                    new LoginForm(
-                        new RfidService(),
-                        new UserApiService(
-                            Config.Instance.ServerApi,
-                            Config.Instance.ServerDbtask),
-                        new MesService(),
-                        new LocalUserService(),
-                        LocalConfig.Instance.UIDIP,
-                        LocalConfig.Instance.UIDPort))
+                //using (var loginForm =
+                //    new LoginForm(
+                //        new RfidService(),
+                //        new UserApiService(
+                //            Config.Instance.ServerApi,
+                //            Config.Instance.ServerDbtask),
+                //        new MesService(),
+                //        new LocalUserService(),
+                //        LocalConfig.Instance.UIDIP,
+                //        LocalConfig.Instance.UIDPort))
+                var localConfig = Config.Instance;
+
+                // 校验登录配置
+                localConfig.Login.Validate();
+
+                // 初始化 RFID（如果启用）
+                if (localConfig.EnableCardReader)
                 {
+                    //rfidService.Init(localConfig.UIDIP, localConfig.UIDPort);
+                }
+
+                var loginService = new LoginService(
+                    AppRuntime.Current.LocalUserService,
+                    AppRuntime.Current.UserApiService,
+                    AppRuntime.Current.MesService);
+
+                var providers = IdentityProviderFactory.CreateProviders(
+                    localConfig.Login,
+                    loginService,
+                    AppRuntime.Current.RfidService);
+
+                var loginForm = new GT_Common.DriverForm.Login.LoginForm(providers);
 
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
-                        AuthHelper.RecordLogin(loginForm.currentUser);
+                        AuthHelper.RecordLogin(loginForm.CurrentUser);
 
                         Application.Run(new MainForm());
                     }
-                }
             }
             catch (Exception ex)
             {

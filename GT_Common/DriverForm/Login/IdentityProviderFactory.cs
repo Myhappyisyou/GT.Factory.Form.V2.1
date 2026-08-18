@@ -22,11 +22,11 @@ namespace GT_Common.DriverForm.Login
                 switch (type)
                 {
                     case IdentityType.AccountPassword:
-                        providers.Add(new AccountIdentityProvider(loginService,false));
+                        providers.Add(new AccountIdentityProvider(loginService, false));
                         break;
 
                     case IdentityType.Card:
-                        providers.Add(new CardIdentityProvider(loginService, rfidService,false));
+                        providers.Add(new CardIdentityProvider(loginService, rfidService, false));
                         break;
 
                     case IdentityType.RoleSelect:

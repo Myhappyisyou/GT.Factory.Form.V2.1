@@ -240,7 +240,7 @@ namespace GT_Common
             }
 
             // 🔥 兜底本地 Access
-            return _localUserService.GetUserByCard(cardId);
+            return await _localUserService.GetUserByCard(cardId);
         }
 
         private async Task<User> TryGetUserByLogin(string username, string password)
@@ -256,7 +256,7 @@ namespace GT_Common
             //}
 
             // 本地兜底
-            return _localUserService.GetUserByLogin(username, password);
+            return await _localUserService.GetUserByLogin(username, password);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

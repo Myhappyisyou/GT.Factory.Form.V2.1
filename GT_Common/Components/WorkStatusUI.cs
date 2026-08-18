@@ -1,4 +1,6 @@
-﻿using GT_Common.Helper.UIHelp;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
+using GT_Common.Helper.UIHelp;
 using GT_Common.Util;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,8 @@ namespace GT_Common.Components
             CreateFakeMergedTable();
 
             UiRefreshCenter.OnRefresh += RefreshUI;
+
+            //UIStyle.ApplyWidget(this);
 
             mergedGridView.SizeChanged += (s, e) => mergedGridView.ResizeRowHeights();
 
@@ -122,6 +126,8 @@ namespace GT_Common.Components
             mergedGridView.DefaultCellStyle.SelectionBackColor = mergedGridView.DefaultCellStyle.BackColor;
             mergedGridView.DefaultCellStyle.SelectionForeColor = mergedGridView.DefaultCellStyle.ForeColor;
 
+            //UIGrid.ApplyGrid(mergedGridView);
+
             mainLayout.Controls.Add(mergedGridView);
 
             this.Controls.Add(mainLayout);
@@ -163,10 +169,31 @@ namespace GT_Common.Components
                 if (col == 1 && row == 1) // Col3
                 {
 
-                        return Color.LightBlue;
+                    return Color.LightBlue;
                 }
                 return null;
             };
+
+            //mergedGridView.CellForeColorProvider = (row, col) =>
+            //{
+            //    if (col == 3) // Col3
+            //    {
+            //        var value = Shared.dataList[row].Col3;
+
+            //        if (value == "单机")
+            //            return Color.FromArgb(255, 199, 206);
+
+            //        if (value == "MES")
+            //            return Color.LightGreen;
+            //    }
+
+            //    //if (col == 1 && row == 1) // Col3
+            //    //{
+
+            //    //        return Color.LightBlue;
+            //    //}
+            //    return null;
+            //};
         }
 
         // 批量更新多行数据（复用对象+触发通知）

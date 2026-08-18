@@ -13,6 +13,12 @@ namespace GT.Factory.Common.Models
         public string Password { get; set; }
     }
 
+    public class RoleIdLoginRequest
+    {
+        public string UserName { get; set; }
+        public string Password { get; set; }
+    }
+
     public class LoginCardRequest
     {
         public string UID { get; set; }

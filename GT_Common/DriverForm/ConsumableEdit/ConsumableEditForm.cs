@@ -1,5 +1,5 @@
-﻿using GT_Common;
-using GT_Common.Helper;
+﻿using GT.Factory.Data.Core;
+using GT.Factory.Common.Models;
 using GT_Common.Helper.ClientTask;
 using GT_Common.Helper.QueryClient;
 using GT_Common.Model;
@@ -14,8 +14,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
-using TaskContracts.Models;
-using Consumables = TaskContracts.Models.Consumables;
+using Consumables = GT.Factory.Common.Models.Consumables;
+using GT.Factory.Common.Helper;
+
+//using Consumables = TaskContracts.Models.Consumables;
 
 namespace GT_Common.DriverForm.ConsumableEdit
 {
@@ -53,8 +55,9 @@ namespace GT_Common.DriverForm.ConsumableEdit
 
         private readonly ConsumablesApiClient _client;
         private readonly ClientTaskSender _clientTaskSender;
+        private readonly DataRuntime _dataRuntime;
 
-        public ConsumableEditForm(string process_no, string serverUrl, string taskServerUrl)
+        public ConsumableEditForm(string process_no, string serverUrl, string taskServerUrl, DataRuntime dataRuntime)
         {
             InitializeComponent();
 
@@ -67,6 +70,8 @@ namespace GT_Common.DriverForm.ConsumableEdit
             _process_no = process_no;
             _client = new ConsumablesApiClient(serverUrl);
             _clientTaskSender = new ClientTaskSender(taskServerUrl);
+            _dataRuntime = dataRuntime;
+
         }
 
         private void InitializeUI()
@@ -88,7 +93,7 @@ namespace GT_Common.DriverForm.ConsumableEdit
             };
             deviceGrid.CellFormatting += DataGridView1_CellFormatting;
             btnLoad.Click += async (s, e) => await LoadConfigAsync();
-            btnSave.Click += async (s, e) => SaveConfigAsync();
+            btnSave.Click += async (s, e) => await SaveConfigAsync();
 
             // 加载布局
 
@@ -159,7 +164,9 @@ namespace GT_Common.DriverForm.ConsumableEdit
                 deviceGrid.EndEdit();
 
                 // 异步等待，不阻塞 UI
-                List<Consumables> consumables = await _client.GetProcessNoConsumablesAsync(_process_no);
+                //List<Consumables> consumables = await _client.GetProcessNoConsumablesAsync(_process_no);
+
+                List<Consumables> consumables = await _dataRuntime.Repositories.Access.GetByStationAsync(_process_no);
 
                 // 检查并提示耗材
                 CommMethod.CheckAndAlertConsumables(consumables);
@@ -202,14 +209,10 @@ namespace GT_Common.DriverForm.ConsumableEdit
                     };
 
                     // 异步保存，不阻塞 UI
-                    await _client.InsertOrUpdateConsumableAsync(consumable);
+                    //await _client.InsertOrUpdateConsumableAsync(consumable);
+                    await _dataRuntime.Repositories.Access.UpdateConsumableUsageAsync(consumable);
 
-                    DatabaseSessionManager.EnsureDatabase();
-
-                    var db = DbContext.CurrentDb;
-
-                    UploadSql.Ac_UpdateConsumables(db, consumable.ToLocalConsumable());
-
+                   
                 }
                 catch (Exception ex)
                 {
@@ -221,6 +224,7 @@ namespace GT_Common.DriverForm.ConsumableEdit
             // 保存完成后刷新列表
             await LoadConfigAsync();
         }
+
         private string GetCellValue(DataGridViewRow row, string columnName)
         {
             return row.Cells[columnName]?.Value?.ToString() ?? string.Empty;
@@ -304,7 +308,9 @@ namespace GT_Common.DriverForm.ConsumableEdit
                 {
                     try
                     {
-                        await _client.DeleteConsumableAsync(item); // 异步删除
+                        //await _client.DeleteConsumableAsync(item); // 异步删除
+                        await _dataRuntime.Repositories.Access.DeleteAsync(item.ID); // 异步删除
+
                         bindingList.Remove(item);
                     }
                     catch (Exception ex)

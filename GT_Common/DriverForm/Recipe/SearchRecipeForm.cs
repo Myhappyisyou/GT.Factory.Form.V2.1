@@ -1,6 +1,9 @@
-﻿using GT_Common.MyEnum;
-using GT_Common.DriverForm.Recipe.RecipeParameter;
+﻿using GT.Factory.UI.Component;
+using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
 using GT_Common;
+using GT_Common.DriverForm.Recipe.RecipeParameter;
+using GT_Common.MyEnum;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
@@ -17,7 +20,10 @@ namespace GT_Common.DriverForm.Recipe
 {
     public partial class SearchRecipeForm : Form
     {
+        private UIToolPage page;
+
         private LimitConfig config = new LimitConfig();
+
         private DataGridView dgv;
         public SearchRecipeForm()
         {
@@ -25,7 +31,6 @@ namespace GT_Common.DriverForm.Recipe
             InitializeUI();
             this.Load += (s, e) =>
             {
-                ApplyUiTheme();
                 LoadConfig();
                 LoadOperatorView();
             };
@@ -37,28 +42,21 @@ namespace GT_Common.DriverForm.Recipe
             Width = 600;
             Height = 800;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(245, 247, 250); // 浅灰蓝色系，柔和眼睛
 
-            dgv = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                RowHeadersVisible = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None
-            };
-
-            Controls.Add(dgv);
+            InitUI();
         }
 
-        private void ApplyUiTheme()
+        private void InitUI()
         {
-            // 窗体背景
-            this.BackColor = Color.FromArgb(245, 247, 250);
+            page = new UIToolPage();
+
+            var btnLoad = UIButton.Primary("加载");
+
+            btnLoad.Click += (s, e) => LoadOperatorView();
+
+            page.AddButton(btnLoad, true);
+
+            Controls.Add(page);
         }
 
         private void LoadConfig()
@@ -87,12 +85,12 @@ namespace GT_Common.DriverForm.Recipe
                 }
             }
 
-            dgv.DataSource = list;
+            page.Grid.DataSource = list;
 
-            dgv.Columns["Name"].HeaderText = "参数";
-            dgv.Columns["Down"].HeaderText = "下限";
-            dgv.Columns["Up"].HeaderText = "上限";
-            dgv.Columns["Unit"].HeaderText = "单位";
+            page.Grid.Columns["Name"].HeaderText = "参数";
+            page.Grid.Columns["Down"].HeaderText = "下限";
+            page.Grid.Columns["Up"].HeaderText = "上限";
+            page.Grid.Columns["Unit"].HeaderText = "单位";
         }
     }
 

@@ -2,7 +2,10 @@
 using GT.Factory.Common.Helper;
 using GT.Factory.Data.Abstractions;
 using GT.Factory.Data.Core;
+using MySqlConnector;
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace GT.Factory.Data.Repository
@@ -68,6 +71,44 @@ namespace GT.Factory.Data.Repository
                     new { mainBar, processNo, partName, partBar });
             }
         }
+
+        /// <summary>
+        /// 绑定单个零件（不存在则插入，存在则更新）
+        /// </summary>
+        public async Task UploadSinglePartAsync(string bar_no, string processNo, string partName, string partBar)
+        {
+            if (string.IsNullOrWhiteSpace(partName) || string.IsNullOrWhiteSpace(partBar))
+                throw new ArgumentException($"产品码{bar_no}零件信息不完整");
+
+            string sql = @"
+                        IF NOT EXISTS(SELECT id FROM GTProcessPart 
+                                     WHERE main_bar = @mainBar 
+                                     AND process_no = @processNo 
+                                     AND part_name = @partName)
+                        BEGIN
+                            INSERT INTO GTProcessPart(main_bar, process_no, part_name, part_bar) 
+                            VALUES(@mainBar, @processNo, @partName, @partBar)
+                        END
+                        ELSE
+                        BEGIN
+                            UPDATE GTProcessPart 
+                            SET part_bar = @partBar 
+                            WHERE main_bar = @mainBar 
+                            AND process_no = @processNo 
+                            AND part_name = @partName
+                        END";
+
+            var parameters = new[]
+            {
+                new SqlParameter("@mainBar", bar_no),
+                new SqlParameter("@processNo", processNo),
+                new SqlParameter("@partName", partName),
+                new SqlParameter("@partBar", partBar)
+            };
+
+            await _db.ExecuteAsync(sql, parameters);
+        }
+
 
         #endregion
 

@@ -38,26 +38,27 @@ namespace OP070
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // 初始化应用环境
+            var runtime = new AppRuntime();
 
             try
             {
-                using (var loginForm =
-                    new LoginForm(
-                        new RfidService(),
-                        new UserApiService(
-                            Config.Instance.ServerApi,
-                            Config.Instance.ServerDbtask),
-                        new MesService(),
-                        new LocalUserService(),
-                        LocalConfig.Instance.UIDIP,
-                        LocalConfig.Instance.UIDPort))
+                // ✅ 只有简单干脆的一处 using
+                using (var loginForm = AuthHelper.CreateLoginForm())
                 {
-
+                    // ✅ 只调用一次 ShowDialog
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
-                        AuthHelper.RecordLogin(loginForm.currentUser);
+                        AuthHelper.RecordLogin(loginForm.CurrentUser);
+
+                        Shared.user = AuthHelper.CurrentUser;
 
                         Application.Run(new MainForm());
+                    }
+                    else
+                    {
+                        // 用户点了右上角 X 退出，直接结束程序
+                        Application.Exit();
                     }
                 }
             }

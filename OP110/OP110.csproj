@@ -110,6 +110,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.Data\GT.Factory.Data.csproj">
+      <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
+      <Name>GT.Factory.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GT_Common\GT_Common.csproj">
       <Project>{28369A6E-46FA-41B6-893A-6D970A890047}</Project>
       <Name>GT_Common</Name>

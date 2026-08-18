@@ -1,6 +1,7 @@
 ﻿using GT.Factory.Common.Enums;
 using GT.Factory.Common.Models;
 using GT_Common.DriverForm.Aynettek;
+using GT_Common.DriverForm.Login;
 using GT_Common.Helper.BydMes;
 using GT_Common.Helper.BydUser;
 using System;
@@ -33,12 +34,31 @@ namespace GT_Common.Helper
             _lastLoginTime = DateTime.Now;
         }
 
+        // ✅ 提取公共方法：生成配置好的登录窗体
+        public static DriverForm.Login.LoginForm CreateLoginForm()
+        {
+            var localConfig = Config.Instance;
+            localConfig.Login.Validate();
+
+            var loginService = new LoginService(
+                AppRuntime.Current.LocalUserService,
+                AppRuntime.Current.UserApiService,
+                AppRuntime.Current.MesService);
+
+            var providers = IdentityProviderFactory.CreateProviders(
+                localConfig.Login,
+                loginService,
+                AppRuntime.Current.RfidService);
+
+            return new DriverForm.Login.LoginForm(providers);
+        }
+
         /// <summary>
         /// 统一权限验证方法
         /// </summary>
         /// <param name="minLevel">所需最低权限</param>
         /// <param name="onSuccess">验证成功后的操作</param>
-        public static void RequireLogin(UserLevel minLevel, string addr, int port, Action<User> onSuccess)
+        public static void RequireLogin(UserLevel minLevel, Action<User> onSuccess)
         {
             bool isValid = _lastUser != null &&
                      (!EnableTimeout || DateTime.Now - _lastLoginTime < _timeout);
@@ -60,20 +80,20 @@ namespace GT_Common.Helper
             }
 
             // 否则要求重新登录
-            using (var loginForm = new LoginForm(new RfidService(), new UserApiService(Config.Instance.ServerApi, Config.Instance.ServerDbtask), new MesService(), new LocalUserService(), addr, port))
+            // ✅ 优雅调用，并使用 using 释放资源
+            using (var loginForm = CreateLoginForm())
             {
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    var user = loginForm.currentUser;
+                    var user = loginForm.CurrentUser;
                     if (user.LevelEnum >= minLevel)
                     {
-                        _lastUser = user;
-                        _lastLoginTime = DateTime.Now;
+                        RecordLogin(user); // 记录登录状态
                         onSuccess?.Invoke(user);
                     }
                     else
                     {
-                        MessageBox.Show($"权限不足，需要 {minLevel} 级及以上权限！当前用户等级：{user.UserRole}", "权限验证失败");
+                        MessageBox.Show($"权限不足，需要 {minLevel} 级及以上权限！", "验证失败");
                     }
                 }
                 else
@@ -81,6 +101,7 @@ namespace GT_Common.Helper
                     MessageBox.Show("用户未登录，操作已取消。", "提示");
                 }
             }
+
         }
 
         /// <summary>

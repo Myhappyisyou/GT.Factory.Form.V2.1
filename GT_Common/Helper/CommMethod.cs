@@ -1,5 +1,4 @@
-﻿
-using GT.Factory.Common.Enums;
+﻿using GT.Factory.Common.Enums;
 using GT_Common.Model;
 using GT_Common.MyEnum;
 using GT_Common.ProcessConfig;
@@ -256,8 +255,6 @@ namespace GT_Common.Helper
 
         #endregion
 
-
-
         #region PLC 数据解析（稳定、单一职责）
 
         public static List<PlcTestGroup> ParsePlcData(List<PlcMeasureGroup> groups)
@@ -369,7 +366,20 @@ namespace GT_Common.Helper
             }
         }
 
-        public static void SyncFieldConfig(StandardProcess[] processes, String process_no)
+        private static async Task SaveAsync(string processNo,
+                                            int index,
+                                            string fieldNameCn)
+        {
+            await AppRuntime.Current.DataRuntime.Repositories.Processes.SaveFieldAsync(processNo,
+                $"data{index:D3}",
+                fieldNameCn);
+            //UploadSql.SaveField(
+            //    processNo,
+            //    $"data{index++:D3}",
+            //    fieldNameCn);
+        }
+
+        public static async Task SyncFieldConfigAsync(StandardProcess[] processes, String process_no)
         {
             if (processes == null || processes.Length == 0)
                 return;
@@ -390,34 +400,13 @@ namespace GT_Common.Helper
 
                     foreach (var group in process.PlcReadConfig.MeasureGroups)
                     {
-                        Save(processNo,
-                             ref index,
-                             $"{group.Name}上限");
-
-                        Save(processNo,
-                             ref index,
-                             $"{group.Name}下限");
-
-                        Save(processNo,
-                             ref index,
-                             $"{group.Name}实际值");
-
-                        Save(processNo,
-                             ref index,
-                             $"{group.Name}测试结果");
+                        await SaveAsync(processNo, index++, $"{group.Name}上限");
+                        await SaveAsync(processNo, index++, $"{group.Name}下限");
+                        await SaveAsync(processNo, index++, $"{group.Name}实际值");
+                        await SaveAsync(processNo, index++, $"{group.Name}测试结果");
                     }
                 }
             }
-        }
-
-        private static void Save(string processNo,
-                                 ref int index,
-                                 string fieldNameCn)
-        {
-            UploadSql.SaveField(
-                processNo,
-                $"data{index++:D3}",
-                fieldNameCn);
         }
         #endregion
 

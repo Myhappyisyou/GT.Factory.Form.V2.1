@@ -106,7 +106,7 @@ namespace OP110
         /// <param name="e"></param>
         private void tsm_BatchConfigFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE,  user =>
             {
                 if (BatchConfigForm?.IsDisposed != false)
                     BatchConfigForm = new BatchConfigForm();

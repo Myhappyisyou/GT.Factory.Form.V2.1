@@ -1,6 +1,8 @@
 ﻿using GT.Factory.Common.Models;
 using GT.Factory.Data.Core;
 using GT.Factory.Data.Repository;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GT.Factory.Data.Service
@@ -44,6 +46,34 @@ namespace GT.Factory.Data.Service
             {
                 await _syncRepo.InsertAsync("GTProcessProperty", payload);
             }
+        }
+
+        public async Task UploadFileAsync(ProcessFilePayload payload)
+        {
+            try
+            {
+                await _primaryRepo.UploadProcessFile(payload);
+            }
+            catch
+            {
+                await _syncRepo.InsertAsync("GTProcessProperty", payload);
+            }
+        }
+
+        /// <summary>
+        /// 根据条件查询生产数据
+        /// </summary>
+        public async Task<List<dynamic>> SearchDataAsync(SearchDataPayload payload)
+        {
+            return await _primaryRepo.SearchDataAsync(payload);
+        }
+
+        /// <summary>
+        /// 根据条件查询校准数据
+        /// </summary>
+        public async Task<List<dynamic>> SelectCalibrationAsync(string process_no, DateTime? start_time, DateTime? end_time)
+        {
+            return await _primaryRepo.SelectCalibration(process_no, start_time, end_time);
         }
     }
 }

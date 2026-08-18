@@ -157,9 +157,18 @@ namespace GT.Factory.Common.Enums
         Period,
 
         [Description("ProcessCalibration")]
-        Calibration
+        Calibration,
+
+        [Description("ProcessFile")]
+        ProcessFile,
+
+        [Description("ProcessResultCodeParse")]
+        ProcessResultCodeParse
     }
 
 
     #endregion
+
+   
+
 }

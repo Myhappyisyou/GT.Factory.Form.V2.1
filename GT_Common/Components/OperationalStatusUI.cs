@@ -1,4 +1,7 @@
-﻿using GT_Common.Helper;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
+using GT.Factory.UI.Theme;
+using GT_Common.Helper;
 using GT_Common.Helper.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,6 +26,8 @@ namespace GT_Common.Components
             this.AutoSize = true;
             InitializeComponent();
             InitFormLayout();
+
+            //UIStyle.ApplyWidget(this);
         }
 
         private void InitFormLayout()
@@ -48,7 +53,7 @@ namespace GT_Common.Components
 
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));   // Data grid
 
-            var lbTtileName = new Label()
+            var lbTitleName = new Label()
             {
                 AutoSize = false,
                 Text = "运行\n状态",
@@ -59,12 +64,16 @@ namespace GT_Common.Components
                 ForeColor = Color.FromArgb(40, 40, 40),
             };
 
+            //var lbTtileName = new UIVerticalTitle("运行状态");
+
             var rtbox = new RichTextBox()
             {
                 AutoSize = false,
                 ScrollBars= (RichTextBoxScrollBars)ScrollBars.Vertical,
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.FixedSingle,
+                //BackColor = UITheme.Card,
+                //ForeColor = UITheme.Text,
                 BackColor = Color.White,
                 ForeColor = Color.FromArgb(30, 30, 30),
             };
@@ -78,7 +87,7 @@ namespace GT_Common.Components
             //        new RichTextBoxLogDisplay(rtbox)
             //        );
 
-            mainLayout.Controls.Add(lbTtileName, 0, 0);
+            mainLayout.Controls.Add(lbTitleName, 0, 0);
 
             mainLayout.Controls.Add(rtbox, 1, 0);
 

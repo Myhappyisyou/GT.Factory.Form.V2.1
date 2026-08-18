@@ -1,6 +1,6 @@
-﻿using GT_Common;
+﻿using GT.Factory.Common.Models;
+using GT_Common;
 using GT_Common.Helper.Logging;
-using GT_Common.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +12,7 @@ namespace GT_Common.Helper
 {
     public static class DatabaseInitializer
     {
-        public static void InitMonthlyDatabase(AccessMdbHelper newDb, bool isNew)
+        public static async Task InitMonthlyDatabase(AccessMdbHelper newDb, bool isNew)
         {
             if (!isNew) return;
 
@@ -25,7 +25,8 @@ namespace GT_Common.Helper
 
             using (var oldDb = new AccessMdbHelper(prevPath))
             {
-                oldData = UploadSql.Ac_SelectAllConsumables(oldDb);
+                oldData = await AppRuntime.Current.DataRuntime.Repositories.Access.GetAllConsumableAsync();
+                //oldData = UploadSql.Ac_SelectAllConsumables(oldDb);
             }
 
             if (oldData == null || oldData.Count == 0)
@@ -33,7 +34,9 @@ namespace GT_Common.Helper
 
             foreach (var item in oldData)
             {
-                UploadSql.InsertOrUpdateConsumablesInfor(newDb, item);
+                await AppRuntime.Current.DataRuntime.Repositories.Access.UpdateConsumableUsageAsync(item);
+
+                //UploadSql.InsertOrUpdateConsumablesInfor(newDb, item);
             }
 
             DisplayLog.Info("跨月 Consumables 迁移完成");

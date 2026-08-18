@@ -112,6 +112,7 @@
     <Compile Include="Routing\RoutingDatabaseDecorator.cs" />
     <Compile Include="Routing\YearDatabaseRouter.cs" />
     <Compile Include="Service\DatabaseHealthMonitor.cs" />
+    <Compile Include="Service\AccessService.cs" />
     <Compile Include="Service\ProcessService.cs" />
     <Compile Include="Service\SyncService.cs" />
     <Compile Include="SqliteDatabaseInitializer.cs" />

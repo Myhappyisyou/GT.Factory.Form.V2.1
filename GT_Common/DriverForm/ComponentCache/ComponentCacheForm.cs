@@ -1,4 +1,8 @@
-﻿using GT_Common;
+﻿using GT.Factory.UI.Apply;
+using GT.Factory.UI.Enum;
+using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
+using GT_Common;
 using GT_Common.DriverForm.CacheViewer;
 using System;
 using System.Collections.Generic;
@@ -13,10 +17,10 @@ using System.Windows.Forms;
 namespace GT_Common.DriverForm.ComponentCache
 {
 
+
     public partial class ComponentCacheForm : Form
     {
-        private DataGridView grid;
-        private Button btnRefresh;
+        private UIToolPage page;
 
         private ComponentManager componentManager;
 
@@ -29,51 +33,54 @@ namespace GT_Common.DriverForm.ComponentCache
             Height = 600;
             StartPosition = FormStartPosition.CenterScreen;
 
-            grid = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-            };
+            InitUI();
 
-            btnRefresh = new Button
-            {
-                Text = "手动刷新",
-                Dock = DockStyle.Top,
-                Height = 40,
-                BackColor = Color.LightSteelBlue
-            };
+        }
+
+        private void InitUI()
+        {
+            page = new UIToolPage();
+
+            var btnRefresh = UIButton.Primary("刷新");
             btnRefresh.Click += (s, e) => RefreshGrid();
+            page.AddButton(btnRefresh, true);
 
-            Controls.Add(grid);
-            Controls.Add(btnRefresh);
-
-            // 定时自动刷新
-            //refreshTimer = new Timer();
-            //refreshTimer.Interval = 2000; // 2 秒刷新一次
-            //refreshTimer.Tick += (s, e) => RefreshGrid();
-            //refreshTimer.Start();
+            Controls.Add(page);
 
             Load += (s, e) => RefreshGrid();
         }
 
         private void RefreshGrid()
         {
-            componentManager.Load();
+            try
+            {
+                page.SetState(UIPageState.Loading);
 
-            if (componentManager?._buffer?.Items == null) return;
+                componentManager.Load();
 
-            var data = componentManager._buffer.Items
-                .Select(item => new
+                var data = componentManager._buffer?.Items
+                    ?.Select(x => new
+                    {
+                        x.AssemblyCode,
+                        x.ComponentCode,
+                        x.Timestamp
+                    })
+                    .ToList();
+
+                if (data == null || data.Count == 0)
                 {
-                    AssemblyCode = item.AssemblyCode,
-                    ComponentCode = item.ComponentCode,
-                    Timestamp = item.Timestamp,
-                })
-                .ToList();
+                    page.SetState(UIPageState.Empty, "暂无缓存数据");
+                    return;
+                }
 
-            grid.DataSource = data;
+                page.Grid.DataSource = data;
+
+                page.SetState(UIPageState.Data);
+            }
+            catch (Exception ex)
+            {
+                page.SetState(UIPageState.Error, ex.Message);
+            }
         }
 
     }

@@ -1,15 +1,17 @@
-﻿using GT_Common.Util;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
+using GT_Common.Helper;
+using GT_Common.Helper.UIHelp;
+using GT_Common.Model;
+using GT_Common.Util;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GT_Common.Helper;
-using GT_Common.Model;
-using Newtonsoft.Json;
-using System.IO;
-using GT_Common.Helper.UIHelp;
 
 namespace GT_Common.Components
 {
@@ -43,7 +45,7 @@ namespace GT_Common.Components
             InitFormLayout();
 
             UiRefreshCenter.OnRefresh += RefreshUI;
-
+            //UIStyle.ApplyWidget(this);
         }
 
         private void InitFormLayout()

@@ -39,6 +39,12 @@ namespace GT.Factory.Data.Core
 
 
         /// <summary>
+        /// 本地数据
+        /// </summary>
+        public AccessService AccessService { get; }
+
+
+        /// <summary>
         /// 同步服务
         /// </summary>
         public SyncService SyncService { get; }
@@ -75,6 +81,14 @@ namespace GT.Factory.Data.Core
             ProcessService =
                 new ProcessService(
                     Repositories.Processes,
+                    Repositories.SyncQueue);
+
+
+
+            // 创建业务服务
+            AccessService =
+                new AccessService(
+                    Repositories.Access,
                     Repositories.SyncQueue);
 
 

@@ -27,4 +27,13 @@ namespace GT.Factory.Common.Models
         public string UserId { get; set; }
         public DataItem Data { get; set; }
     }
+
+    public class ProcessFilePayload
+    {
+        public string BarNo { get; set; }
+        public string ProcessNo { get; set; }
+        public string FileType { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+    }
 }

@@ -82,8 +82,7 @@ namespace GT.Factory.Data.Providers
 
         #endregion
 
-
-        #region IDatabase 实现
+        #region IDatabase 异步实现
 
         /// <summary>
         /// 执行非查询语句
@@ -149,6 +148,73 @@ namespace GT.Factory.Data.Providers
             var transaction = conn.BeginTransaction();
 
             return new SqlServerTransaction(conn, transaction);
+        }
+
+        #endregion
+
+        #region IDatabase 同步实现
+
+        /// <summary>
+        /// 执行非查询语句（同步）
+        /// </summary>
+        public int Execute(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                return conn.Execute(
+                    sql,
+                    param,
+                    commandType: CommandType.Text);
+            }
+        }
+
+        /// <summary>
+        /// 查询单条记录（同步）
+        /// </summary>
+        public T QuerySingle<T>(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                return conn.QuerySingleOrDefault<T>(
+                    sql,
+                    param,
+                    commandType: CommandType.Text);
+            }
+        }
+
+        /// <summary>
+        /// 查询多条记录（同步）
+        /// </summary>
+        public List<T> Query<T>(string sql, object param = null)
+        {
+            using (var conn = CreateConnection())
+            {
+                var result = conn.Query<T>(
+                    sql,
+                    param,
+                    commandType: CommandType.Text);
+
+                return result.ToList();
+            }
+        }
+
+        /// <summary>
+        /// 是否连接（同步）
+        /// </summary>
+        public bool Ping()
+        {
+            try
+            {
+                using (var conn = CreateConnection())
+                {
+                    conn.Open();
+                    return conn.State == ConnectionState.Open;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion

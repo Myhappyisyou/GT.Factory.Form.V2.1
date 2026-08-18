@@ -151,7 +151,8 @@ namespace GT_Common.ProcessConfig
         /// <returns></returns>
         public static int GetNgCode(StandardProcess e, string sn)
         {
-            string NgCode = UploadSql.SelectNgCode(sn);
+            //string NgCode = UploadSql.SelectNgCode(sn);
+            string NgCode = AppRuntime.Current.DataRuntime.Repositories.Processes.SelectNgCodeAsync(sn).GetAwaiter().GetResult();
             DisplayLog.LogProcessGetNgCode(e.Name, sn, NgCode);
             Regex regex = new Regex(@"^(\d+)_.*$");
             Match match = regex.Match(NgCode);
@@ -307,7 +308,10 @@ namespace GT_Common.ProcessConfig
                     fileSn = fileSn.Trim('?');
                     string ftpPath = CommMethod.FtpFilePath(e.Name, sn, fileSn, item);
                     lsFilePath.Add(ftpPath);
-                    UploadSql.UploadProcessFile(e.ProcessNo, sn, item.FileType, item.FileName, ftpPath);
+                    //UploadSql.UploadProcessFile(e.ProcessNo, sn, item.FileType, item.FileName, ftpPath);
+
+                    AppRuntime.Current.DataRuntime.ProcessService.UploadFileAsync(new ProcessFilePayload { BarNo = sn, ProcessNo = e.ProcessNo, FileName = item.FileName, FileType = item.FileType, FilePath = ftpPath }).GetAwaiter().GetResult();
+
                     DisplayLog.LogProcessFileUpload(e.Name, sn, fileSn);
                 }
                 catch (Exception ex)
@@ -375,7 +379,8 @@ namespace GT_Common.ProcessConfig
                 lock (markObj)
                 {
                     //数据上传
-                    String sn = UploadSql.GenerateProductCode(context.Process.ProcessNo, LineNo, ProductModel, OP90_x, ProductNo);
+                    string sn = "";
+                    //string sn = UploadSql.GenerateProductCode(context.Process.ProcessNo, LineNo, ProductModel, OP90_x, ProductNo);
                     DisplayLog.LogGenerateProductCode(context.Process.Name, sn);
                     return sn;
                 }
@@ -397,7 +402,8 @@ namespace GT_Common.ProcessConfig
         {
             try
             {
-                return UploadSql.SelectCalibrationItem(inspection, station_id);
+                return AppRuntime.Current.DataRuntime.Repositories.Processes.SelectCalibrationItem(inspection, station_id).GetAwaiter().GetResult();
+                //return UploadSql.SelectCalibrationItem(inspection, station_id);
             }
             catch (Exception ex)
             {
@@ -418,7 +424,10 @@ namespace GT_Common.ProcessConfig
 
             try
             {
-                var tasks = parts.Select(part => UploadSql.UploadSinglePartAsync(barNo, processNo, part));
+                //var tasks = parts.Select(part => UploadSql.UploadSinglePartAsync(barNo, processNo, part));
+
+                var tasks = parts.Select(part => AppRuntime.Current.DataRuntime.Repositories.Parts.BindPartAsync(barNo, processNo, part.Name, part.BarCode));
+
                 await Task.WhenAll(tasks);
                 DisplayLog.Info($"产品码:{barNo}所有零件数据上传成功");
             }

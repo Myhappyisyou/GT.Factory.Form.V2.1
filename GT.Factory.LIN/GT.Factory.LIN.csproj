@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6C82065C-FF28-4311-BDA8-99B7BE78AD71}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>GT.Factory.LIN</RootNamespace>
+    <AssemblyName>GT.Factory.LIN</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config\LinSimulationConfig.cs" />
+    <Compile Include="Config\SimulationConfigManager.cs" />
+    <Compile Include="Core\LinController.cs" />
+    <Compile Include="Core\LinReceiveWorker.cs" />
+    <Compile Include="Core\LinSignalRuntime.cs" />
+    <Compile Include="Model\LinSignalValueItem.cs" />
+    <Compile Include="ProjectDebug\LinDebugRuntime.cs" />
+    <Compile Include="ProjectDebug\LinDebugSession.cs" />
+    <Compile Include="ProjectDebug\LinFrameInfo.cs" />
+    <Compile Include="ProjectDebug\LinSignalInfo.cs" />
+    <Compile Include="Hardware\ILinAdapter.cs" />
+    <Compile Include="Hardware\IVirtualLinAdapter.cs" />
+    <Compile Include="Hardware\MockLinAdapter.cs" />
+    <Compile Include="Project\LinProject.cs" />
+    <Compile Include="Project\LinProjectFile.cs" />
+    <Compile Include="Project\LinProjectFileLoader.cs" />
+    <Compile Include="Project\LinProjectInfo.cs" />
+    <Compile Include="Project\LinProjectLinConfig.cs" />
+    <Compile Include="Project\LinProjectLoader.cs" />
+    <Compile Include="Project\LinProjectRuntimeConfig.cs" />
+    <Compile Include="Project\LinRunMode.cs" />
+    <Compile Include="Protocol\LinChecksum.cs" />
+    <Compile Include="Core\LinEngine.cs" />
+    <Compile Include="Core\LinFrameBuilder.cs" />
+    <Compile Include="Model\LinMessage.cs" />
+    <Compile Include="Core\LinRuntime.cs" />
+    <Compile Include="Protocol\LinSignalCode.cs" />
+    <Compile Include="Model\LinTraceItem.cs" />
+    <Compile Include="Core\LinTraceLogger.cs" />
+    <Compile Include="Model\LinDiagnostic.cs" />
+    <Compile Include="Model\LinEnums.cs" />
+    <Compile Include="Model\LinFrame.cs" />
+    <Compile Include="Model\LinNetwork.cs" />
+    <Compile Include="Model\LinNode.cs" />
+    <Compile Include="Model\LinSchedule.cs" />
+    <Compile Include="Model\LinSignal.cs" />
+    <Compile Include="Parser\LdfParser.cs" />
+    <Compile Include="Parser\LdfReader.cs" />
+    <Compile Include="Parser\LdfToken.cs" />
+    <Compile Include="Parser\LdfTokenizer.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Simulator\DefaultSlaveBehavior.cs" />
+    <Compile Include="Simulator\ILinNodeSimulator.cs" />
+    <Compile Include="Simulator\ILinSlaveBehavior.cs" />
+    <Compile Include="Simulator\LinMasterSimulator.cs" />
+    <Compile Include="Simulator\LinSimulator.cs" />
+    <Compile Include="Simulator\LinSlaveSimulator.cs" />
+    <Compile Include="Simulator\LinVirtualBus.cs" />
+    <Compile Include="Simulator\MotorSlaveBehavior.cs" />
+    <Compile Include="Test\Engine\LinActionExecutor.cs" />
+    <Compile Include="Test\Engine\LinSignalChecker.cs" />
+    <Compile Include="Test\Engine\LinTestReport.cs" />
+    <Compile Include="Test\Engine\LinTestRunner.cs" />
+    <Compile Include="Test\Loader\LinTestCaseLoader.cs" />
+    <Compile Include="Test\Model\LinSignalCheck.cs" />
+    <Compile Include="Test\Model\LinSignalValue.cs" />
+    <Compile Include="Test\Model\LinStepResult.cs" />
+    <Compile Include="Test\Model\LinTestCase.cs" />
+    <Compile Include="Test\Model\LinTestProject.cs" />
+    <Compile Include="Test\Model\LinTestResult.cs" />
+    <Compile Include="Test\Model\LinTestStep.cs" />
+    <Compile Include="Test\Model\LinTestEnums.cs" />
+    <Compile Include="UI\Controls\LinFrameDataPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\LinFrameTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\LinSignalPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\LinStatusBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\LinTraceGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\LinDebugForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\LinDebugForm.Designer.cs">
+      <DependentUpon>LinDebugForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\LinDebugHost.cs" />
+    <Compile Include="UI\Version\Version.cs" />
+    <Compile Include="UI\ViewModel\LinDebugLayout.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\CV101.ldf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
+      <Project>{43748B7A-DD23-46C3-9627-26A6692F0394}</Project>
+      <Name>GT.Factory.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

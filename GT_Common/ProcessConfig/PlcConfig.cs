@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
 
+
+
 namespace GT_Common.ProcessConfig
 {
 
@@ -205,7 +207,7 @@ namespace GT_Common.ProcessConfig
         [DisplayName("操作提示")]
         [Description("读取操作提示Plc地址")]
         [JsonProperty]
-        public int OperateTips{ get; set; }
+        public int OperateTips { get; set; }
 
         //产品名称
         [DisplayName("产品名称")]
@@ -683,7 +685,7 @@ namespace GT_Common.ProcessConfig
         /// </summary>
         public bool IsConfigured()
         {
-            return Address > 0 && Length > 0 && DataType>0;
+            return Address > 0 && Length > 0 && DataType > 0;
         }
 
         /// <summary>
@@ -701,7 +703,7 @@ namespace GT_Common.ProcessConfig
             if (Length <= 0)
                 throw new ArgumentException($"{channelName}的读取长度必须大于0，当前值: {Length}");
 
-            if (DataType<0)
+            if (DataType < 0)
                 throw new ArgumentException($"{channelName}的数据类型不能为空");
 
             // 验证数据类型是否支持
@@ -847,7 +849,7 @@ namespace GT_Common.ProcessConfig
         [DisplayName("文件项列表")]
         [Description("文件项列表")]
         [JsonProperty]
-        public List<FileItemConfig> FileItems { get; set; } // 文件项列表
+        public List<FileItemConfig> FileItems { get; set; } = new List<FileItemConfig>(); // 文件项列表
 
         public override string ToString() => $"文件配置 (启用: {IsEnabled})";// 可选：重写 ToString() 显示摘要
     }
@@ -857,6 +859,7 @@ namespace GT_Common.ProcessConfig
     /// </summary>
     public class FileItemConfig
     {
+        
         // 文件信息地址
         [DisplayName("文件码地址")]
         [Description("文件码PLC地址")]
@@ -905,8 +908,22 @@ namespace GT_Common.ProcessConfig
         [JsonProperty]
         public int CameraType { get; set; }         // 相机类型
 
+
+        [DisplayName("测试项名称")]
         [JsonProperty]
         public string Name { get; set; }    // 相机类型
+
+        public string this[string columnName]
+        {
+            get
+            {
+                if (columnName == nameof(Name) && string.IsNullOrWhiteSpace(Name))
+                    return "显示名称不能为空";
+
+
+                return null;
+            }
+        }
     }
 
     // 调用方法配置类
@@ -1088,21 +1105,6 @@ namespace GT_Common.ProcessConfig
         public PlcChannel PlcChannel { get; set; }
     }
 
-    /// <summary>
-    /// 抽检点检基类
-    /// </summary>
-    public class CalibrationOrPeriodInspection
-    {
-        public string CalibrationOrPeriodStationId { get; set; }
-
-        public string[] Test_item { get; set; }
-
-        public string[] Test_item_type { get; set; }
-
-        public string[] Test_item_up { get; set; }
-
-        public string[] Test_item_down { get; set; }
-    }
 
     /// <summary>
     /// 点检

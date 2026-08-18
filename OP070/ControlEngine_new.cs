@@ -4,6 +4,7 @@ namespace OP070
 {
     public class ControlEngine_new : ControlEngineBase
     {
+        protected override bool NeedReadBatch() => true;
 
         protected override void AfterInit()
         {

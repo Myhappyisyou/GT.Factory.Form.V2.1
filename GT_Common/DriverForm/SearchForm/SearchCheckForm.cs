@@ -1,4 +1,10 @@
 ﻿
+using GT.Factory.Common.Helper;
+using GT.Factory.Data.Core;
+using GT.Factory.UI.Component;
+using GT.Factory.UI.Enum;
+using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,172 +20,9 @@ namespace GT_Common.DriverForm.SearchForm
 {
     public partial class SearchCheckForm : Form
     {
-        private Label lblStartTime, lblEndTime, lblCount, lblPageInfo;
-        private DateTimePicker dtpStartTime, dtpEndTime;
-        private Button btnSearch, btnExport, btnPrevPage, btnNextPage;
-        private DataGridView dgvData;
-        private Panel panelTop, panelBottom;
+        private UIQueryPage page;
 
-        public SearchCheckForm(string processNo)
-        {
-            InitializeComponent();
-            InitUI();
-            _processNo = processNo;
-        }
-
-        private void InitUI()
-        {
-            this.Text = "点检数据查询";
-            this.MaximizeBox = true;
-
-            //this.Size = new Size(800, 600);
-            this.StartPosition = FormStartPosition.CenterScreen;
-
-            var tableTop = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 6,
-                RowCount = 2,
-                AutoSize = true,
-            };
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableTop.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-
-            var tableBottom = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 4,
-                RowCount = 1,
-                AutoSize = true,
-            };
-            tableBottom.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableBottom.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableBottom.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            tableBottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-          
-            // …继续按比例布局
-
-            // 顶部 Panel
-            panelTop = new Panel { Dock = DockStyle.Top, Height = 80, Padding = new Padding(10) };
-            this.Controls.Add(panelTop);
-
-            // 底部 Panel
-            panelBottom = new Panel { Dock = DockStyle.Bottom, Height = 50, Padding = new Padding(10) };
-            this.Controls.Add(panelBottom);
-
-            // ======= 查询条件控件 =======
-            lblStartTime = new Label
-            {
-                Text = "开始时间：",
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleRight,
-                Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                Margin = new Padding(5, 3, 5, 3)
-            };
-
-            dtpStartTime = new DateTimePicker { Width = 150, ShowUpDown = true, Format = DateTimePickerFormat.Custom, CustomFormat = "yyyy-MM-dd HH:mm:ss", Margin = new Padding(5, 3, 5, 3) };
-
-            lblEndTime = new Label
-            {
-                Text = "结束时间：",
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleRight,
-                Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                Margin = new Padding(5, 3, 5, 3)
-            };
-
-            dtpEndTime = new DateTimePicker {  Width = 150, ShowUpDown = true, Format=DateTimePickerFormat.Custom,CustomFormat= "yyyy-MM-dd HH:mm:ss" , Margin = new Padding(5, 3, 5, 3) };
-
-            btnSearch = new Button { Text = "查询", Width = 80 , Margin = new Padding(5, 3, 5, 3) };
-            btnSearch.Click += btnSearch_Click;
-
-            btnExport = new Button { Text = "导出", Width = 80 , Margin = new Padding(5, 3, 5, 3) };
-            btnExport.Click += btnExport_Click;
-
-            tableTop.Controls.Add(lblStartTime, 0, 0);
-            tableTop.Controls.Add(dtpStartTime, 1, 0);
-            tableTop.Controls.Add(lblEndTime, 2, 0);
-            tableTop.Controls.Add(dtpEndTime, 3, 0);
-            tableTop.Controls.Add(btnSearch, 4, 0);
-            tableTop.Controls.Add(btnExport, 5, 0);
-
-            panelTop.Controls.Add(tableTop);
-
-            // ======= DataGridView =======
-            dgvData = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                AutoGenerateColumns = false,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                Margin = new Padding(5, 3, 5, 3)
-            };
-
-            dgvData.EnableHeadersVisualStyles = false;
-            dgvData.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(240, 240, 240);
-            dgvData.ColumnHeadersDefaultCellStyle.Font = new Font("Microsoft YaHei", 9, FontStyle.Bold);
-            dgvData.RowTemplate.Height = 28;
-            dgvData.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
-            dgvData.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
-            dgvData.DefaultCellStyle.SelectionForeColor = Color.White;
-            dgvData.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0); // 左右各5px
-            //dgvData.CellFormatting += dgvData_CellFormatting;
-
-            this.Controls.Add(dgvData);
-            dgvData.BringToFront();
-
-            // ======= 底部控件 =======
-            btnPrevPage = new Button { Text = "上一页", Width = 80, Margin = new Padding(5, 3, 5, 3) };
-            btnPrevPage.Click += btnPrevPage_Click;
-
-            lblPageInfo = new Label
-            {
-                Text = "第 1 页 / 共 1 页",
-                AutoSize = true,
-                Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                Margin = new Padding(5, 3, 5, 3)
-            };
-
-            btnNextPage = new Button { Text = "下一页", Width = 80, Margin = new Padding(5, 3, 5, 3) };
-            btnNextPage.Click += btnNextPage_Click;
-
-            lblCount = new Label
-            {
-                Text = "总数：0",
-                AutoSize = false,
-                Width = 100, 
-                Height = 30, 
-                Anchor = AnchorStyles.Right,
-                TextAlign = ContentAlignment.MiddleCenter, // 文字居中
-                Margin = new Padding(5, 3, 5, 3),
-                Padding = new Padding(5, 0, 5, 0),        // 左右留白
-                BackColor = Color.FromArgb(0, 122, 204),
-                ForeColor = Color.White
-            };
-
-            tableBottom.Controls.Add(btnPrevPage, 0, 0);
-            tableBottom.Controls.Add(lblPageInfo, 1, 0);
-            tableBottom.Controls.Add(btnNextPage, 2, 0);
-            tableBottom.Controls.Add(lblCount, 3, 0);
-
-            panelBottom.Controls.Add(tableBottom);
-
-            // ✅ 放在所有按钮创建完后
-            foreach (var btn in new[] { btnSearch, btnExport, btnPrevPage, btnNextPage })
-            {
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.BackColor = Color.FromArgb(0, 122, 204);
-                btn.ForeColor = Color.White;
-                btn.Font = new Font("Microsoft YaHei", 9);
-                btn.FlatAppearance.BorderSize = 0; // 去掉边框线
-                btn.Cursor = Cursors.Hand;          // 鼠标悬停变手型
-            }
-        }
+        private readonly DataRuntime _dataRuntime;
 
         private readonly string _processNo;
 
@@ -203,46 +46,81 @@ namespace GT_Common.DriverForm.SearchForm
             { "test_item_value", "测试值" },
             { "flag", "结果" }
         };
+
         // 是否已初始化（构建）Grid列
         private bool _gridColumnsBuilt = false;
-       
-        private  void SearchForm_Load(object sender, EventArgs e)
+        // 是否切换数据库
+        private int _dataSouce = 0;
+
+        private UIFormRow<DateTimePicker> startRow;
+        private UIFormRow<DateTimePicker> endRow;
+        private UIFormRow<ComboBox> sourceRow;
+
+        private DataGridView dgvData;
+
+        public SearchCheckForm(string processNo, DataRuntime dataRuntime)
         {
-            SetDefaultShiftTime();
+            InitializeComponent();
+
+            this.Text = "点检数据查询";
+
+            page = new UIQueryPage();
+
+            this.Controls.Add(page);
+
+            InitQueryUI();
+            BindEvents();
+            this.Load += SearchForm_Load;
+            _processNo = processNo;
+            _dataRuntime = dataRuntime;
+
+        }
+
+        private void InitQueryUI()
+        {
+            startRow = new UIFormRow<DateTimePicker>("开始时间", UIInput.DateTime());
+            endRow = new UIFormRow<DateTimePicker>("结束时间", UIInput.DateTime());
+
+            sourceRow = new UIFormRow<ComboBox>("数据源", UIInput.Combo());
+
+            sourceRow.SetOptions(new Dictionary<string, string>
+            {
+                { "Sql Server", "服务器" },
+                { "Local", "本地" }
+            });
+            sourceRow.Input.SelectedIndex = 0;
+
+            page.AddQueryControl(startRow);
+            page.AddQueryControl(endRow);
+            page.AddQueryControl(sourceRow);
+
+            dgvData = page.Grid;
+            dgvData.CellFormatting += dgvData_CellFormatting;
+
+            page.EnableStat(false);
+        }
+
+        private void BindEvents()
+        {
+            page.QueryButtons.BtnSearch.Click += btnSearch_Click;
+            page.QueryButtons.BtnExport.Click += btnExport_Click;
+
+            page.Paging.BtnPrev.Click += btnPrevPage_Click;
+            page.Paging.BtnNext.Click += btnNextPage_Click;
+        }
+
+        private void SearchForm_Load(object sender, EventArgs e)
+        {
+
+            var (start, end) = ShiftTime.GetShiftTime();
+            startRow.Input.Value = start;
+            endRow.Input.Value = end;
+
             EnableDoubleBuffer();
+
             UpdatePagingLabel();
         }
 
-        private void SetDefaultShiftTime()
-        {
-            DateTime now = DateTime.Now;
-
-            DateTime dayStart = now.Date.AddHours(8).AddMinutes(00);   // 08:30
-            DateTime nightStart = now.Date.AddHours(20).AddMinutes(00); // 20:30
-
-            if (now >= dayStart && now < nightStart)
-            {
-                // 早班
-                dtpStartTime.Value = dayStart;
-                dtpEndTime.Value = nightStart;
-            }
-            else
-            {
-                // 晚班
-                if (now >= nightStart)
-                {
-                    // 当天晚上
-                    dtpStartTime.Value = nightStart;
-                    dtpEndTime.Value = dayStart.AddDays(1);
-                }
-                else
-                {
-                    // 凌晨（属于昨天晚班）
-                    dtpStartTime.Value = nightStart.AddDays(-1);
-                    dtpEndTime.Value = dayStart;
-                }
-            }
-        }
 
         #region UI/性能基础
         /// <summary>
@@ -257,10 +135,10 @@ namespace GT_Common.DriverForm.SearchForm
 
         private void ToggleUi(bool enabled)
         {
-            btnSearch.Enabled = enabled;
-            btnExport.Enabled = enabled;
-            btnPrevPage.Enabled = enabled;
-            btnNextPage.Enabled = enabled;
+            page.QueryButtons.BtnSearch.Enabled = enabled;
+            page.QueryButtons.BtnExport.Enabled = enabled;
+            page.Paging.BtnPrev.Enabled = enabled;
+            page.Paging.BtnPrev.Enabled = enabled;
 
             UseWaitCursor = !enabled;
             Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
@@ -277,9 +155,11 @@ namespace GT_Common.DriverForm.SearchForm
 
             try
             {
-                DateTime start = dtpStartTime.Value;
-                DateTime end = dtpEndTime.Value;
-              
+                page.SetState(UIPageState.Loading);
+
+                DateTime start = startRow.Input.Value;
+                DateTime end = endRow.Input.Value;
+
                 if (start >= end)
                 {
                     MessageBox.Show("开始时间不能大于或等于结束时间");
@@ -287,18 +167,27 @@ namespace GT_Common.DriverForm.SearchForm
                 }
 
                 ToggleUi(false);
-                lblCount.Text = "查询中...";
+
                 dgvData.DataSource = null;
 
                 // 查询（后台线程）
-                _allData = await Task.Run(() =>
+
+                List<dynamic> list = await _dataRuntime.ProcessService.SelectCalibrationAsync(_processNo.Substring(0, 5), start, end);
+
+                _allData = LstToDataTableConverter.ToDataTable(list);
+
+                _allData = RenameColumns(_allData, _columnMap);
+
+                if (_allData == null || _allData.Rows.Count == 0)
                 {
+                    page.SetState(UIPageState.Empty, "没有查询到数据");
+                    return;
+                }
 
-                    return RenameColumns(UploadSql.SelectCalibration(_processNo.Substring(0, 5), start, end), _columnMap);
-
-                }, _cts.Token);
+                page.SetState(UIPageState.Data);
 
                 _currentPage = 1;
+
                 _totalPages = Math.Max(1, (int)Math.Ceiling(_allData.Rows.Count / (double)PageSize));
 
                 // 首次构建列（之后不再构建）
@@ -310,7 +199,6 @@ namespace GT_Common.DriverForm.SearchForm
 
                 // 绑定第一页
                 BindPage();
-                lblCount.Text = $"总数: {_allData.Rows.Count}";
             }
             catch (OperationCanceledException)
             {
@@ -358,7 +246,7 @@ namespace GT_Common.DriverForm.SearchForm
                     try
                     {
                         ToggleUi(false);
-                        await Task.Run(() => WriteExcel(_currentPageData, saveFile.FileName));
+                        await Task.Run(() => ExportData.WriteExcel(_columnMap, _currentPageData, saveFile.FileName));
                         MessageBox.Show("已生成 Excel 文件！");
                     }
                     catch (Exception ex)
@@ -370,15 +258,6 @@ namespace GT_Common.DriverForm.SearchForm
                         ToggleUi(true);
                     }
                 }
-            }
-        }
-
-        private void txtBarNo_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-                btnSearch.PerformClick();
             }
         }
 
@@ -477,15 +356,13 @@ namespace GT_Common.DriverForm.SearchForm
 
         private void UpdatePagingLabel()
         {
-            lblPageInfo.Text = $"第 {_currentPage} / {_totalPages} 页";
-            btnPrevPage.Enabled = _currentPage > 1;
-            btnNextPage.Enabled = _currentPage < _totalPages;
+            page.Paging.Update(_currentPage, _totalPages);
         }
 
-        public static DataTable RenameColumns(DataSet ds, Dictionary<string, string> nameMap)
+        public static DataTable RenameColumns(DataTable dt, Dictionary<string, string> nameMap)
         {
-            if (ds == null || ds.Tables.Count == 0) return null;
-            var dt = ds.Tables[0];
+            if (dt == null)
+                return null;
 
             foreach (var kv in nameMap)
             {

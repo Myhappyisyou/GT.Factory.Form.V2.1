@@ -2,6 +2,7 @@
 using GT_Common.Helper.ClientTask;
 using GT_Common.Helper.PlcComm;
 using GT_Common.Model;
+using Consumables = GT.Factory.Common.Models.Consumables;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -44,6 +44,9 @@ namespace GT_Common.DriverForm.Aynettek
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // 初始化应用环境
+            var runtime = new AppRuntime();
+
             // 首先显示登录窗口
 
             using (var loginForm = new LoginForm(new RfidService(), new UserApiService(Config.Instance.ServerApi, Config.Instance.ServerDbtask), new MesService(), new LocalUserService(), Config.Instance.UIDIP, Config.Instance.UIDPort))

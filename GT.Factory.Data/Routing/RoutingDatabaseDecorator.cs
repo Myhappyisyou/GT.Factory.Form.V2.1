@@ -81,5 +81,30 @@ namespace GT.Factory.Data.Routing
 
             _options.ConnectionString = builder.ConnectionString;
         }
+
+        public int Execute(string sql, object param = null)
+        {
+            // 同步调用异步方法，确保路由逻辑一致
+            ApplyRouting().GetAwaiter().GetResult();
+            return _inner.Execute(sql, param);
+        }
+
+        public T QuerySingle<T>(string sql, object param = null)
+        {
+            ApplyRouting().GetAwaiter().GetResult();
+            return _inner.QuerySingle<T>(sql, param);
+        }
+
+        public List<T> Query<T>(string sql, object param = null)
+        {
+            ApplyRouting().GetAwaiter().GetResult();
+            return _inner.Query<T>(sql, param);
+        }
+
+        public bool Ping()
+        {
+            ApplyRouting().GetAwaiter().GetResult();
+            return _inner.Ping();
+        }
     }
 }

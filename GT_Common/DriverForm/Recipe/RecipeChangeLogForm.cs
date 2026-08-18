@@ -1,4 +1,7 @@
-﻿using GT_Common.DriverForm.Recipe.RecipeParameter;
+﻿using GT.Factory.UI.Component;
+using GT.Factory.UI.PageTemplate;
+using GT.Factory.UI.Style;
+using GT_Common.DriverForm.Recipe.RecipeParameter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,144 +17,96 @@ namespace GT_Common.DriverForm.Recipe
 {
     public partial class RecipeChangeLogForm : Form
     {
-        private Panel panelTop;
-        private DateTimePicker dtpDate;
-        private Button btnLoad;
-        private Button btnExport;
+        private UIToolPage page;
+
+        private UIFormRow<DateTimePicker> dtpDate;
+
         private TextBox txtSearch;
-        private Label lblCount;
-        private DataGridView dgvLogs;
 
         private List<RecipeChangeLog> allLogs = new List<RecipeChangeLog>();
 
         public RecipeChangeLogForm()
         {
+            InitializeComponent();
+
             this.Text = "配方修改日志";
-            this.Width = 960;
-            this.Height = 600;
+
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            InitializeControls();
+            InitUI();
 
             InitGrid();
         }
 
-        private void InitializeControls()
+        private void InitUI()
         {
-            panelTop = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 40
-            };
+            page = new UIToolPage();
 
-            dtpDate = new DateTimePicker
-            {
-                Location = new System.Drawing.Point(10, 10),
-                Width = 150
-            };
+            dtpDate = new UIFormRow<DateTimePicker>("查询日期：", UIInput.DateTime());
 
-            btnLoad = new Button
-            {
-                Text = "加载",
-                Location = new System.Drawing.Point(170, 8)
-            };
+            var btnLoad = UIButton.Primary("加载");
+
             btnLoad.Click += BtnLoad_Click;
 
-            btnExport = new Button
-            {
-                Text = "导出CSV",
-                Location = new System.Drawing.Point(250, 8)
-            };
+            var btnExport = UIButton.Primary("导出");
             btnExport.Click += BtnExport_Click;
 
-            txtSearch = new TextBox
-            {
-                Location = new System.Drawing.Point(380, 9),
-                Width = 200
-            };
-            txtSearch.TextChanged += TxtSearch_TextChanged;
+            page.AddControl(dtpDate);
 
-            lblCount = new Label
-            {
-                Location = new System.Drawing.Point(600, 12),
-                AutoSize = true,
-                Text = "总数：0"
-            };
+            page.AddButton(btnLoad);
+            page.AddButton(btnExport);
 
-            var lblSearch = new Label
-            {
-                Text = "搜索:",
-                Location = new System.Drawing.Point(340, 12),
-                AutoSize = true
-            };
+            Controls.Add(page);
 
-            panelTop.Controls.Add(dtpDate);
-            panelTop.Controls.Add(btnLoad);
-            panelTop.Controls.Add(btnExport);
-            panelTop.Controls.Add(txtSearch);
-            panelTop.Controls.Add(lblSearch);
-            panelTop.Controls.Add(lblCount);
-
-            dgvLogs = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                AllowUserToAddRows = false,
-                RowHeadersVisible = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                ReadOnly = true
-            };
-
-            this.Controls.Add(dgvLogs);
-            this.Controls.Add(panelTop);
         }
 
         private void InitGrid()
         {
-            dgvLogs.AutoGenerateColumns = false;
+            page.Grid.AutoGenerateColumns = false;
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "时间",
                 DataPropertyName = "ChangeTime",
                 Width = 120
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "用户",
                 DataPropertyName = "UserName",
                 Width = 60
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "配方",
                 DataPropertyName = "RecipeName",
                 Width = 100
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "参数路径",
                 DataPropertyName = "ParameterPath",
                 Width = 250
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "旧值",
                 DataPropertyName = "OldValue",
                 Width = 180
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "新值",
                 DataPropertyName = "NewValue",
                 Width = 180
             });
 
-            dgvLogs.Columns.Add(new DataGridViewTextBoxColumn
+            page.Grid.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "来源",
                 DataPropertyName = "Source",
@@ -161,7 +116,8 @@ namespace GT_Common.DriverForm.Recipe
 
         private void BtnLoad_Click(object sender, EventArgs e)
         {
-            allLogs = RecipeChangeLogReader.ReadLogs(dtpDate.Value);
+            allLogs = RecipeChangeLogReader.ReadLogs(dtpDate.Input.Value);
+
             BindGrid(allLogs);
         }
 
@@ -185,14 +141,13 @@ namespace GT_Common.DriverForm.Recipe
 
         private void BindGrid(List<RecipeChangeLog> logs)
         {
-            dgvLogs.DataSource = null;
-            dgvLogs.DataSource = logs;
-            lblCount.Text = $"总数：{logs.Count}";
+            page.Grid.DataSource = null;
+            page.Grid.DataSource = logs;
         }
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            if (dgvLogs.Rows.Count == 0)
+            if (page.Grid.Rows.Count == 0)
             {
                 MessageBox.Show("当前没有数据可导出。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -211,7 +166,7 @@ namespace GT_Common.DriverForm.Recipe
                         // 添加表头
                         lines.Add("时间,用户,配方,参数路径,旧值,新值,来源");
 
-                        foreach (RecipeChangeLog log in dgvLogs.DataSource as List<RecipeChangeLog>)
+                        foreach (RecipeChangeLog log in page.Grid.DataSource as List<RecipeChangeLog>)
                         {
                             string line = $"{log.ChangeTime},{log.UserName},{log.RecipeName},{log.ParameterPath},{log.OldValue},{log.NewValue},{log.Source}";
                             lines.Add(line);

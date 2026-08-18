@@ -1,5 +1,7 @@
-﻿using GT_Common.ProcessConfig;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
 using GT_Common.Helper.UIHelp;
+using GT_Common.ProcessConfig;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,6 +33,8 @@ namespace GT_Common.Components
             InitializeComponent();
             InitFormLayout();
             UiRefreshCenter.OnRefresh += RefreshUI;
+
+            //UIStyle.ApplyWidget(this);
         }
 
 

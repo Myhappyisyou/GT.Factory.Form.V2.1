@@ -1,6 +1,7 @@
 ﻿using GT_Common;
 using GT_Common.Helper.Logging;
 using GT_Common.Model;
+using Consumables = GT.Factory.Common.Models.Consumables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,33 +46,7 @@ namespace GT_Common.Helper
 
                 _lastMonth = month;
             }
-        }        /// <summary>
-                 /// 月度初始化（只执行一次）
-                 /// </summary>
-        private static void InitializeMonth(
-            AccessMdbHelper db,
-            bool isNew,
-            List<Consumables> oldConsumables)
-        {
-            try
-            {
-                if (isNew && oldConsumables != null)
-                {
-                    foreach (var item in oldConsumables)
-                    {
-                        UploadSql.InsertOrUpdateConsumablesInfor(db, item);
-                    }
-
-                    DisplayLog.Info("跨月 Consumables 数据迁移完成");
-                }
-
-                DisplayLog.Info($"数据库初始化完成：{db.DatabasePath}");
-            }
-            catch (Exception ex)
-            {
-                DisplayLog.Error("数据库初始化失败", ex, true);
-                throw;
-            }
-        }
+        }        
+      
     }
 }

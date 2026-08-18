@@ -9,9 +9,11 @@ namespace GT_Common.Helper.BydUser
 {
     public interface ILocalUserService
     {
-        User GetUserByCard(string cardId);
+        Task<User> GetUserByCard(string cardId);
 
-        User GetUserByLogin(string username, string password);
+        Task<User> GetUserByLogin(string jobNub, string password);
+
+        Task<User> GetUserByRoleId(string username, string password);
 
         void UpdateUserLog(User user);
     }

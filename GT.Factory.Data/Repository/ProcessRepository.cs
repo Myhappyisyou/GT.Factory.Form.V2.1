@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,10 @@ namespace GT.Factory.Data.Repository
         private readonly string propertyParseTable = TableNameResolver.Get(LogicalTable.PropertyParse);
 
         private readonly string calibrationTable = TableNameResolver.Get(LogicalTable.Calibration);
+
+        private readonly string fileTable = TableNameResolver.Get(LogicalTable.ProcessFile);
+
+        private readonly string resultCodeParse = TableNameResolver.Get(LogicalTable.ProcessResultCodeParse);
 
         public ProcessRepository(DatabaseManager manager)
         {
@@ -104,10 +109,9 @@ namespace GT.Factory.Data.Repository
         }
 
         /// <summary>
-        /// 
+        /// 上传抽检
         /// </summary>
         public async Task<bool> UploadPeriodTestInspectionAsync(
-            string tableName,
             string barNo,
             string processNo,
             string doTime,
@@ -149,6 +153,98 @@ namespace GT.Factory.Data.Repository
         #region 生产数据查询
 
         /// <summary>
+        /// 查询数据库（DataSet）
+        /// </summary>
+        public async Task<List<dynamic>> SearchDataAsync(SearchDataPayload payload)
+        {
+            string fields =
+                await GetDynamicFieldsAsync(payload.ProcessNo);
+
+            var sb = new StringBuilder();
+
+            sb.Append(
+                $"SELECT bar_no, vou_no, ok_flag, ng_msg, do_time, user_id {fields} ");
+
+            sb.Append(
+                $"FROM {processTable} WHERE process_no=@process_no ");
+
+            var parameters = new DynamicParameters();
+
+
+            parameters.Add(
+                "process_no",
+                payload.ProcessNo);
+
+            //var ps = new List<SqlParameter>
+            //{
+            //    new SqlParameter("@process_no", payload.ProcessNo)
+            //};
+
+            if (!string.IsNullOrEmpty(payload.FilterColumn) &&
+                !string.IsNullOrEmpty(payload.FilterValue))
+            {
+                sb.Append(
+                    $" AND {payload.FilterColumn} LIKE @filterValue");
+
+                //ps.Add(
+                //    new SqlParameter(
+                //        "@filterValue",
+                //        $"%{payload.FilterValue}%"));
+                parameters.Add(
+            "filterValue",
+            $"%{payload.FilterValue}%");
+            }
+
+            if (payload.StartTime.HasValue &&
+               payload.EndTime.HasValue)
+            {
+                sb.Append(
+                    " AND do_time BETWEEN @start AND @end");
+
+                //ps.Add(
+                //    new SqlParameter(
+                //        "@start",
+                //        payload.StartTime.Value));
+
+                //ps.Add(
+                //    new SqlParameter(
+                //        "@end",
+                //        payload.EndTime.Value));
+                parameters.Add(
+         "start",
+         payload.StartTime.Value);
+
+
+                parameters.Add(
+                    "end",
+                    payload.EndTime.Value);
+            }
+
+            if (!string.IsNullOrEmpty(payload.OkFlag) && payload.OkFlag != "All")
+            {
+                sb.Append(
+                    " AND ok_flag=@ok_flag");
+
+                //ps.Add(
+                //    new SqlParameter(
+                //        "@ok_flag",
+                //        payload.OkFlag));
+                parameters.Add(
+       "ok_flag",
+       payload.OkFlag);
+            }
+
+            sb.Append(
+                " ORDER BY do_time DESC");
+            
+            var rows =
+                await _primary.QueryAsync<dynamic>(
+                    sb.ToString(),
+                    parameters);
+            return rows;
+        }
+
+        /// <summary>
         /// 根据产品码查询最新一条NG信息
         /// </summary>
         public async Task<string> SelectNgCodeAsync(string barNo)
@@ -180,63 +276,265 @@ namespace GT.Factory.Data.Repository
         /// <summary>
         /// 查询产品上传次数及返工状态
         /// </summary>
-        //public async Task<ReworkQueryResult> QueryDataUploadCountAsync(
-        //    string processNo,
-        //    string barNo,
-        //    int reworkCountLimit)
-        //{
-        //    const string sql = @"
-        //SELECT 
-        //    COUNT(*) AS TotalCount,
-        //    MAX(ng_msg) AS LastNgMsg
-        //FROM GTProcessProperty
-        //WHERE process_no = @processNo
-        //  AND bar_no = @barNo";
+        public async Task<ReworkQueryResult> QueryDataUploadCountAsync(
+            string processNo, string barNo, int reworkCountLimit)
+        {
+            var sql = $@"
+                         SELECT 
+                             COUNT(*) AS TotalCount,
+                             MAX(ng_msg) AS LastNgMsg
+                         FROM {processTable}
+                         WHERE process_no = @processNo
+                           AND bar_no = @barNo";
 
-        //    var result = await _primary.QuerySingleAsync<dynamic>(
-        //        sql,
-        //        new { processNo, barNo });
+            var result = await _primary.QuerySingleAsync<dynamic>(
+                sql,
+                new { processNo, barNo });
 
-        //    var output = new ReworkQueryResult();
+            var output = new ReworkQueryResult();
 
-        //    if (result == null)
-        //    {
-        //        output.Status = 2;
-        //        return output;
-        //    }
+            if (result == null)
+            {
+                output.Status = 2;
+                return output;
+            }
 
-        //    int totalCount = result.TotalCount;
-        //    string lastNgMsg = result.LastNgMsg;
+            int totalCount = result.TotalCount;
+            string lastNgMsg = result.LastNgMsg;
 
-        //    if (totalCount == 0)
-        //    {
-        //        output.Status = 1;
-        //        return output;
-        //    }
+            if (totalCount == 0)
+            {
+                output.Status = 1;
+                return output;
+            }
 
-        //    // ✅ 解析 NGCode
-        //    if (!string.IsNullOrEmpty(lastNgMsg))
-        //    {
-        //        var firstPart = lastNgMsg.Split('_').FirstOrDefault();
-        //        if (int.TryParse(firstPart, out int code))
-        //        {
-        //            output.NgCode = code;
-        //        }
-        //    }
+            // ✅ 解析 NGCode
+            if (!string.IsNullOrEmpty(lastNgMsg))
+            {
+                var firstPart = lastNgMsg.Split('_').FirstOrDefault();
+                if (int.TryParse(firstPart, out int code))
+                {
+                    output.NgCode = code;
+                }
+            }
 
-        //    if (totalCount > reworkCountLimit)
-        //    {
-        //        output.ReworkFlag = 0;
-        //        output.Status = 2;
-        //    }
-        //    else
-        //    {
-        //        output.ReworkFlag = 1;
-        //        output.Status = 1;
-        //    }
+            if (totalCount > reworkCountLimit)
+            {
+                output.ReworkFlag = 0;
+                output.Status = 2;
+            }
+            else
+            {
+                output.ReworkFlag = 1;
+                output.Status = 1;
+            }
 
-        //    return output;
-        //}
+            return output;
+        }
+
+        /// <summary>
+        /// 查询指定工站指定字段数值
+        /// </summary>
+        public async Task<float> SelectValueData(string process_no, string bar_no, string FieldName)
+        {
+            string sql = $"select {FieldName} from GTProcessProperty where process_no ='{process_no}' AND bar_no = '{bar_no}' order by do_time desc";
+
+            var result = await _primary.QuerySingleAsync<object>(sql);
+
+            return Convert.ToSingle(result);
+
+        }
+
+        #endregion
+
+        #region 点检抽检查询
+
+        /// <summary>
+        /// 查询点检配置项
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        public async Task<CalibrationOrPeriodInspection> SelectCalibrationItem(string inspection, string station_id)
+        {
+            CalibrationOrPeriodInspection calibrationOrPeriodInspection = new CalibrationOrPeriodInspection();
+            List<string> LsTest_item = new List<string>();
+            List<string> LsTest_item_type = new List<string>();
+            List<string> LsTest_item_up = new List<string>();
+            List<string> LsTest_item_down = new List<string>();
+            string sql = $"select test_item,inspection,test_item_type,test_item_up,test_item_down from SHProcessCalibrationInspection where inspection = @inspection and station_id = @station_id";
+
+            var rows =
+               await _primary.QueryAsync<dynamic>(
+                   sql,
+                   new { inspection, station_id });
+
+
+            calibrationOrPeriodInspection.CalibrationOrPeriodStationId = station_id;
+            foreach (DataRow item in rows)
+            {
+                LsTest_item.Add(item["test_item"].ToString());
+                LsTest_item_type.Add(item["test_item_type"].ToString());
+                LsTest_item_up.Add(item["test_item_up"].ToString());
+                LsTest_item_down.Add(item["test_item_down"].ToString());
+            }
+            calibrationOrPeriodInspection.Test_item = LsTest_item.ToArray();
+            calibrationOrPeriodInspection.Test_item_type = LsTest_item_type.ToArray();
+            calibrationOrPeriodInspection.Test_item_up = LsTest_item_up.ToArray();
+            calibrationOrPeriodInspection.Test_item_down = LsTest_item_down.ToArray();
+            return calibrationOrPeriodInspection;
+        }
+
+        /// <summary>
+        /// 查询工序所有点检或抽检 station_id
+        /// </summary>
+        /// <param name="table_name"></param>
+        /// <param name="process_no"></param>
+        /// <returns></returns>
+        public async Task<List<dynamic>> SelectCalibration(string process_no, DateTime? start_time, DateTime? end_time)
+        {
+            var sqlQuery = $@"select bar_no,do_time,test_item,test_item_up,test_item_down,test_item_value,case when flag = 1 then 'OK' else 'NG' end as flag 
+                            FROM {calibrationTable} 
+                            WHERE process_no = @process_no and do_time between @start_time and @end_time order by do_time desc";
+
+            var parameters = new DynamicParameters();
+
+
+            parameters.Add("process_no", process_no);
+            parameters.Add("start_time", start_time.Value);
+            parameters.Add("end_time", end_time.Value);
+
+            //var parameters = new SqlParameter[]
+            //{
+            //     new SqlParameter("@process_no", process_no),
+            //     new SqlParameter("@start_time", start_time.Value),
+            //     new SqlParameter("@end_time", end_time.Value),
+            //};
+
+            var rows =
+          await _primary.QueryAsync<dynamic>(
+              sqlQuery,
+              parameters);
+            return rows;
+        }
+
+        /// <summary>
+        /// 批量上传三花点检/抽检表数据
+        /// </summary>
+        public async Task<bool> UpdateSHPeriodOrCalibrationValues(string bar_no, string process_no, string do_time, List<SaveItem> saveItems)
+        {
+            if (string.IsNullOrWhiteSpace(bar_no))
+                return false;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"insert into {calibrationTable} (bar_no,process_no,do_time,test_item,test_item_type,test_item_up,test_item_down,test_item_value,flag) values ");
+
+            List<string> list = new List<string>();
+
+            foreach (var item in saveItems)
+            {
+                string[] values = new string[] { bar_no, process_no, do_time, item.Test_item_name, "Property", item.Test_item_up, item.Test_item_down, item.Test_item_value, item.Ok_flag };
+                list.Add($"({string.Join(",", values.Select(t => $"'{t}'"))})");
+            }
+
+            sb.Append($"{string.Join(",", list.ToArray())}");
+            sb.Append(';');
+
+            await _primary.ExecuteAsync(sb.ToString());
+
+            return true;
+        }
+
+
+        #endregion
+
+        #region 工艺参数表
+
+        /// <summary>
+        /// 查询工艺代码
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        public async Task<List<ResultCodeParse>> SelectResultCodeParse(string process_no)
+        {
+            string sql = $"select ng_code,ng_msg from {resultCodeParse} where process_no = @process_no ";
+            
+            await _primary.ExecuteAsync(sql, new { process_no });
+
+            var rows = await _primary.QueryAsync<ResultCodeParse>(sql, new { process_no });
+
+            return rows;
+           
+        }
+
+
+        #endregion
+
+        #region 文件
+
+        /// <summary>
+        /// 上传文件路径，包含图片，曲线
+        /// </summary>
+        public async Task<bool> UploadProcessFile(ProcessFilePayload payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload.BarNo))
+                return false;
+
+                string sql = $@"insert into {fileTable} (bar_no,process_no,file_type,name,do_time,path,flag) values (@bar_no,@process_no,@fileType,@fileName,GETDATE(),@filePath,'0')";
+
+                await _primary.ExecuteAsync(sql, new
+                {
+                    bar_no = payload.BarNo,
+                    process_no = payload.ProcessNo,
+                    fileType = payload.FileType,
+                    fileName = payload.FileName,
+                    filePath = payload.FilePath
+                });
+
+                return true;
+        }
+
+
+        #endregion
+
+        #region 字段解析表
+
+        //  更新字段
+        public async Task SaveFieldAsync(string processNo, string fieldName, string fieldNameCn)
+        {
+            string sql = $@"
+                            UPDATE {propertyParseTable}
+                            SET field_name_cn=@field_name_cn,
+                                data_type='varchar'
+                            WHERE process_no=@process_no
+                            AND field_name=@field_name;
+                            
+                            IF @@ROWCOUNT = 0
+                            BEGIN
+                                INSERT INTO GTProcessPropertyParse
+                                (
+                                    process_no,
+                                    field_name,
+                                    field_name_cn,
+                                    data_type
+                                )
+                                VALUES
+                                (
+                                    @process_no,
+                                    @field_name,
+                                    @field_name_cn,
+                                    'varchar'
+                                )
+                            END";
+
+            var param = new DynamicParameters();
+            param.Add("@process_no", processNo);
+            param.Add("@field_name", fieldName);
+            param.Add("@field_name_cn", fieldNameCn);
+
+            await _primary.ExecuteAsync(sql, param);
+        }
+
 
         #endregion
 
@@ -260,6 +558,17 @@ namespace GT.Factory.Data.Repository
         /// <returns></returns>
         public async Task<Dictionary<string, string>> GetColumnMapAsync(string processNo)
         {
+            // 固定列
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "bar_no",  "产品码" },
+                { "vou_no",  "工单号" },
+                { "ok_flag", "结果" },
+                { "ng_msg",  "结果信息" },
+                { "do_time", "测试时间" },
+                { "user_id", "操作员" }
+            };
+
             var sql = $@"
                 SELECT field_name, field_name_cn
                 FROM {propertyParseTable}
@@ -269,7 +578,6 @@ namespace GT.Factory.Data.Repository
                 sql,
                 new { processNo });
 
-            var map = new Dictionary<string, string>();
 
             foreach (var row in rows)
             {
@@ -282,7 +590,6 @@ namespace GT.Factory.Data.Repository
         }
 
         #endregion
-
 
         #region 私有方法
 
@@ -351,7 +658,7 @@ namespace GT.Factory.Data.Repository
             string paramNames = string.Join(",", allValues.Select((_, i) => $"@p{i}"));
 
             string sql =
-                $"INSERT INTO GTProcessProperty (" +
+                $"INSERT INTO {processTable} (" +
                 $"bar_no, process_no, do_time, vou_no, ok_flag, ng_msg, user_id, " +
                 $"flag, eqpt_loc_id, major_state, second_state, aux_state, {fieldStr}) " +
                 $"VALUES (@bar_no, @process_no, GETDATE(), @vou_no, @ok_flag, @ng_msg, @user_id, " +

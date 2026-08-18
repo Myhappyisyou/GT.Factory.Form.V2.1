@@ -76,7 +76,7 @@ namespace GT_Common.Helper
 
         private void StartAlarmWorker()
         {
-            _alarmWorker = Task.Run(() =>
+            _alarmWorker = Task.Run(async () =>
             {
                 Console.WriteLine($"报警数量：{_alarmQueue.Count}");
                 foreach (var alarm in _alarmQueue.GetConsumingEnumerable())
@@ -84,7 +84,7 @@ namespace GT_Common.Helper
                     try
                     {
                         // 1 发给服务端
-                        _sender.SendTaskAsync("InsertAlarm", new
+                        await _sender.SendTaskAsync("InsertAlarm", new
                         {
                             ProcessName = alarm.ProcessName,
                             AlarmStation = alarm.AlarmStation,
@@ -101,12 +101,14 @@ namespace GT_Common.Helper
                         });
 
                         // 1 更新报警结束等状态
-                        UploadSql.UpdateAlarmInfor(alarm);
+                        //UploadSql.UpdateAlarmInfor(alarm);
+                       await AppRuntime.Current.DataRuntime.Repositories.Alarms.InsertAlarmAsync(alarm);
                         // 本地Access
                         DatabaseSessionManager.EnsureDatabase();
 
                         var db = DbContext.CurrentDb;
-                        UploadSql.Ac_InsertAlarmInfor(db, alarm);
+                        //UploadSql.Ac_InsertAlarmInfor(db, alarm);
+                        await AppRuntime.Current.DataRuntime.Repositories.Access.InsertAlarmAsync(alarm);
                     }
                     catch (Exception ex)
                     {

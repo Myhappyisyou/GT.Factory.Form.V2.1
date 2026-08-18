@@ -1,4 +1,7 @@
-﻿using GT_Common.DriverForm.ProductCode;
+﻿using GT.Factory.UI.Component;
+using GT.Factory.UI.Style;
+using GT.Factory.UI.Theme;
+using GT_Common.DriverForm.ProductCode;
 using GT_Common.Helper;
 using System;
 using System.Drawing;
@@ -16,39 +19,39 @@ public class ScanTestForm : Form
         this.Text = "扫码规则测试";
         this.Width = 600;
         this.Height = 300;
+        this.StartPosition = FormStartPosition.CenterScreen;
 
+        this.BackColor = UITheme.BgBase;
+
+        InitUI();
+    }
+
+    private void InitUI()
+    {
         #region 最近扫码显示
-        lblLastScan = new Label
-        {
-            Dock = DockStyle.Top,
-            Height = 40,
-            Font = new Font("Segoe UI", 12),
-            BackColor = Color.FromArgb(245, 245, 245),
-            TextAlign = ContentAlignment.MiddleLeft,
-            Padding = new Padding(10),
-            Text = "最近扫码："
-        };
+
+        lblLastScan = UILabel.FormLabel("最近扫码：");
+        lblLastScan.Dock = DockStyle.Top;
+        lblLastScan.TextAlign = ContentAlignment.MiddleLeft;
+        lblLastScan.BackColor = UITheme.BgBase;
+
         #endregion
 
         #region 输入框
-        txtInput = new TextBox
-        {
-            Dock = DockStyle.Top,
-            Font = new Font("Segoe UI", 16),
-            Height = 40
-        };
+
+        txtInput = UIInput.Text();
+        txtInput.Dock = DockStyle.Top;
+
         #endregion
 
         #region 结果显示（核心）
-        lblResult = new Label
-        {
-            Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 20, FontStyle.Bold),
-            TextAlign = ContentAlignment.MiddleCenter,
-            BackColor = Color.Gray,
-            ForeColor = Color.White,
-            Text = "等待扫码"
-        };
+
+        lblResult = UILabel.FormLabel("等待扫码");
+        lblResult.Font = UITheme.FontLarge;
+        lblResult.Dock = DockStyle.Fill;
+        lblResult.TextAlign = ContentAlignment.MiddleCenter;
+        lblResult.BackColor = UITheme.BgBase;
+
         #endregion
 
         txtInput.KeyDown += TxtInput_KeyDown;
@@ -85,13 +88,13 @@ public class ScanTestForm : Form
         {
             // ✅ OK 绿色
             lblResult.Text = $"OK\n{EnumHelper.GetDescription(match.CodeType)}\n{match.Model}";
-            lblResult.BackColor = Color.Green;
+            lblResult.ForeColor = UITheme.Success;
         }
         else
         {
             // ❌ NG 红色
             lblResult.Text = "NG\n未匹配规则";
-            lblResult.BackColor = Color.Red;
+            lblResult.ForeColor = UITheme.Danger;
         }
 
         // ✅ 只清输入框，不丢历史

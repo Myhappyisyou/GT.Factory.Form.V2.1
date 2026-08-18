@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GT_Common.DriverForm.Login
@@ -15,68 +13,64 @@ namespace GT_Common.DriverForm.Login
     public class RoleIdentityProvider : IIdentityProvider
     {
         public string Name => "角色选择";
-
         public event Action<User> LoginSuccess;
 
         private Panel _panel;
-
         private readonly LoginService _loginService;
-
-        /// <summary>
-        /// 超过该等级必须输入密码
-        /// </summary>
         private readonly UserLevel _passwordRequiredLevel;
 
-        public RoleIdentityProvider(
-            List<UserLevel> roles,
-            LoginService loginService,
-            UserLevel passwordRequiredLevel = UserLevel.ME)
+        public RoleIdentityProvider(List<UserLevel> roles, LoginService loginService, UserLevel passwordRequiredLevel = UserLevel.ME)
         {
             _loginService = loginService;
             _passwordRequiredLevel = passwordRequiredLevel;
-
             _panel = BuildUI(roles);
         }
 
         private Panel BuildUI(List<UserLevel> roles)
         {
-            var panel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                BackColor = Color.White
-            };
+            var panel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
 
-            var layout = new TableLayoutPanel
+            var outer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 1 };
+
+            var innerBox = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 ColumnCount = 1,
-                RowCount = roles.Count + 1
+                Anchor = AnchorStyles.None,
+                BackColor = IndustrialTheme.Card,
+                Padding = new Padding(40)
             };
-
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
-
-            for (int i = 0; i < roles.Count; i++)
-                layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / roles.Count));
 
             var title = new Label
             {
-                Text = "请选择登录角色",
-                Dock = DockStyle.Fill,
+                Text = "选择您的操作权限",
+                Font = IndustrialTheme.TitleFont,
+                ForeColor = IndustrialTheme.Text,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("微软雅黑", 16, FontStyle.Bold)
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 30),
+                Anchor = AnchorStyles.Top
             };
 
-            layout.Controls.Add(title, 0, 0);
+            innerBox.Controls.Add(title, 0, 0);
 
-            int row = 1;
+            var flow = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                MaximumSize = new Size(500, 0),
+                FlowDirection = FlowDirection.TopDown,
+                Anchor = AnchorStyles.Top
+            };
 
             foreach (var level in roles)
             {
-                var btn = CreateRoleButton(level);
-                layout.Controls.Add(btn, 0, row++);
+                flow.Controls.Add(CreateRoleButton(level));
             }
 
-            panel.Controls.Add(layout);
+            innerBox.Controls.Add(flow, 0, 1);
+            outer.Controls.Add(innerBox, 0, 0);
+            panel.Controls.Add(outer);
 
             return panel;
         }
@@ -86,53 +80,34 @@ namespace GT_Common.DriverForm.Login
             var btn = new Button
             {
                 Text = GetDescription(level),
-                Dock = DockStyle.Fill,
-                Font = new Font("Microsoft YaHei UI", 12),
+                Font = IndustrialTheme.LargeFont,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.White,
-                Margin = new Padding(100, 5, 100, 5),
-                Height = 70,
-                Padding = new Padding(0, 8, 0, 8),
-                TextAlign = ContentAlignment.MiddleCenter,
-                UseCompatibleTextRendering = true
+                BackColor = Color.FromArgb(45, 55, 72), // 次级暗色
+                ForeColor = IndustrialTheme.Text,
+                Width = 300,
+                Height = 60,
+                Margin = new Padding(10),
+                Cursor = Cursors.Hand
             };
-
-            btn.FlatAppearance.BorderColor = Color.Silver;
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = IndustrialTheme.Primary;
+            btn.FlatAppearance.MouseOverBackColor = IndustrialTheme.Primary; // 悬浮变成主色调蓝
 
             btn.Click += async (s, e) =>
             {
-                // ✅ 如果等级低于阈值，直接登录
                 if (level < _passwordRequiredLevel)
                 {
-                    LoginSuccess?.Invoke(new User
-                    {
-                        UserName = level.ToString(),
-                        LevelEnum = level
-                    });
-
+                    LoginSuccess?.Invoke(new User { UserName = level.ToString(), LevelEnum = level });
                     return;
                 }
 
-                // ✅ 高权限需要密码
                 using (var pwdDialog = new PasswordDialog())
                 {
-                    if (pwdDialog.ShowDialog() == DialogResult.OK)
+                    if (UIHelper.ShowDialogWithMask(pwdDialog, _panel.FindForm()) == DialogResult.OK)
                     {
-                        var user = await _loginService.LoginByAccount(
-                            level.ToString(),
-                            pwdDialog.Password,
-                            false);
-
-                        if (user != null)
-                        {
-                            LoginSuccess?.Invoke(user);
-                        }
-                        else
-                        {
-                            MessageBox.Show("密码错误", "提示",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
-                        }
+                        var user = await _loginService.LoginByRoleId(GetDescription(level), pwdDialog.Password, false);
+                        if (user != null) LoginSuccess?.Invoke(user);
+                        else MessageBox.Show("密码错误", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             };
@@ -141,18 +116,13 @@ namespace GT_Common.DriverForm.Login
         }
 
         public Control GetLoginControl() => _panel;
-
         public void Start() { }
-
         public void Stop() { }
 
         private string GetDescription(Enum value)
         {
             var field = value.GetType().GetField(value.ToString());
-            var attr = field
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .FirstOrDefault() as DescriptionAttribute;
-
+            var attr = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
             return attr?.Description ?? value.ToString();
         }
     }

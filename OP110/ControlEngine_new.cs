@@ -58,7 +58,8 @@ namespace OP110
             CheckResultProcess process,
             ProcessContext ctx)
         {
-            string mainBar = UploadSql.QueryMainBarByPartBar("OP070", ctx.Sn);
+            string mainBar = AppRuntime.Current.DataRuntime.Repositories.Parts.QueryMainBarByPartBarAsync("OP070", ctx.Sn).GetAwaiter().GetResult();
+            //string mainBar = UploadSql.QueryMainBarByPartBar("OP070", ctx.Sn);
 
             if (string.IsNullOrWhiteSpace(mainBar))
             {
@@ -141,7 +142,9 @@ namespace OP110
                         return Task.CompletedTask;
                     }
 
-                    float value = UploadSql.SelectValueData(LocalConfig.Instance.LengthProcessNo, mainBar, LocalConfig.Instance.LengthFieldName);
+                    float value = AppRuntime.Current.DataRuntime.Repositories.Processes.SelectValueData(LocalConfig.Instance.LengthProcessNo, mainBar, LocalConfig.Instance.LengthFieldName).GetAwaiter().GetResult();
+
+                    //float value = UploadSql.SelectValueData(LocalConfig.Instance.LengthProcessNo, mainBar, LocalConfig.Instance.LengthFieldName);
 
                     List<IMeasurement> lsMeasurements = new List<IMeasurement>();
                     lsMeasurements.Add(new Measurement<float>

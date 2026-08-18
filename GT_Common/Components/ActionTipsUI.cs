@@ -1,4 +1,7 @@
-﻿using GT_Common.Helper;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
+using GT.Factory.UI.Theme;
+using GT_Common.Helper;
 using GT_Common.MyEnum;
 using GT_Common.Util.LableStatus;
 using System;
@@ -30,6 +33,8 @@ namespace GT_Common.Components
 
             _timer = new Timer { Interval = 1000 };
             _timer.Tick += Timer_Tick; // 分离 Tick 回调
+
+            //UIStyle.ApplyWidget(this);
         }
 
         private void InitFormLayout()
@@ -64,6 +69,8 @@ namespace GT_Common.Components
                 ForeColor = Color.FromArgb(40, 40, 40),
             };
 
+            //var lbTitleName = new UIVerticalTitle("操作提示");
+
             lbStatus = new Label()
             {
                 AutoSize = false,
@@ -74,6 +81,8 @@ namespace GT_Common.Components
                 Padding = new Padding(10, 0, 0, 0),
                 BackColor = Color.White,
                 ForeColor = Color.FromArgb(30, 30, 30),
+                //BackColor = UITheme.Card,
+                //ForeColor = UITheme.Text,
             };
 
             mainLayout.Controls.Add(lbTitleName, 0, 0);

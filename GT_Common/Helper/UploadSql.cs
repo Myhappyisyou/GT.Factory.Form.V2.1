@@ -21,13 +21,13 @@ using SaveItem = GT.Factory.Common.Models.SaveItem;
 using AlarmParse = GT.Factory.Common.Models.AlarmParse;
 using GT.Factory.Data.Service;
 using ProcessPropertyPayload = GT.Factory.Common.Models.ProcessPropertyPayload;
+using Consumables = GT.Factory.Common.Models.Consumables;
 
 namespace GT_Common
 {
     public static class UploadSql
     {
         private static ProcessService _service;
-
 
         public static void Initialize(
             ProcessService service)
@@ -681,7 +681,6 @@ namespace GT_Common
 
         #endregion
 
-
         #region 报警表
 
         //  查询报警解析
@@ -738,7 +737,6 @@ namespace GT_Common
 
         #endregion
 
-
         #region 客户端IP配置
 
         //  查询客户端IP信息
@@ -760,7 +758,6 @@ namespace GT_Common
         }
 
         #endregion
-
 
         #region 服务器时间
 
@@ -2524,10 +2521,6 @@ namespace GT_Common
         /// <summary>
         /// 生成产品码
         /// </summary>
-        /// <param name="process_no">工序号</param>
-        /// <param name="product_code">产品代码</param>
-        /// <param name="CodeRules">编码规则</param>
-        /// <param name="origin_code">产地代码</param>
         public static string GenerateProductCode(string process_no, string LineNo, int ProductModel, int OP90_x, string ProductNo)
         {
 
@@ -2854,7 +2847,7 @@ namespace GT_Common
         /// <param name="starttime"></param>
         /// <param name="endtime"></param>
         /// <param name="state"></param>
-        public static void UpdateAlarmInfor(GT.Factory.Common.Models.AlarmInfo info)
+        public static void UpdateAlarmInfor(AlarmInfo info)
         {    
             Task.Factory.StartNew(() =>
             {
@@ -3153,22 +3146,6 @@ namespace GT_Common
                 //list.Add($"data{i}");
             }
             return string.Join(",", list.ToArray());
-        }
-
-        public class ParamatesLimit
-        {
-            public double Up_limit { get; set; }
-
-            public double Down_limit { get; set; }
-
-        }
-
-        public class ResultCodeParse
-        {
-            public string Ng_code { get; set; }
-
-            public string Ng_msg { get; set; }
-
         }
 
         //  更新字段

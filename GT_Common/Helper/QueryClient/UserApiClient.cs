@@ -51,6 +51,21 @@ namespace GT_Common.Helper.QueryClient
             
         }
 
+        /// <summary>
+        /// 权限登录
+        /// POST /api/user/login
+        /// </summary>
+        public Task<LoginResponse> RoleIdLoginAsync(string userName, string password)
+        {
+
+            var req = new RoleIdLoginRequest
+            {
+                UserName = userName,
+                Password = password
+            };
+            return _client.CallAsync<LoginResponse, RoleIdLoginRequest>("api/user/roleId", req);
+
+        }
 
     }
 }

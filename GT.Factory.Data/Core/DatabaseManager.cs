@@ -33,10 +33,10 @@ namespace GT.Factory.Data.Core
         public IDatabase LocalCache { get; }
 
         /// <summary>
-        /// MES 数据库
-        /// 用于对接外部 MES
+        /// 用户数据库
+        /// 用于用户登录
         /// </summary>
-        public IDatabase Mes { get; }
+        public IDatabase Master  { get; }
 
         /// <summary>
         /// 日志数据库
@@ -59,7 +59,7 @@ namespace GT.Factory.Data.Core
                 LocalCache = CreateDatabase(options.LocalCache);
 
             if (options.Mes?.Enabled == true)
-                Mes = CreateDatabase(options.Mes);
+                Master  = CreateDatabase(options.Mes);
 
             if (options.Log?.Enabled == true)
                 Log = CreateDatabase(options.Log);

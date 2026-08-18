@@ -1,10 +1,8 @@
 ﻿using GT.Factory.Common.Models;
 using GT_Common.DriverForm.Aynettek;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,7 +12,6 @@ namespace GT_Common.DriverForm.Login
     public class CardIdentityProvider : IIdentityProvider
     {
         public string Name => "刷卡登录";
-
         public event Action<User> LoginSuccess;
 
         private readonly LoginService _loginService;
@@ -22,165 +19,126 @@ namespace GT_Common.DriverForm.Login
         private readonly bool _needMes;
 
         private Panel _panel;
-        private Label _lblTitle;
         private Label _lblStatus;
         private PictureBox _pbStatus;
+        private bool _initialized = false;
 
-        public CardIdentityProvider(
-            LoginService loginService,
-            IRfidService rfidService,
-            bool needMesValidation)
+        public CardIdentityProvider(LoginService loginService, IRfidService rfidService, bool needMesValidation)
         {
             _loginService = loginService;
             _rfidService = rfidService;
             _needMes = needMesValidation;
-
             _panel = BuildUI();
         }
 
         private Panel BuildUI()
         {
-            var panel = new Panel
+            var panel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+
+            // 整体居中网格
+            var outer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 1 };
+
+            var innerBox = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(20)
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 1,
+                RowCount = 2,
+                Anchor = AnchorStyles.None,
+                BackColor = IndustrialTheme.Card,
+                Padding = new Padding(60, 40, 60, 40)
             };
 
-            // 使用 FlowLayoutPanel 替代 TableLayoutPanel，更灵活
-            var flowLayout = new FlowLayoutPanel
+            var lblTitle = new Label
             {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                AutoSize = false,
-                Padding = new Padding(10)
-            };
-
-            // 标题区域 - 使用固定高度确保显示完整
-            _lblTitle = new Label
-            {
-                Text = "请刷卡登录",
-                AutoSize = false,
-                Height = 60,
-                Width = 300, // 设置合适宽度
+                Text = "请放置员工卡",
+                Font = IndustrialTheme.TitleFont,
+                ForeColor = IndustrialTheme.Primary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("微软雅黑", 14, FontStyle.Bold),
-                ForeColor = Color.DarkBlue,
-                Anchor = AnchorStyles.None
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 30),
+                Anchor = AnchorStyles.Top
             };
 
-            // 状态指示灯容器
-            var statusPanel = new Panel
+            var statusPanel = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight, Anchor = AnchorStyles.Top };
+
+            _pbStatus = new PictureBox { Width = 20, Height = 20, Margin = new Padding(0, 5, 15, 0), BackColor = Color.Gray };
+            _pbStatus.Paint += (s, e) =>
             {
-                Height = 50,
-                Width = 300,
-                AutoScroll = false
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                e.Graphics.FillEllipse(new SolidBrush(_pbStatus.BackColor), 0, 0, _pbStatus.Width - 1, _pbStatus.Height - 1);
             };
 
-            _pbStatus = new PictureBox
-            {
-                Height = 16,
-                Width = 16,
-                BackColor = Color.Gray,
-                Location = new Point(60, 17),
-                SizeMode = PictureBoxSizeMode.StretchImage
-            };
-
-            _lblStatus = new Label
-            {
-                Text = "读卡器未初始化",
-                AutoSize = false,
-                Height = 50,
-                Width = 220,
-                Location = new Point(85, 0),
-                TextAlign = ContentAlignment.MiddleLeft,
-                Font = new Font("微软雅黑", 10),
-                ForeColor = Color.Red
-            };
+            _lblStatus = new Label { Text = "读卡器未初始化", Font = IndustrialTheme.LargeFont, ForeColor = IndustrialTheme.Danger, AutoSize = true };
 
             statusPanel.Controls.Add(_pbStatus);
             statusPanel.Controls.Add(_lblStatus);
 
-            // 添加控件到流式布局
-            flowLayout.Controls.Add(_lblTitle);
-            flowLayout.Controls.Add(statusPanel);
+            innerBox.Controls.Add(lblTitle, 0, 0);
+            innerBox.Controls.Add(statusPanel, 0, 1);
 
-            // 居中显示
-            flowLayout.Controls[0].Anchor = AnchorStyles.None;
-            flowLayout.Controls[1].Anchor = AnchorStyles.None;
-
-            panel.Controls.Add(flowLayout);
-
+            outer.Controls.Add(innerBox, 0, 0);
+            panel.Controls.Add(outer);
             return panel;
         }
 
+
         public void Start()
         {
+            if (_initialized)
+                return;
+
+            _initialized = true;
+
+            Task.Run(() =>
+            {
+                InitRfid();
+            });
+        }
+
+        public void InitRfid()
+        {
             bool initOk = false;
+            try { initOk = _rfidService.Init(LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort); }
+            catch (Exception ex) { UpdateStatus("读卡器异常: " + ex.Message, false); return; }
 
-            try
-            {
-                initOk = _rfidService.Init(
-                    LocalConfig.Instance.UIDIP,
-                    LocalConfig.Instance.UIDPort);
-            }
-            catch (Exception ex)
-            {
-                UpdateStatus("读卡器异常: " + ex.Message, false);
-                return;
-            }
+            if (!initOk) { UpdateStatus("读卡器连接失败", false); return; }
 
-            if (!initOk)
-            {
-                UpdateStatus("读卡器连接失败", false);
-                return;
-            }
-
-            UpdateStatus("读卡器已连接，请刷卡", true);
+            UpdateStatus("设备就绪，等待刷卡...", true);
 
             _rfidService.StartListening(async uid =>
             {
                 var user = await _loginService.LoginByCard(uid, _needMes);
-
-                if (user != null)
-                    LoginSuccess?.Invoke(user);
-
+                if (user != null) LoginSuccess?.Invoke(user);
             },
             tagOnline =>
             {
-                // 更新在线状态指示灯
-                _panel.Invoke(new Action(() =>
-                {
-                    _pbStatus.BackColor = tagOnline ? Color.Green : Color.Red;
-                }));
-            },
-            CancellationToken.None);
+                if (_panel.InvokeRequired) _panel.Invoke(new Action(() => UpdateStatus(tagOnline ? "设备就绪，等待刷卡..." : "设备已断开", tagOnline)));
+                else UpdateStatus(tagOnline ? "设备就绪，等待刷卡..." : "设备已断开", tagOnline);
+            }, CancellationToken.None);
         }
 
         private void UpdateStatus(string text, bool connected)
         {
             if (_panel.InvokeRequired)
             {
-                _panel.Invoke(new Action(() =>
-                {
+                _panel.Invoke(new Action(() => {
                     _lblStatus.Text = text;
-                    _lblStatus.ForeColor = connected ? Color.Green : Color.Red;
-                    _pbStatus.BackColor = connected ? Color.Green : Color.Red;
+                    _lblStatus.ForeColor = connected ? IndustrialTheme.Success : IndustrialTheme.Danger;
+                    _pbStatus.BackColor = connected ? IndustrialTheme.Success : IndustrialTheme.Danger;
+                    _pbStatus.Invalidate();
                 }));
             }
             else
             {
                 _lblStatus.Text = text;
-                _lblStatus.ForeColor = connected ? Color.Green : Color.Red;
-                _pbStatus.BackColor = connected ? Color.Green : Color.Red;
+                _lblStatus.ForeColor = connected ? IndustrialTheme.Success : IndustrialTheme.Danger;
+                _pbStatus.BackColor = connected ? IndustrialTheme.Success : IndustrialTheme.Danger;
+                _pbStatus.Invalidate();
             }
         }
 
-        public void Stop()
-        {
-            _rfidService.Stop();
-        }
-
+        public void Stop() => _rfidService.Stop();
         public Control GetLoginControl() => _panel;
     }
 }

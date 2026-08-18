@@ -29,6 +29,11 @@ namespace GT.Factory.Data.Repository
         public ProcessRepository Processes { get; }
 
         /// <summary>
+        /// 本地生产数据仓储
+        /// </summary>
+        public AccessRepository Access { get; }
+
+        /// <summary>
         /// 报警仓储
         /// </summary>
         public EquipmentStatusRepository Alarms { get; }
@@ -46,6 +51,7 @@ namespace GT.Factory.Data.Repository
         {
             Parts = new PartRepository(manager);
             Processes = new ProcessRepository(manager);
+            Access = new AccessRepository(manager);
             Alarms = new EquipmentStatusRepository(manager);
             SyncQueue = new SyncQueueRepository(manager);
         }

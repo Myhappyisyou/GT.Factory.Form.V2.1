@@ -1,5 +1,7 @@
-﻿using GT_Common.MyEnum;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
 using GT_Common.Helper.UIHelp;
+using GT_Common.MyEnum;
 using GT_Common.Util.LableStatus;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,7 @@ namespace GT_Common.Components
             InitFormLayout();
             UiRefreshCenter.OnRefresh += RefreshUI;
 
+            //UIStyle.ApplyWidget(this);
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -99,6 +102,9 @@ namespace GT_Common.Components
                 BackColor = Color.FromArgb(230, 235, 240),
                 ForeColor = Color.FromArgb(40, 40, 40),
             };
+
+            //var lbTtileName = new UIVerticalTitle("产品状态");
+
             _statusLabel = new StatusLabel()
             {
                 Dock = DockStyle.Fill,

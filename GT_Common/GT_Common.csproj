@@ -203,7 +203,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppManager.cs" />
-    <Compile Include="BaseMainForm .cs">
+    <Compile Include="AppRuntime.cs" />
+    <Compile Include="BaseMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Components\ActionTipsUI.cs">
@@ -356,6 +357,12 @@
     <Compile Include="DriverForm\EditJson\Components\FixtureConfigEditor.Designer.cs">
       <DependentUpon>FixtureConfigEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="DriverForm\EditJson\Components\PlcChannelEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriverForm\EditJson\Components\PlcMeasureGroupEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DriverForm\EditJson\Components\PlcReadConfigEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -412,6 +419,7 @@
       <DependentUpon>LoginForm .cs</DependentUpon>
     </Compile>
     <Compile Include="DriverForm\Login\LoginService.cs" />
+    <Compile Include="DriverForm\Login\LoginTheme.cs" />
     <Compile Include="DriverForm\Login\PasswordDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -807,6 +815,10 @@
     <ProjectReference Include="..\GT.Factory.Data\GT.Factory.Data.csproj">
       <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
       <Name>GT.Factory.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
+      <Project>{43748B7A-DD23-46C3-9627-26A6692F0394}</Project>
+      <Name>GT.Factory.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

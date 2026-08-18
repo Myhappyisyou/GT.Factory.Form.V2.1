@@ -1,7 +1,7 @@
-﻿using GT_Common.Helper.PlcComm;
+﻿using GT.Factory.Common.Models;
+using GT_Common.Helper.PlcComm;
 using RecipeParameter.RecipeParameter;
 using System.Collections.Generic;
-using static GT_Common.UploadSql;
 
 namespace GT_Common.ProcessConfig
 {

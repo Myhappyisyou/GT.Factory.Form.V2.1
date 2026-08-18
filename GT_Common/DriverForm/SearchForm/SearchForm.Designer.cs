@@ -34,7 +34,7 @@
             this.Name = "SearchForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "数据查询";
-            this.Load += new System.EventHandler(this.SearchForm_Load);
+            //this.Load += new System.EventHandler(this.SearchForm_Load);
             this.ResumeLayout(false);
 
         }

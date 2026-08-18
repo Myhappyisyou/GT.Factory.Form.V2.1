@@ -1,8 +1,9 @@
 ﻿using GT.Factory.Common.Enums;
-using GT_Common.Model;
+using GT.Factory.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -281,6 +282,161 @@ namespace GT.Factory.Common.Helper
                 return tableName;
 
             return $"{prefixEnum}{tableName}";
+        }
+
+    }
+
+    public static class LstToDataTableConverter
+    {
+        public static DataTable ToDataTable<T>(List<T> list)
+        {
+            var dt = new DataTable();
+
+            if (list == null || list.Count == 0)
+                return dt;
+
+
+            // dynamic / DapperRow
+            if (list[0] is IDictionary<string, object>)
+            {
+                var first =
+                    (IDictionary<string, object>)list[0];
+
+
+                foreach (var item in first)
+                {
+                    dt.Columns.Add(
+                        item.Key,
+                        typeof(object));
+                }
+
+
+                foreach (var data in list)
+                {
+                    var row = dt.NewRow();
+
+                    var dic =
+                        (IDictionary<string, object>)data;
+
+
+                    foreach (var item in dic)
+                    {
+                        row[item.Key] =
+                            item.Value ?? DBNull.Value;
+                    }
+
+                    dt.Rows.Add(row);
+                }
+
+
+                return dt;
+            }
+
+
+
+            // 普通实体
+            var props =
+                typeof(T).GetProperties();
+
+
+            foreach (var p in props)
+            {
+                dt.Columns.Add(
+                    p.Name,
+                    Nullable.GetUnderlyingType(p.PropertyType)
+                    ?? p.PropertyType);
+            }
+
+
+            foreach (var item in list)
+            {
+                var row = dt.NewRow();
+
+                foreach (var p in props)
+                {
+                    row[p.Name] =
+                        p.GetValue(item) ?? DBNull.Value;
+                }
+
+                dt.Rows.Add(row);
+            }
+
+
+            return dt;
+        }
+    }
+
+    #endregion
+
+    #region 导出
+
+    public static class ExportData
+    {
+       
+        /// <summary>
+        /// 直接以 TSV 方式写 Excel（简单粗暴但够用）
+        /// </summary>
+        public static void WriteExcel(Dictionary<string, string> columnMap, DataTable dt, string path)
+        {
+            using (var sw = new System.IO.StreamWriter(path, false, Encoding.GetEncoding("gb2312")))
+            {
+                var sb = new StringBuilder();
+
+                // 表头
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    var colName = dt.Columns[i].ColumnName;
+                    if (columnMap.TryGetValue(colName, out var cn))
+                        sb.Append(cn);
+                    else
+                        sb.Append(colName);
+
+                    if (i < dt.Columns.Count - 1) sb.Append('\t');
+                }
+                sb.AppendLine();
+
+                // 数据
+                foreach (DataRow row in dt.Rows)
+                {
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        var val = row[j]?.ToString() ?? "";
+                        sb.Append(val);
+                        if (j < dt.Columns.Count - 1) sb.Append('\t');
+                    }
+                    sb.AppendLine();
+                }
+
+                sw.Write(sb.ToString());
+                sw.Flush();
+            }
+
+        }
+
+    }
+
+    #endregion
+
+    #region 班次时间
+
+    public static class ShiftTime
+    {
+        /// <summary>
+        /// 班次时间
+        /// </summary>
+        /// <returns></returns>
+        public static (DateTime start, DateTime end) GetShiftTime()
+        {
+            DateTime now = DateTime.Now;
+            DateTime dayStart = now.Date.AddHours(8).AddMinutes(00);
+            DateTime nightStart = now.Date.AddHours(20).AddMinutes(00);
+
+            if (now >= dayStart && now < nightStart)
+                return (dayStart, nightStart);
+            else if (now >= nightStart)
+                return (nightStart, dayStart.AddDays(1));
+            else
+                return (nightStart.AddDays(-1), dayStart);
         }
     }
 

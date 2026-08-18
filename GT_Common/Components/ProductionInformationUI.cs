@@ -1,5 +1,7 @@
-﻿using GT_Common.Helper;
+﻿using GT.Factory.UI;
+using GT.Factory.UI.Apply;
 using GT_Common.DriverForm.DataDetail;
+using GT_Common.Helper;
 using GT_Common.Helper.UIHelp;
 using GT_Common.Util;
 using System;
@@ -26,6 +28,8 @@ namespace GT_Common.Components
             InitializeComponent();
             InitFormLayout();
 
+            //UIStyle.ApplyWidget(this);
+
             // 监听值变化
             Shared.productInformationDataList[0].PropertyChanged += (s, e) =>
             {
@@ -35,15 +39,15 @@ namespace GT_Common.Components
                 }
             };
 
-            gridView.CellForeColorProvider = (row, col) =>
-            {
-                if (row == 4 && col == 1) // Col3
-                {
-                    return Color.Green;
-                }
+            //gridView.CellForeColorProvider = (row, col) =>
+            //{
+            //    if (row == 4 && col == 1) // Col3
+            //    {
+            //        return Color.Green;
+            //    }
 
-                return null;
-            };
+            //    return null;
+            //};
 
             gridView.MouseDoubleClick += GridView_MouseDoubleClick;
 
@@ -116,7 +120,7 @@ namespace GT_Common.Components
 
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));   // Data grid
 
-            var lbTtileName = new Label()
+            var lbTitleName = new Label()
             {
                 AutoSize = false,
                 Text = "生产\n信息",
@@ -127,6 +131,9 @@ namespace GT_Common.Components
                 BackColor = Color.FromArgb(230, 235, 240),
                 ForeColor = Color.FromArgb(40, 40, 40),
             };
+
+            //var lbTtileName = new UIVerticalTitle("生产信息");
+
 
             gridView = new MergedDataGridView()
             {
@@ -141,7 +148,9 @@ namespace GT_Common.Components
             gridView.DefaultCellStyle.SelectionBackColor = gridView.DefaultCellStyle.BackColor;
             gridView.DefaultCellStyle.SelectionForeColor = gridView.DefaultCellStyle.ForeColor;
 
-            mainLayout.Controls.Add(lbTtileName, 0, 0);
+            //UIGrid.ApplyGrid(gridView);
+
+            mainLayout.Controls.Add(lbTitleName, 0, 0);
 
             mainLayout.Controls.Add(gridView, 1, 0);
 

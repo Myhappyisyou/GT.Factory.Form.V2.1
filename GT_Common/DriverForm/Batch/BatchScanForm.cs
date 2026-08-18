@@ -147,7 +147,6 @@ namespace GT_Common.DriverForm.Batch
                 ShowError("无法识别的扫码格式");
             }
 
-            
         }
 
         //  长码解析

@@ -1,4 +1,5 @@
-﻿using GT_Common;
+﻿using GT.Factory.Common.Models;
+using GT_Common;
 using GT_Common.DriverForm.Batch;
 using GT_Common.Helper;
 using GT_Common.Helper.ClientTask;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using static GT_Common.UploadSql;
+using Consumables = GT.Factory.Common.Models.Consumables;
 
 namespace GT_Common.ProcessConfig
 {

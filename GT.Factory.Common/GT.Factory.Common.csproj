@@ -43,16 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ObjectExtensions.cs" />
+    <Compile Include="Models\AccessModel.cs" />
     <Compile Include="Models\AlarmParse.cs" />
-    <Compile Include="Models\CommMethod.cs" />
+    <Compile Include="Helpers\CommMethod.cs" />
     <Compile Include="Enums\MyEnum.cs" />
     <Compile Include="Helpers\PathCenter.cs" />
     <Compile Include="Helpers\UserLevelHelper.cs" />
     <Compile Include="Models\AlarmInfo.cs" />
+    <Compile Include="Models\CalibrationOrPeriodInspection.cs" />
     <Compile Include="Models\Consumables.cs" />
     <Compile Include="Models\DataItem.cs" />
+    <Compile Include="Models\ParamatersLimit.cs" />
     <Compile Include="Models\ProcessPropertyPayload.cs" />
     <Compile Include="Models\ResponseModel.cs" />
+    <Compile Include="Models\ResultCodeParse.cs" />
+    <Compile Include="Models\ReworkQueryResult.cs" />
     <Compile Include="Models\SaveItem.cs" />
     <Compile Include="Models\SyncItem.cs" />
     <Compile Include="Models\TestDispItem.cs" />

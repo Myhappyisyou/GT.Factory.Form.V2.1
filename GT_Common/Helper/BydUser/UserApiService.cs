@@ -32,6 +32,16 @@ namespace GT_Common.Helper.BydUser
             return result.User;
         }
 
+        public async Task<User> GetUserByRoleId(string userId, string password)
+        {
+            var result = await _client.RoleIdLoginAsync(userId, password);
+
+            if (!result.Success)
+                throw new Exception(result.Message);
+
+            return result.User;
+        }
+
         public async Task<User> GetUserByCard(string uid)
         {
             return await _client.GetUserByCardAsync(uid);

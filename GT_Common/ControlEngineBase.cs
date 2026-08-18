@@ -27,8 +27,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskContracts.Models;
-using static GT_Common.UploadSql;
+using Consumables = GT.Factory.Common.Models.Consumables;
 using DataItem = GT.Factory.Common.Models.DataItem;
+using ResultCodeParse = GT.Factory.Common.Models.ResultCodeParse;
 
 namespace GT_Common
 {
@@ -93,17 +94,17 @@ namespace GT_Common
 
         #region ===== 生命周期 =====
 
-        public void Init()
+        public async Task Init()
         {
             try
             {
                 ConnectNetworkShare();
-                InitDatabases();
+                await InitDatabases();
                 InitLoadLocalCache();
 
                 InitExternalDevices();          // ✅ 外设扩展点
 
-                LoadConfigs();
+                await LoadConfigs();
                 InitPLC();
 
                 if (NeedReadBatch())
@@ -127,7 +128,6 @@ namespace GT_Common
 
         #endregion
         
-
         private void ConnectNetworkShare()
         {
             clientTask = new ClientTaskSender(Config.Instance.ServerDbtask);
@@ -137,7 +137,7 @@ namespace GT_Common
             };
         }
 
-        private void InitDatabases()
+        private async Task InitDatabases()
         {
             string month = DateTime.Now.ToString("yyyy年MM月");
 
@@ -147,14 +147,14 @@ namespace GT_Common
 
             DbContext.Set(db, month);
 
-            DatabaseInitializer.InitMonthlyDatabase(db, result.isNew);
+            await DatabaseInitializer.InitMonthlyDatabase(db, result.isNew);
 
             dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
 
-            UploadSql.Initialize(dataRuntime.ProcessService);
+            //UploadSql.Initialize(dataRuntime.ProcessService);
         }
 
-        private void LoadConfigs()
+        private async Task LoadConfigs()
         {
             //  加载PLC配置文件
             InitPlcConfigFile();
@@ -163,15 +163,15 @@ namespace GT_Common
             // 加载工序参数
             InitLoadProcessConfig();
             //  加载易损件信息
-            InitLoadConsumables();
+            //await InitLoadConsumables();
             //  加载易损件PLC配置信息
-            InitLoadPlcConsumables();
+            //InitLoadPlcConsumables();
             //  提示信息
             InitLoadActionTips();
             //  配置流程
             InitPlcConfig();
             //  更新数据库解析字段
-            InitFieldParse();
+            await InitFieldParse();
         }
 
         //  加载PLC配置文件
@@ -197,9 +197,11 @@ namespace GT_Common
         }
 
         //  加载工序易损件信息
-        private void InitLoadConsumables()
+        private async Task InitLoadConsumables()
         {
-            lsConsumables = Ac_SelectConsumables(db, "");
+            //lsConsumables = Ac_SelectConsumables(db, "");
+            lsConsumables = await AppRuntime.Current.DataRuntime.Repositories.Access.GetByStationAsync("");
+
         }
 
         //  加载工序易损件PLC地址配置信息
@@ -215,9 +217,10 @@ namespace GT_Common
         }
 
         //  加载工序参数
-        private void InitLoadProcessConfig()
+        private async void InitLoadProcessConfig()
         {
-            resultCodeParse = SelectResultCodeParse(plcConfig.ProcessNo);
+            resultCodeParse = await AppRuntime.Current.DataRuntime.Repositories.Processes.SelectResultCodeParse(plcConfig.ProcessNo);
+            //resultCodeParse =UploadSql.SelectResultCodeParse(plcConfig.ProcessNo);
         }
 
         //  配置流程
@@ -240,9 +243,9 @@ namespace GT_Common
         }
 
         //  更新数据库解析字段
-        private void InitFieldParse()
+        private async Task InitFieldParse()
         {
-            CommMethod.SyncFieldConfig(StandardProcesses, plcConfig.ProcessNo);
+            await CommMethod.SyncFieldConfigAsync(StandardProcesses, plcConfig.ProcessNo);
         }
 
         private void InitPLC()
@@ -573,26 +576,29 @@ namespace GT_Common
 
         }
 
-        protected virtual Task CoreReworkAsync(StandardProcess process, ProcessContext ctx)
+        protected virtual async Task CoreReworkAsync(StandardProcess process, ProcessContext ctx)
         {
             var shopOrder = mesServer.ValidateOrderInfor("", "", ctx.Sn, out bool result);
             if (!result)
             {
                 ctx.WritePlcResult = 2;  // 无效订单
                 DisplayLog.Warn($"流程 【{process.Name}】【{ctx.Sn}】获取工单失败", true);
-                return Task.CompletedTask;
+                return;
             }
             ctx.MesOrder = shopOrder.Order;
             Shared.shopOrder = shopOrder;
             monitor.OnProductInput(ctx.Sn, shopOrder.Order, isRework: true);
-            ctx.WritePlcResult = UploadSql.QueryDataUploadCount(plcConfig.ProcessNo, ctx.Sn, Config.Instance.ReworkCountLimit, out int reworkFlag, out int ngCode);
+
+            var reworkQueryResult = await dataRuntime.Repositories.Processes.QueryDataUploadCountAsync(ctx.Sn, plcConfig.ProcessNo, Config.Instance.ReworkCountLimit);
+
+            ctx.WritePlcResult = reworkQueryResult.Status;
 
             List<IMeasurement> lsMeasurements = new List<IMeasurement>
             {
                 new Measurement<int>
                 {
                     Name = "返工数据",
-                    Value = reworkFlag,
+                    Value = reworkQueryResult.ReworkFlag,
                     Unit = "",
                     Status = ""
                 }
@@ -605,9 +611,9 @@ namespace GT_Common
                            lsMeasurements,
                            reader);
             }
-            DisplayLog.Info($"流程 【{process.Name}】【{ctx.Sn}】返工查询，返工标志【{reworkFlag}】,返工代码【{ngCode}】", true);
+            DisplayLog.Info($"流程 【{process.Name}】【{ctx.Sn}】返工查询，返工标志【{reworkQueryResult.ReworkFlag}】,返工代码【{reworkQueryResult.NgCode}】", true);
 
-            return Task.CompletedTask;
+            return;
         }
 
         protected virtual Task BeforeReworkAsync(StandardProcess process, ProcessContext ctx)

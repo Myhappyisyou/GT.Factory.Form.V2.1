@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
 
-namespace GT_Common.Model
+namespace GT.Factory.Common.Models
 {
     public class Consumables
     {

@@ -13,6 +13,39 @@ namespace GT.Factory.Data.Abstractions
     /// </summary>
     public interface IDatabase
     {
+
+        #region Sync
+
+        /// <summary>
+        /// 执行非查询SQL（INSERT / UPDATE / DELETE）
+        /// </summary>
+        int Execute(
+        string sql,
+            object param = null);
+
+        /// <summary>
+        /// 查询单条记录
+        /// </summary>
+        T QuerySingle<T>(
+            string sql,
+            object param = null);
+
+        /// <summary>
+        /// 查询多条记录
+        /// </summary>
+        List<T> Query<T>(
+            string sql,
+            object param = null);
+
+        /// <summary>
+        /// 数据库健康检测
+        /// 用于检测数据库是否可连接
+        /// </summary>
+        bool Ping();
+
+        #endregion
+
+
         /// <summary>
         /// 执行非查询SQL（INSERT / UPDATE / DELETE）
         /// </summary>

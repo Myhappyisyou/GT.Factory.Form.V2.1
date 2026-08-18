@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Consumables = GT.Factory.Common.Models.Consumables;
 using User = GT.Factory.Common.Models.User;
 
 namespace GT_Common.Helper.Database.Repository

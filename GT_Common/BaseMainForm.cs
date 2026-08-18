@@ -66,6 +66,7 @@ namespace GT_Common
         protected ContextMenuStrip trayMenu;
         protected bool isRealExit = false;
 
+        protected DataRuntime _dataRuntime;
         #region 窗口字段（声明为 protected，子类可访问）
         protected AynettekForm aynettekForm;
         protected SyncMonitorForm syncMonitorForm;
@@ -103,6 +104,8 @@ namespace GT_Common
 
             Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
              PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
+
+            _dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
 
             InitTrayIcon();
             this.FormClosing += MainForm_FormClosing;
@@ -196,7 +199,7 @@ namespace GT_Common
             currentProductDataUI = new CurrentProductDataUI { Dock = DockStyle.Fill };
             leftLayout.Controls.Add(currentProductDataUI, 0, 1);
 
-            dataUI = new DataUI(Config.Instance.ProcessName) { Dock = DockStyle.Fill };
+            dataUI = new DataUI(Config.Instance.ProcessName, _dataRuntime) { Dock = DockStyle.Fill };
             ConfigureDataUIColumns(); // 子类可重写
             leftLayout.Controls.Add(dataUI, 0, 2);
 
@@ -352,7 +355,7 @@ namespace GT_Common
             // 给个默认实现，这样才不会报错
             return null;
         }
-        protected virtual void InitControlEngine()
+        protected virtual async Task InitControlEngine()
         {
             if (controlEngine != null)
             {
@@ -364,7 +367,7 @@ namespace GT_Common
                PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
 
             controlEngine = CreateControlEngine();
-            controlEngine.Init();
+            await controlEngine.Init();
         }
 
         protected virtual void ApplyModel(ProductModel model)
@@ -454,7 +457,6 @@ namespace GT_Common
         /// <param name="e"></param>
         protected virtual void tsm_SyncMonitorFormClicked(object sender, EventArgs e)
         {
-            var _dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
 
             // 创建数据库管理器
             var dbManager = new DatabaseManager(Config.Instance.DatabaseOptions);
@@ -497,7 +499,9 @@ namespace GT_Common
         protected virtual void tsm_SearchFormClicked(object sender, EventArgs e)
         {
             if (searchForm?.IsDisposed != false)
-                searchForm = new SearchForm(LocalConfig.Instance.ProcessName);
+                searchForm = new SearchForm(LocalConfig.Instance.ProcessName, _dataRuntime);
+            //searchForm = new SearchForm();
+
             searchForm.Show();
         }
 
@@ -509,7 +513,7 @@ namespace GT_Common
         private void tsm_SearchCheckFormClicked(object sender, EventArgs e)
         {
             if (searchCheckForm?.IsDisposed != false)
-                searchCheckForm = new SearchCheckForm(LocalConfig.Instance.ProcessName);
+                searchCheckForm = new SearchCheckForm(LocalConfig.Instance.ProcessName, _dataRuntime);
             searchCheckForm.Show();
         }
 
@@ -568,7 +572,7 @@ namespace GT_Common
         /// <param name="e"></param>
         protected virtual void tsm_RecipeFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.ADM, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.ADM, user =>
             {
                 if (recipeForm?.IsDisposed != false)
                     recipeForm = new RecipeForm();
@@ -583,7 +587,7 @@ namespace GT_Common
         /// <param name="e"></param>
         protected virtual void tsm_AlarmFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (AlarmForm?.IsDisposed != false)
                     AlarmForm = new AlarmForm();
@@ -598,7 +602,7 @@ namespace GT_Common
         /// <param name="e"></param>
         private void tsm_ConfigCenterFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE,user =>
             {
                 if (ConfigCenterForm?.IsDisposed != false)
                     ConfigCenterForm = new ConfigCenterForm();
@@ -613,10 +617,10 @@ namespace GT_Common
         /// <param name="e"></param>
         private void tsm_UserManageClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (userManageForm?.IsDisposed != false)
-                    userManageForm = new UserManageForm();
+                    userManageForm = new UserManageForm(_dataRuntime);
                 userManageForm.Show();
             });
         }
@@ -628,7 +632,7 @@ namespace GT_Common
         /// <param name="e"></param>
         private void tsm_ProductCodeConfigFormClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (ProductCodeConfigForm?.IsDisposed != false)
                     ProductCodeConfigForm = new ProductCodeConfigForm();
@@ -643,7 +647,7 @@ namespace GT_Common
         /// <param name="e"></param>
         private void tsm_BydMesViewerClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (OrderForm?.IsDisposed != false)
                     OrderForm = new BydMesForm();
@@ -658,7 +662,7 @@ namespace GT_Common
         /// <param name="e"></param>
         private void tsm_BlockViewerClicked(object sender, EventArgs e)
         {
-            AuthHelper.RequireLogin(UserLevel.PE, LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort, user =>
+            AuthHelper.RequireLogin(UserLevel.PE,  user =>
             {
                 if (SpecialForm?.IsDisposed != false)
                     SpecialForm = new SpecialForm();
@@ -678,39 +682,20 @@ namespace GT_Common
             {
                 this.Hide();
 
-                var localConfig = Config.Instance;
-
-                // 校验登录配置
-                localConfig.Login.Validate();
-
-                // 初始化 RFID（如果启用）
-                if (localConfig.EnableCardReader)
+                // ✅ 代码复用，清爽无比，加上 using 防泄漏
+                using (var loginForm = AuthHelper.CreateLoginForm())
                 {
-                    //rfidService.Init(localConfig.UIDIP, localConfig.UIDPort);
+                    if (loginForm.ShowDialog() == DialogResult.OK)
+                    {
+
+                        // ✅ 修复：必须记录到 AuthHelper 里，这才是真正的切换用户！
+                        AuthHelper.RecordLogin(loginForm.CurrentUser);
+
+                        Shared.user = AuthHelper.CurrentUser;
+
+                        MessageBox.Show($"已切换至用户：{loginForm.CurrentUser.UserName}", "切换成功");
+                    }
                 }
-
-                var loginService = new LoginService(
-                    new LocalUserService(),
-                    new UserApiService(Config.Instance.ServerApi, Config.Instance.ServerDbtask),
-                    new MesService());
-
-                var providers = IdentityProviderFactory.CreateProviders(
-                    localConfig.Login,
-                    loginService,
-                    localConfig.EnableCardReader ? new RfidService() : null);
-
-                var loginForm = new GT_Common.DriverForm.Login.LoginForm(providers);
-
-                if (loginForm.ShowDialog() == DialogResult.OK)
-                {
-                    var user = loginForm.CurrentUser;
-                }
-
-                //this.Hide();
-                //using (var loginForm = new LoginForm(new RfidService(), new UserApiService(Config.Instance.ServerApi, Config.Instance.ServerDbtask), new MesService(), new LocalUserService(), LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort))
-                //{
-                //    loginForm.ShowDialog();
-                //}
             }
             finally
             {
@@ -735,7 +720,8 @@ namespace GT_Common
         #endregion
 
         #region 窗口事件
-        private void MainForm_Load(object sender, EventArgs e)
+
+        private async void MainForm_Load(object sender, EventArgs e)
         {
             //if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             //    return;
@@ -746,8 +732,7 @@ namespace GT_Common
 
             InitServices();
 
-
-            try { InitControlEngine(); }
+            try { await InitControlEngine(); }
             catch (Exception ex) { MessageBox.Show(ex.Message); throw; }
         }
 

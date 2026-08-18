@@ -1,4 +1,7 @@
 ﻿using GT.Factory.Common.Models;
+using GT.Factory.Data.Core;
+using GT.Factory.UI;
+using GT.Factory.UI.Apply;
 using GT_Common.DriverForm.DataDetail;
 using GT_Common.Helper.Logging;
 using GT_Common.Helper.UIHelp;
@@ -40,9 +43,13 @@ namespace GT_Common.Components
         // 控制最大显示条数
         private const int MaxDisplayCount = 200;
 
-        public DataUI(string processName)
+        private readonly DataRuntime _dataRuntime;
+
+        public DataUI(string processName,DataRuntime dataRuntime)
         {
             _processName = processName;
+            _dataRuntime = dataRuntime;
+
             InitializeComponent();
             InitFormLayout();
             InitEventHandlers();
@@ -58,6 +65,8 @@ namespace GT_Common.Components
                     lvInfo.Refresh();
                 }));
             };
+
+            //UIStyle.ApplyWidget(this);
         }
 
         #region === 初始化 ===
@@ -174,87 +183,7 @@ namespace GT_Common.Components
             _isLayoutBusy = false;
         }
 
-        //public void SetColumns(List<(string ColumnName, Func<TestDispItem, string> ValueGetter)> columnConfigs)
-        //{
-        //    _isLayoutBusy = true;
-        //    _columnConfigs = columnConfigs;
-
-        //    lvInfo.BeginUpdate();
-        //    lvInfo.Columns.Clear();
-
-        //    foreach (var col in _columnConfigs)
-        //        lvInfo.Columns.Add(col.ColumnName, 100, HorizontalAlignment.Center);
-
-        //    _columnMaxWidth = new int[_columnConfigs.Count];
-        //    for (int i = 0; i < _columnConfigs.Count; i++)
-        //    {
-        //        int w;
-        //        if (_columnConfigs[i].ColumnName == "序号")
-        //            w = TextRenderer.MeasureText("2000", lvInfo.Font).Width + 20;
-        //        else
-        //            w = TextRenderer.MeasureText(_columnConfigs[i].ColumnName, lvInfo.Font).Width + 10;
-
-        //        _columnMaxWidth[i] = Math.Max(w, 100);
-
-        //        // ==========================================
-        //        // 👇 👇 关键：直接赋值固定宽度，不再变化
-        //        lvInfo.Columns[i].Width = _columnMaxWidth[i];
-        //        // ==========================================
-        //    }
-
-        //    lvInfo.EndUpdate();
-        //    _isLayoutBusy = false;
-        //}
-
         #endregion
-
-        #region === 安全列宽计算 ===
-
-        //private void SafeResizeColumns()
-        //{
-        //    // 1. 最小化直接跳过（最强拦截）
-        //    if (ParentForm != null && ParentForm.WindowState == FormWindowState.Minimized)
-        //        return;
-
-        //    // 2. 状态无效直接跳过
-        //    if (!_isLoaded || _isLayoutBusy || lvInfo.Columns.Count == 0 || _columnMaxWidth == null)
-        //        return;
-
-        //    // 3. 等待控件渲染完成（关键！解决还原瞬间宽度错误）
-        //    if (!lvInfo.IsHandleCreated || lvInfo.ClientSize.Width <= 0)
-        //        return;
-
-        //    // 4. 取真实可用宽度（必须等布局完成）
-        //    int totalWidth = lvInfo.ClientSize.Width;
-
-        //    // 5. 滚动条计算
-        //    bool hasScroll = false;
-        //    if (lvInfo.Items.Count > 0)
-        //    {
-        //        int contentHeight = lvInfo.Items.Count * lvInfo.Font.Height + 40;
-        //        hasScroll = contentHeight > lvInfo.ClientSize.Height;
-        //    }
-        //    if (hasScroll)
-        //        totalWidth -= SystemInformation.VerticalScrollBarWidth;
-
-        //    // 6. 比例计算（防止除零）
-        //    int totalMin = _columnMaxWidth.Sum();
-        //    if (totalMin <= 0) return;
-
-        //    float ratio = 1f;
-        //    if (totalWidth > totalMin)
-        //        ratio = (float)totalWidth / totalMin;
-
-        //    // 7. 最终赋值（稳定不抖动）
-        //    for (int i = 0; i < lvInfo.Columns.Count; i++)
-        //    {
-        //        int w = (int)(_columnMaxWidth[i] * ratio);
-        //        lvInfo.Columns[i].Width = Math.Max(w, 60);
-        //    }
-        //}
-
-        #endregion
-
 
         #region === 刷新逻辑 ===
 
@@ -330,7 +259,7 @@ namespace GT_Common.Components
         #endregion
 
         #region === 双击逻辑 ===
-        private void LvInfo_DoubleClick(object sender, EventArgs e)
+        private async void LvInfo_DoubleClick(object sender, EventArgs e)
         {
             if (lvInfo.SelectedItems.Count == 0) return;
 
@@ -352,34 +281,54 @@ namespace GT_Common.Components
                     "yyyy/MM/dd H:mm:ss", "yyyy/MM/dd HH:mm:ss"
                 };
 
-                if (!DateTime.TryParseExact(text, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime startTime))
+                if (!DateTime.TryParseExact(text, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
                 {
                     DisplayLog.Error($"时间解析失败：{text}", null);
                     return;
                 }
 
-                var ds = UploadSql.SearchAccessData(_processName, startTime, null, null, "产品条码", barNo);
-                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                var ds = await _dataRuntime.AccessService.SearchAccessDataAsync(
+                    new SearchDataPayload 
+                    { 
+                        ProcessNo = _processName, 
+                        StartTime = startTime, 
+                        EndTime = null, 
+                        OkFlag = null, 
+                        FilterColumn = "产品条码", 
+                        FilterValue = barNo 
+                    });
+                if (ds == null || ds.Count == 0)
                 {
                     MessageBox.Show($"未找到条码 {barNo} 的测试数据");
                     return;
                 }
 
-                var dt = ds.Tables[0];
-                items = dt.AsEnumerable().Select(r => new SaveItem
+                items = ds.Select(r => new SaveItem
                 {
-                    Bar_no = r["产品条码"].ToString(),
-                    Order_no = r["当前工单号"].ToString(),
-                    Process_no = r["工位名称"].ToString(),
-                    Operator_no = r["操作人员"].ToString(),
-                    Do_time = r["测试时间"].ToString(),
-                    Ok_flag = r["测试结果"].ToString(),
-                    Test_beat = r["测试节拍"]?.ToString(),
-                    Test_item_name = r["测试项名称"]?.ToString(),
-                    Test_item_up = r["测试项上限"]?.ToString(),
-                    Test_item_down = r["测试项下限"]?.ToString(),
-                    Test_item_value = r["测试项实际值"]?.ToString(),
-                    Test_item_unit = GetUnit(r["测试项名称"]?.ToString()),
+                    Bar_no = r.产品条码,
+
+                    Order_no = r.当前工单号,
+
+                    Process_no = r.工位名称,
+
+                    Operator_no = r.操作人员,
+
+                    Do_time = r.测试时间,
+
+                    Ok_flag = r.测试结果,
+
+                    Test_beat = r.测试节拍,
+
+                    Test_item_name = r.测试项名称,
+
+                    Test_item_up = r.测试项上限,
+
+                    Test_item_down = r.测试项下限,
+
+                    Test_item_value = r.测试项实际值,
+
+                    Test_item_unit = GetUnit(r.测试项名称)
+
                 }).ToList();
             }
             catch (Exception ex)
@@ -388,8 +337,9 @@ namespace GT_Common.Components
                 MessageBox.Show("查询异常");
                 return;
             }
+            string partBar = await _dataRuntime.Repositories.Parts.QueryPartBarByMainBarAsync(_processName, barNo);
+            //string partBar = UploadSql.QueryPartBarByMainBar("OP070", barNo);
 
-            string partBar = UploadSql.QueryPartBarByMainBar("OP070", barNo);
             new DataDetailForm(items, okFlag, barNo, partBar).ShowDialog();
         }
 
