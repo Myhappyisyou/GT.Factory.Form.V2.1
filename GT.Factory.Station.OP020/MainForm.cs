@@ -12,6 +12,7 @@ using GT.Factory.Station.Helper.LanModelSync;
 using GT.Factory.Common.Models;
 using GT.Factory.Common.Enums;
 using GT.Factory.Common.Helper;
+using GT.Factory.Station.Model;
 
 namespace GT.Factory.Station.OP020
 {

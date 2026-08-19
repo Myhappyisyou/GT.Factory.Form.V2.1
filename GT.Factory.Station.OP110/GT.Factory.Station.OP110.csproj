@@ -117,6 +117,10 @@
       <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
       <Name>GT.Factory.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.PLC\GT.Factory.PLC.csproj">
+      <Project>{E03ACB3F-97BF-4353-AF7C-EAC8D1187AD1}</Project>
+      <Name>GT.Factory.PLC</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />

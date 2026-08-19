@@ -15,7 +15,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static GT.Factory.Station.Config;
 using Consumables = TaskContracts.Models.Consumables;
 using LogicalTable = GT.Factory.Common.Enums.LogicalTable;
 using TablePrefixType = GT.Factory.Common.Enums.TablePrefixType;

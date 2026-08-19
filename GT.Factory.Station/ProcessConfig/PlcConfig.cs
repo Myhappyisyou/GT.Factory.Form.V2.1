@@ -7,8 +7,7 @@ using System.ComponentModel.Design;
 using System.ComponentModel;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
-
-
+using GT.Factory.PLC.Enums;
 
 namespace GT.Factory.Station.ProcessConfig
 {

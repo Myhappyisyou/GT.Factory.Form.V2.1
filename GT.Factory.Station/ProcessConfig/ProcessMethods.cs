@@ -1,15 +1,16 @@
-﻿using GT.Factory.Station.Helper;
-using HslCommunication;
+﻿using HslCommunication;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using GT.Factory.Station.Helper.PlcComm;
 using System.Text.RegularExpressions;
 using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.MyEnum;
 using GT.Factory.Common.Models;
+using GT.Factory.Station;
+using GT.Factory.PLC.PlcComm;
+using GT.Factory.Station.Helper;
 
 namespace GT.Factory.Station.ProcessConfig
 {

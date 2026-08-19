@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GT.Factory.Station.Helper.PlcComm
+namespace GT.Factory.PLC.PlcComm
 {
     public class PatchReader
     {

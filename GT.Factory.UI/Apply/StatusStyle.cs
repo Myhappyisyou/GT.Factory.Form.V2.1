@@ -1,12 +1,8 @@
-﻿using GT.Factory.Station.MyEnum;
-using System;
-using System.Collections.Generic;
+﻿using GT.Factory.UI.Enum;
+using GT.Factory.UI.Theme;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GT.Factory.Station.Util.LableStatus
+namespace GT.Factory.UI.Apply
 {
     public static class StatusStyle
     {
@@ -15,11 +11,11 @@ namespace GT.Factory.Station.Util.LableStatus
             switch (status)
             {
                 case ProductStatus.OK:
-                    return Color.LimeGreen;
+                    return UITheme.Success;
                 case ProductStatus.NG:
-                    return Color.Red;
+                    return UITheme.Danger;
                 default:
-                    return Color.LightGoldenrodYellow;
+                    return UITheme.Warning;
             }
         }
 
@@ -28,11 +24,11 @@ namespace GT.Factory.Station.Util.LableStatus
             switch (status)
             {
                 case ProductStatus.OK:
-                    return Color.LimeGreen;
+                    return UITheme.Warning;
                 case ProductStatus.NG:
-                    return Color.Red;
+                    return UITheme.Warning;
                 default:
-                    return Color.Orange;
+                    return UITheme.Warning;
             }
         }
 

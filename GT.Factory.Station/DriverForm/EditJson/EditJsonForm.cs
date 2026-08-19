@@ -758,18 +758,19 @@ namespace EditJson
             if (MessageBox.Show($"确定要删除 '{selectedNode.Text}' 吗?", "确认删除",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (selectedNode.Tag is StandardProcess stdProcess)
-                {
-                    _plcConfig.StandardProcess.Remove(stdProcess);
-                }
-                else if (selectedNode.Tag is BarBindProcess bindProcess)
+                if (selectedNode.Tag is BarBindProcess bindProcess)
                 {
                     _plcConfig.BarBindProcess.Remove(bindProcess);
                 }
-                else if (selectedNode.Tag is CalibrationProcess calibProcess)
+                if (selectedNode.Tag is CalibrationProcess calibProcess)
                 {
                     _plcConfig.CalibrationProcesses.Remove(calibProcess);
                 }
+                else if (selectedNode.Tag is StandardProcess stdProcess)
+                {
+                    _plcConfig.StandardProcess.Remove(stdProcess);
+                }
+
 
                 UpdateTreeView();
                 UpdateStatus("已删除选定项");

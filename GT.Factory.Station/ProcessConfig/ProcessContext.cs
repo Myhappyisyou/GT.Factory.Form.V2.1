@@ -1,5 +1,5 @@
 ﻿using GT.Factory.Common.Models;
-using GT.Factory.Station.Helper.PlcComm;
+using GT.Factory.PLC.PlcComm;
 using RecipeParameter.RecipeParameter;
 using System.Collections.Generic;
 

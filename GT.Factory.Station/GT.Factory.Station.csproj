@@ -78,10 +78,6 @@
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.2.1.79\lib\net461\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="GT.Factory.Station, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\GT.Factory.Station.dll</HintPath>
-    </Reference>
     <Reference Include="HslCommunication">
       <HintPath>bin\Config\HslCommunication.dll</HintPath>
     </Reference>
@@ -632,7 +628,6 @@
     <Compile Include="ProcessConfig\ITestDataProcessor.cs" />
     <Compile Include="ProcessConfig\Measurement.cs" />
     <Compile Include="ProcessConfig\PlcConfig.cs" />
-    <Compile Include="ProcessConfig\PlcFactory.cs" />
     <Compile Include="ProcessConfig\ProcessContext.cs" />
     <Compile Include="ProcessConfig\ProcessMethods.cs" />
     <Compile Include="ProcessConfig\ProcessStageKeys.cs" />
@@ -656,10 +651,6 @@
     <Compile Include="Helper\LanModelSync\ModelConfig.cs" />
     <Compile Include="Helper\LanModelSync\ModelConfigReceiver.cs" />
     <Compile Include="Helper\Mssql\MSSqlHelper.cs" />
-    <Compile Include="Helper\PlcComm\Int16Block.cs" />
-    <Compile Include="Helper\PlcComm\PatchReader.cs" />
-    <Compile Include="Helper\PlcComm\ValueMonitorBool.cs" />
-    <Compile Include="Helper\PlcComm\ValueMonitorShort.cs" />
     <Compile Include="Helper\SerializeHelper.cs" />
     <Compile Include="Helper\StrHelper.cs" />
     <Compile Include="Helper\UploadManager.cs" />
@@ -672,13 +663,6 @@
       <DependentUpon>TitleUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Util\BaseParaFileConfiguration.cs" />
-    <Compile Include="Util\DraggableTabControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Util\LableStatus\StatusLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Util\LableStatus\StatusStyle.cs" />
     <Compile Include="Util\MergedDataGridView.cs" />
     <EmbeddedResource Include="Components\ActionTipsUI.resx">
       <DependentUpon>ActionTipsUI.cs</DependentUpon>
@@ -787,6 +771,10 @@
     <ProjectReference Include="..\GT.Factory.Data\GT.Factory.Data.csproj">
       <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
       <Name>GT.Factory.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.PLC\GT.Factory.PLC.csproj">
+      <Project>{E03ACB3F-97BF-4353-AF7C-EAC8D1187AD1}</Project>
+      <Name>GT.Factory.PLC</Name>
     </ProjectReference>
     <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
       <Project>{43748B7A-DD23-46C3-9627-26A6692F0394}</Project>

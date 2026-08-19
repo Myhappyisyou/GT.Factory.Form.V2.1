@@ -1,4 +1,5 @@
-﻿using GT.Factory.Station.Helper;
+﻿using GT.Factory.Common.Helper;
+using GT.Factory.Station.Helper;
 using System;
 
 namespace GT.Factory.Station.OP120

@@ -1,5 +1,4 @@
-﻿using GT.Factory.Station;
-using GT.Factory.Station.Helper;
+﻿using GT.Factory.Station.Helper;
 using GT.Factory.Station.ProcessConfig;
 using GT.Factory.Station.Helper.Logging;
 using System;
@@ -7,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data;
+using GT.Factory.PLC.PlcComm;
+
 
 namespace GT.Factory.Station.OP080
 {

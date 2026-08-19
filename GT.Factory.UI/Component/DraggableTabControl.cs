@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GT.Factory.Station.Util
+namespace GT.Factory.UI.Component
 {
     public class DraggableTabControl : TabControl
     {

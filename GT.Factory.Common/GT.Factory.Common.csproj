@@ -68,5 +68,11 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
+      <Project>{43748B7A-DD23-46C3-9627-26A6692F0394}</Project>
+      <Name>GT.Factory.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

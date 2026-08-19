@@ -1,18 +1,6 @@
-﻿using GT.Factory.UI;
-using GT.Factory.UI.Apply;
-using GT.Factory.UI.Theme;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.MyEnum;
-using GT.Factory.Station.Util.LableStatus;
+﻿using GT.Factory.UI.Apply;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GT.Factory.Station.Components

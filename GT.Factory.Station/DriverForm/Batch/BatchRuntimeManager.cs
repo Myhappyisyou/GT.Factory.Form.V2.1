@@ -1,11 +1,8 @@
-﻿using GT.Factory.Station.Helper;
+﻿using GT.Factory.PLC.PlcComm;
+using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.Logging;
-using GT.Factory.Station.Helper.PlcComm;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station.DriverForm.Batch
 {

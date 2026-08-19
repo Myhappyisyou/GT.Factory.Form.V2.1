@@ -1,4 +1,5 @@
-﻿using GT.Factory.Station.Helper;
+﻿using GT.Factory.Common.Helper;
+using GT.Factory.Station.Helper;
 using GT.Factory.Station.Model;
 using GT.Factory.Station.ProcessConfig;
 using System;

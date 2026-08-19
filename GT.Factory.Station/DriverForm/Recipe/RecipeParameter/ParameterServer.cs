@@ -1,14 +1,8 @@
-﻿using AYNETTEK.HFModbus;
-using GT.Factory.Station.ProcessConfig;
+﻿using GT.Factory.PLC.PlcComm;
 using GT.Factory.Station.Helper.LanModelSync;
 using GT.Factory.Station.Helper.Logging;
-using GT.Factory.Station.Helper.PlcComm;
 using RecipeParameter.RecipeParameter;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station.DriverForm.Recipe.RecipeParameter
 {

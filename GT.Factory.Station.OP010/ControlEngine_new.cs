@@ -1,5 +1,4 @@
 ﻿using GT.Factory.Station;
-using GT.Factory.Station.Helper.PlcComm;
 using System;
 using System.Collections.Generic;
 using System.Linq;

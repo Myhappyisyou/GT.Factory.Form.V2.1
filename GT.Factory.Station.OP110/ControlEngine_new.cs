@@ -1,11 +1,10 @@
-﻿using GT.Factory.Station;
-using GT.Factory.Station.Helper;
+﻿using GT.Factory.Station.Helper;
 using GT.Factory.Station.ProcessConfig;
-using GT.Factory.Station.Helper.PlcComm;
 using GT.Factory.Station.Helper.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GT.Factory.PLC.PlcComm;
 
 namespace GT.Factory.Station.OP110
 {
@@ -14,8 +13,6 @@ namespace GT.Factory.Station.OP110
         readonly ComponentManager componentManager = new ComponentManager();
         
         public PatchReader reader;
-
-        public PatchReader Melsecreader;
 
         private DynamicExecutorFactory _executorFactory;
 

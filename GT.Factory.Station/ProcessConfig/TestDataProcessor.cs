@@ -1,12 +1,14 @@
 ﻿using GT.Factory.Common.Helper;
 using GT.Factory.Common.Models;
+using GT.Factory.Station;
 using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
 using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.Model;
 using GT.Factory.Station.MyEnum;
-using GT.Factory.Station.Util.LableStatus;
+using GT.Factory.UI.Apply;
+using GT.Factory.UI.Enum;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

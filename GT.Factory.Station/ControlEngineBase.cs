@@ -1,9 +1,9 @@
 ﻿using GT.Factory.Common.Helper;
 using GT.Factory.Common.Models;
 using GT.Factory.Data.Core;
-using GT.Factory.Station;
+using GT.Factory.PLC;
+using GT.Factory.PLC.PlcComm;
 using GT.Factory.Station.DriverForm.Batch;
-using GT.Factory.Station.DriverForm.ProductCode;
 using GT.Factory.Station.DriverForm.Recipe.RecipeParameter;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.BydMes;
@@ -11,23 +11,18 @@ using GT.Factory.Station.Helper.ClientTask;
 using GT.Factory.Station.Helper.LanModelSync;
 using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.Helper.Mssql;
-using GT.Factory.Station.Helper.PlcComm;
 using GT.Factory.Station.Model;
 using GT.Factory.Station.MyEnum;
 using GT.Factory.Station.ProcessConfig;
-using HslCommunication.Profinet.Siemens;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using TaskContracts.Models;
 using Consumables = GT.Factory.Common.Models.Consumables;
 using DataItem = GT.Factory.Common.Models.DataItem;
 using ResultCodeParse = GT.Factory.Common.Models.ResultCodeParse;
@@ -255,7 +250,7 @@ namespace GT.Factory.Station
          
             //reader = new PatchReader(plc, plcConfig.SectionName, plcConfig.HeartbeatAddr, plcConfig.StartIndex, plcConfig.Length);
 
-            var plc = PlcFactory.Create(plcConfig);
+            var plc = PlcFactory.Create(plcConfig.PlcType,plcConfig.Ip);
 
             reader = new PatchReader(
                 plc,

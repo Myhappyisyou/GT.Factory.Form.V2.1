@@ -1,14 +1,10 @@
-﻿using GT.Factory.Station;
-using System;
+﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.PlcComm;
 using System.Text;
-using System.Threading.Tasks;
 using GT.Factory.Station.Helper.Mssql;
+using GT.Factory.PLC.PlcComm;
 
 namespace GT.Factory.Station.Helper
 {

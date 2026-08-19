@@ -4,8 +4,6 @@ using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
 using GT.Factory.Station.Helper.Logging;
-using GT.Factory.Station.Helper.PlcComm;
-using GT.Factory.Station.Model;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
@@ -13,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Consumables = GT.Factory.Common.Models.Consumables;
+using PatchReader = GT.Factory.PLC.PlcComm.PatchReader;
 
 namespace GT.Factory.Station.ProcessConfig
 {

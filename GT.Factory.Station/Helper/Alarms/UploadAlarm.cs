@@ -1,17 +1,16 @@
 ﻿using GT.Factory.Station.Helper.Alarms;
-using GT.Factory.Station.Helper.PlcComm;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Diagnostics;
 using GT.Factory.Station.Helper.Logging;
-using System.Linq;
 using GT.Factory.Station.Helper.ClientTask;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using GT.Factory.Common.Models;
 using AlarmInfo = GT.Factory.Common.Models.AlarmInfo;
+using GT.Factory.PLC.PlcComm;
 
 namespace GT.Factory.Station.Helper
 {

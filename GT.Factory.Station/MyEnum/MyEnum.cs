@@ -10,14 +10,7 @@ using System.Threading.Tasks;
 
 namespace GT.Factory.Station.MyEnum
 {
-    //  PLC类型
-    public enum PlcType
-    {
-        SiemensS1500,
-        SiemensS1200,
-        KeyenceNano
-    }
-
+   
     public enum ProcessType
     {
         /// <summary>
@@ -119,12 +112,7 @@ namespace GT.Factory.Station.MyEnum
         Disabled
     }
 
-    public enum ProductStatus
-    {
-        Standby,    // 待机
-        OK,         // 通过
-        NG          // 失败
-    }
+   
 
     public enum UserLevel
     {

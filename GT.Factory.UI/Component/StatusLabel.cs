@@ -1,4 +1,5 @@
-﻿using GT.Factory.Station.MyEnum;
+﻿using GT.Factory.UI.Apply;
+using GT.Factory.UI.Enum;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GT.Factory.Station.Util.LableStatus
+namespace GT.Factory.UI.Component
 {
     public class StatusLabel : Label
     {

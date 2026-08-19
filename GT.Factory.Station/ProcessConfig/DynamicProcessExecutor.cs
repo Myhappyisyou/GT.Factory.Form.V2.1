@@ -1,11 +1,10 @@
 ﻿using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
-using GT.Factory.Station.Helper.PlcComm;
-using GT.Factory.Station.Model;
 using Consumables = GT.Factory.Common.Models.Consumables;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GT.Factory.PLC.PlcComm;
 
 namespace GT.Factory.Station.ProcessConfig
 {

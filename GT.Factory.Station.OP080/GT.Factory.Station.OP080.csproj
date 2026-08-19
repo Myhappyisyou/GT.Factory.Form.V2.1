@@ -118,5 +118,11 @@
   <ItemGroup>
     <Content Include="favicon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.PLC\GT.Factory.PLC.csproj">
+      <Project>{E03ACB3F-97BF-4353-AF7C-EAC8D1187AD1}</Project>
+      <Name>GT.Factory.PLC</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

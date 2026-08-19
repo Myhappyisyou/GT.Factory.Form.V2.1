@@ -43,6 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apply\StatusStyle.cs" />
+    <Compile Include="Component\DraggableTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Component\StatusLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Component\UIPasswordBox.cs">
       <SubType>UserControl</SubType>
     </Compile>

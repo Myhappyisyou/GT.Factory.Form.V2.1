@@ -21,4 +21,15 @@ namespace GT.Factory.UI.Enum
         Warning,
         Error
     }
+
+    #region 产品状态
+    public enum ProductStatus
+    {
+        Standby,    // 待机
+        OK,         // 通过
+        NG          // 失败
+    }
+
+    #endregion
+
 }
