@@ -68,9 +68,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="TaskContracts">
-      <HintPath>..\GTJPN2503006\bin\Debug\TaskContracts.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlEngine_new.cs" />
