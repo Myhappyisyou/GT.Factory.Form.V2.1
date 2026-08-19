@@ -11,6 +11,7 @@ using GT.Factory.Station;
 using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.LanModelSync;
+using GT.Factory.Station.Model;
 
 namespace GT.Factory.Station.OP010
 {

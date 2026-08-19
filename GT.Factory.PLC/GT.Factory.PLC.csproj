@@ -44,7 +44,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,22 +61,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GT.Factory.Common\GT.Factory.Common.csproj">
-      <Project>{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}</Project>
-      <Name>GT.Factory.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GT.Factory.Data\GT.Factory.Data.csproj">
-      <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
-      <Name>GT.Factory.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
-      <Project>{43748B7A-DD23-46C3-9627-26A6692F0394}</Project>
-      <Name>GT.Factory.UI</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.Common\GT.Factory.Common.csproj">
+      <Project>{2e4cb045-8a74-47f9-8fc5-b571f7a7019d}</Project>
+      <Name>GT.Factory.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

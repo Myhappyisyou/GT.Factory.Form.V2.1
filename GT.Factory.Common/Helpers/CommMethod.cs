@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace GT.Factory.Common.Helpers
 {
@@ -153,10 +152,10 @@ namespace GT.Factory.Common.Helpers
                 alertMessage.AppendLine($"📊 统计: 严重({seriousItems.Count}) 警告({warningItems.Count}) 注意({noticeItems.Count})");
 
                 // 显示提示框
-                MessageBox.Show(alertMessage.ToString(), "易损件库存提醒",
-                    MessageBoxButtons.OK,
-                    seriousItems.Any() ? MessageBoxIcon.Error :
-                    warningItems.Any() ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                //MessageBox.Show(alertMessage.ToString(), "易损件库存提醒",
+                //    MessageBoxButtons.OK,
+                //    seriousItems.Any() ? MessageBoxIcon.Error :
+                //    warningItems.Any() ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
             }
         }
         #endregion

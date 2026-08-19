@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Drawing;
 
 namespace GT.Factory.Common.Models
 {
@@ -50,19 +49,6 @@ namespace GT.Factory.Common.Models
             return GetRemainderPercentage() <= 20;
         }
 
-        // 获取警告颜色
-        public Color GetWarningColor()
-        {
-            double percentage = GetRemainderPercentage();
-
-            if (percentage <= 5)
-                return Color.Red;
-            else if (percentage <= 10)
-                return Color.Orange;
-            else if (percentage <= 20)
-                return Color.Yellow;
-            else
-                return Color.White;
-        }
+       
     }
 }

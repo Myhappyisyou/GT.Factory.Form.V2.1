@@ -38,16 +38,6 @@
     <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GT.Factory.Common">
-      <HintPath>..\GT.Factory.Common\bin\Debug\GT.Factory.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="GT.Factory.Station">
-      <HintPath>..\GT.Factory.Station\bin\Debug\GT.Factory.Station.dll</HintPath>
-    </Reference>
-    <Reference Include="HslCommunication, Version=11.5.0.0, Culture=neutral, PublicKeyToken=3d72ad3b6b5ec0e3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\HslCommunication.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
@@ -118,6 +108,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GT.Factory.Common\GT.Factory.Common.csproj">
+      <Project>{2e4cb045-8a74-47f9-8fc5-b571f7a7019d}</Project>
+      <Name>GT.Factory.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Station\GT.Factory.Station.csproj">
+      <Project>{28369a6e-46fa-41b6-893a-6d970a890047}</Project>
+      <Name>GT.Factory.Station</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
