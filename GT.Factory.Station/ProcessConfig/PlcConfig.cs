@@ -1,20 +1,82 @@
-﻿using GT.Factory.Station.MyEnum;
+﻿using GT.Factory.PLC.Enums;
+using GT.Factory.PLC.PlcComm;
+using GT.Factory.Station.MyEnum;
 using GT.Factory.Station.Util;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.ComponentModel;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
-using GT.Factory.PLC.Enums;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace GT.Factory.Station.ProcessConfig
 {
 
-    [JsonObject(MemberSerialization.OptIn)]
-    public class PlcConfig : BaseParaFileConfiguration<PlcConfig>
+    // ==================== 接口定义 ====================
+
+    #region 接口定义
+
+    /// <summary>
+    /// 结果读取能力
+    /// </summary>
+    public interface IResultReadable
     {
+        ResultConfig ResultConfig { get; }
+    }
+
+    /// <summary>
+    /// PLC 测点读取能力
+    /// </summary>
+    public interface IPlcReadable
+    {
+        PlcReadConfig PlcReadConfig { get; }
+    }
+
+    /// <summary>
+    /// 文件处理能力
+    /// </summary>
+    public interface IFileSupport
+    {
+        FileConfig FileConfig { get; }
+    }
+
+    /// <summary>
+    /// 条码查询类型
+    /// </summary>
+    public interface IBarSearchable
+    {
+        SearchBarType SearchBarType { get; }
+    }
+
+    /// <summary>
+    /// 状态标志位读取能力
+    /// </summary>
+    public interface IStatusFlagReadable
+    {
+        string StatusFlagAddress { get; }
+    }
+
+    /// <summary>
+    /// 节拍读取能力
+    /// </summary>
+    public interface ITaktTimeReadable
+    {
+        string TaktTimeAddress { get; }
+    }
+
+   
+    #endregion
+
+    // ==================== PlcConfig类 ====================
+
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public class PlcConfig : BaseParaFileConfiguration<PlcConfig>, IValidatableConfig
+    {
+
         public PlcConfig()
         {
             FixedInformation = new FixedInformation();
@@ -22,51 +84,24 @@ namespace GT.Factory.Station.ProcessConfig
             EquipmentStata = new EquipmentStata();
             StandardProcess = new List<StandardProcess>();
             CheckResultProcess = new List<CheckResultProcess>();
+            ReworkProcess = new List<ReworkProcess>();
             CalibrationProcesses = new List<CalibrationProcess>();
             BarBindProcess = new List<BarBindProcess>();
             PeriodProcesses = new List<PeriodProcess>();
+            InstrumentProcesses = new List<InstrumentProcess>();
         }
 
-        [DisplayName("PLC类型")]
-        [Description("PLC类型")]
-        [JsonProperty]
-        public PlcType PlcType { get; set; }
+        // ==================== 基本配置 ====================
 
-        //IP
-        [DisplayName("Ip")]
-        [Description("Plc-Ip")]
+        [DisplayName("基本配置"), PropertyOrder(1)]
+        [Description("基本配置")]
         [JsonProperty]
-        public string Ip { get; set; }
+        public PlcConnectionConfig PlcConnection { get; set; }
 
-        //读取地址标识
-        [DisplayName("地址标识")]
-        [Description("读取地址标识")]
-        [JsonProperty]
-        public string SectionName { get; set; }
 
-        //心跳地址
-        [DisplayName("心跳地址")]
-        [Description("心跳地址")]
-        [JsonProperty]
-        public string HeartbeatAddr { get; set; }
+        // ==================== 固定信息 ====================
 
-        //读取开始地址
-        [DisplayName("读取开始地址")]
-        [Description("读取开始地址")]
-        [JsonProperty]
-        public int StartIndex { get; set; }
-
-        //读取地址长度
-        [DisplayName("读取地址长度")]
-        [Description("读取地址长度")]
-        [JsonProperty]
-        public ushort Length { get; set; }
-
-        //工序号
-        [DisplayName("工序号")]
-        [Description("工序号")]
-        [JsonProperty]
-        public string ProcessNo { get; set; }
+        #region 固定信息
 
         //固定信息类
         [DisplayName("固定信息")]
@@ -74,17 +109,24 @@ namespace GT.Factory.Station.ProcessConfig
         [JsonProperty]
         public FixedInformation FixedInformation { get; set; }
 
+        // ==================== 报警信息 ====================
+
         //报警类
         [DisplayName("报警配置")]
         [Description("报警配置")]
         [JsonProperty]
         public AlarmConfig AlarmConfig { get; set; }
 
+        // ==================== 状态信息 ====================
+
         //状态类
         [DisplayName("设备状态配置")]
         [Description("设备状态配置")]
         [JsonProperty]
         public EquipmentStata EquipmentStata { get; set; }
+
+
+        #endregion
 
         //正常交握流程
         [DisplayName("正常交握流程配置")]
@@ -97,6 +139,18 @@ namespace GT.Factory.Station.ProcessConfig
         [Description("过站检交握流程配置")]
         [JsonProperty]
         public List<CheckResultProcess> CheckResultProcess { get; set; }
+
+        //返工交握流程
+        [DisplayName("返工交握流程配置")]
+        [Description("返工交握流程配置")]
+        [JsonProperty]
+        public List<ReworkProcess> ReworkProcess { get; set; }
+
+        //仪器交握流程
+        [DisplayName("仪器交握流程配置")]
+        [Description("仪器交握流程配置")]
+        [JsonProperty]
+        public List<InstrumentProcess> InstrumentProcesses { get; set; }
 
         //点检交握流程
         [DisplayName("点检交握流程配置")]
@@ -118,33 +172,116 @@ namespace GT.Factory.Station.ProcessConfig
 
         public void Validate()
         {
-            if (string.IsNullOrWhiteSpace(Ip))
-                throw new InvalidOperationException("IP地址不能为空");
-
-            if (string.IsNullOrWhiteSpace(SectionName))
-                throw new ArgumentException("SectionName不能为空", nameof(SectionName));
-
+            
+            // ========== 校验 StandardProcess ==========
             if (StandardProcess == null || !StandardProcess.Any())
-                throw new InvalidOperationException("至少需要一个交握流程配置");
+                throw new InvalidOperationException("至少需要一个标准交握流程配置");
 
             foreach (var process in StandardProcess)
             {
                 if (string.IsNullOrWhiteSpace(process.Name))
-                    throw new ArgumentException("流程名称不能为空", nameof(process.Name));
+                    throw new ArgumentException("标准流程名称不能为空", nameof(process.Name));
 
-                if (process.TriggerAddress <= 0)
-                    throw new ArgumentOutOfRangeException(
-                        nameof(process.TriggerAddress),
-                        "触发地址必须大于0");
-
-                // 校验 PLC 读取配置
                 if (process.PlcReadConfig != null)
                 {
                     process.PlcReadConfig.Validate();
                 }
             }
+
+            // ========== 校验 CheckResultProcess ==========
+            if (CheckResultProcess != null)
+            {
+                foreach (var process in CheckResultProcess)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("过站检流程名称不能为空");
+
+                    //if (process.TriggerAddress <= 0)
+                    //    throw new ArgumentOutOfRangeException("过站检流程触发地址必须大于0");
+                }
+            }
+
+            // ========== 校验 BarBindProcess ==========
+            if (BarBindProcess != null)
+            {
+                foreach (var process in BarBindProcess)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("绑定流程名称不能为空");
+
+                    //if (process.TriggerAddress <= 0)
+                    //    throw new ArgumentOutOfRangeException("绑定流程触发地址必须大于0");
+                }
+            }
+
+            // ========== 校验 CalibrationProcesses ==========
+            if (CalibrationProcesses != null)
+            {
+                foreach (var process in CalibrationProcesses)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("点检流程名称不能为空");
+
+                    //if (process.TriggerAddress <= 0)
+                    //    throw new ArgumentOutOfRangeException("点检流程触发地址必须大于0");
+
+                    if (process.PlcReadConfig != null)
+                    {
+                        process.PlcReadConfig.Validate();
+                    }
+                }
+            }
+
+            // ========== 校验 PeriodProcesses ==========
+            if (PeriodProcesses != null)
+            {
+                foreach (var process in PeriodProcesses)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("抽检流程名称不能为空");
+
+                    //if (process.TriggerAddress <= 0)
+                    //    throw new ArgumentOutOfRangeException("抽检流程触发地址必须大于0");
+
+                    if (process.PlcReadConfig != null)
+                    {
+                        process.PlcReadConfig.Validate();
+                    }
+                }
+            }
+
+            // ========== 校验 ReworkProcesses（新增） ==========
+            if (ReworkProcess != null)
+            {
+                foreach (var process in ReworkProcess)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("返工流程名称不能为空");
+
+                    //if (process.TriggerAddress <= 0)
+                    //    throw new ArgumentOutOfRangeException("返工流程触发地址必须大于0");
+                }
+            }
+
+            // ========== 新增：校验 InstrumentProcesses ==========
+            if (InstrumentProcesses != null)
+            {
+                foreach (var process in InstrumentProcesses)
+                {
+                    if (string.IsNullOrWhiteSpace(process.Name))
+                        throw new ArgumentException("仪器通讯流程名称不能为空");
+
+                    if (string.IsNullOrWhiteSpace(process.InstrumentName))
+                        throw new ArgumentException($"仪器通讯流程【{process.Name}】的仪器标识不能为空");
+
+                }
+            }
         }
     }
+
+    // ==================== 固定信息类 ====================
+
+    #region 固定配置信息
 
     /// <summary>
     /// 固定配置信息
@@ -164,31 +301,31 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("总数量")]
         [Description("读取总数量Plc地址")]
         [JsonProperty]
-        public int TotalCount { get; set; }
+        public string TotalCount { get; set; }
 
         //完成数量
         [DisplayName("完成数量")]
         [Description("读取完成数量Plc地址")]
         [JsonProperty]
-        public int FinishCount { get; set; }
+        public string FinishCount { get; set; }
 
         //合格数量
         [DisplayName("合格数量")]
         [Description("读取合格数量Plc地址")]
         [JsonProperty]
-        public int OkNub { get; set; }
+        public string OkNub { get; set; }
 
         //合格率
         [DisplayName("合格率")]
         [Description("读取合格率Plc地址")]
         [JsonProperty]
-        public int Rate { get; set; }
+        public string Rate { get; set; }
 
         //当前产品码
         [DisplayName("当前产品码")]
         [Description("读取当前产品码Plc地址")]
         [JsonProperty]
-        public int CurrentBarNo { get; set; }
+        public string CurrentBarNo { get; set; }
 
         //当前产品码长度
         [DisplayName("当前产品码长度")]
@@ -200,13 +337,13 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("当前产品状态")]
         [Description("读取当前产品状态Plc地址")]
         [JsonProperty]
-        public int CurrentProductStatus { get; set; }
+        public string CurrentProductStatus { get; set; }
 
         //操作提示
         [DisplayName("操作提示")]
         [Description("读取操作提示Plc地址")]
         [JsonProperty]
-        public int OperateTips { get; set; }
+        public string OperateTips { get; set; }
 
         //产品名称
         [DisplayName("产品名称")]
@@ -300,7 +437,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("设备状态地址")]
         [Description("读取设备状态是否启用")]
         [JsonProperty]
-        public ushort EquipmentStataAddress { get; set; }
+        public string EquipmentStataAddress { get; set; }
 
         //设备ID
         [DisplayName("设备工序号")]
@@ -312,6 +449,13 @@ namespace GT.Factory.Station.ProcessConfig
         public override string ToString() => $"设备状态配置 (启用: {IsNeed})";
     }
 
+
+    #endregion
+
+
+    // ==================== 流程基类 ====================
+
+    #region 流程基类
     /// <summary>
     /// 流程基类(抽象)
     /// </summary>
@@ -333,7 +477,19 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("交握流程触发地址")]
         [Description("交握流程触发地址")]
         [JsonProperty]
-        public int TriggerAddress { get; set; }
+        public string TriggerAddress { get; set; }
+
+        // SN码读取配置
+        [DisplayName("SN码读取配置")]
+        [Description("SN码读取配置")]
+        [JsonProperty]
+        public SnConfig SnConfig { get; set; }        // SN码读取配置
+
+        // 结果回写配置
+        [DisplayName("结果回写配置")]
+        [Description("结果回写配置")]
+        [JsonProperty]
+        public ResultWriteConfig ResultWriteConfig { get; set; } // 结果回写配置
 
         //参数名称
         [DisplayName("匹配配方组名称")]
@@ -367,27 +523,40 @@ namespace GT.Factory.Station.ProcessConfig
             if (string.IsNullOrWhiteSpace(SignalName))
                 throw new ArgumentException("流程名称不能为空");
 
-            if (TriggerAddress <= 0)
+            // ========== 修改：TriggerAddress 是 string，先验证格式再验证值 ==========
+            if (string.IsNullOrWhiteSpace(TriggerAddress))
+                throw new ArgumentException("触发地址不能为空");
+
+            if (!PlcAddressHelper.TryToReadAddress(TriggerAddress, out int triggerValue))
+                throw new ArgumentException($"触发地址格式不正确: {TriggerAddress}");
+
+            if (triggerValue <= 0)
                 throw new ArgumentOutOfRangeException(nameof(TriggerAddress), "触发地址必须大于0");
         }
     }
+    #endregion
+
+
+    // ==================== 7大流程配置 ====================
+
+    #region 流程配置
 
     /// <summary>
     /// 标准流程配置
     /// </summary>
-    public class StandardProcess : ProcessBase
+    public class StandardProcess : ProcessBase, IResultReadable, IPlcReadable, IFileSupport, IBarSearchable, IStatusFlagReadable, ITaktTimeReadable
     {
         // 状态标志位地址
         [DisplayName("状态标志位地址")]
         [Description("状态标志位地址")]
         [JsonProperty]
-        public int StatusFlagAddress { get; set; }     // 状态标志位地址
+        public string StatusFlagAddress { get; set; }     // 状态标志位地址
 
         // 节拍
         [DisplayName("节拍")]
         [Description("节拍地址")]
         [JsonProperty]
-        public int TaktTimeAddress { get; set; }     // 节拍
+        public string TaktTimeAddress { get; set; }     // 节拍
 
         // 查询码类型
         [DisplayName("查询码类型")]
@@ -395,11 +564,6 @@ namespace GT.Factory.Station.ProcessConfig
         [JsonProperty]
         public SearchBarType SearchBarType { get; set; }   // 是否需要主码
 
-        // SN码读取配置
-        [DisplayName("SN码读取配置")]
-        [Description("SN码读取配置")]
-        [JsonProperty]
-        public SnConfig SnConfig { get; set; }        // SN码读取配置
 
         // 治具配置
         [DisplayName("治具配置")]
@@ -425,23 +589,14 @@ namespace GT.Factory.Station.ProcessConfig
         [JsonProperty]
         public PlcWriteConfig PlcWriteConfig { get; set; } // PLC写入配置
 
+
         // 文件配置
         [DisplayName("文件配置")]
         [Description("文件配置")]
         [JsonProperty]
         public FileConfig FileConfig { get; set; }    // 文件配置
 
-        // 方法调用配置
-        [DisplayName("方法调用配置")]
-        [Description("方法调用配置")]
-        [JsonProperty]
-        public MethodConfig MethodConfig { get; set; } // 方法调用配置
 
-        // 结果回写配置
-        [DisplayName("结果回写配置")]
-        [Description("结果回写配置")]
-        [JsonProperty]
-        public ResultWriteConfig ResultWriteConfig { get; set; } // 结果回写配置
 
         public override void Validate()
         {
@@ -450,6 +605,198 @@ namespace GT.Factory.Station.ProcessConfig
             if (ResultWriteConfig?.IsEnabled == true && string.IsNullOrEmpty(ResultWriteConfig.Address))
                 throw new ArgumentException("结果回写地址不能为空");
         }
+    }
+
+    /// <summary>
+    /// 过站检流程配置
+    /// </summary>
+    public class CheckResultProcess : ProcessBase
+    {
+        // 过站检测信息
+        [DisplayName("过站检信息")]
+        [Description("过站检信息")]
+        [JsonProperty]
+        public CheckResultInfo CheckResultInfo { get; set; }
+
+        // PLC写入配置
+        [DisplayName("PLC写入配置")]
+        [Description("PLC写入配置")]
+        [JsonProperty]
+        public PlcWriteConfig PlcWriteConfig { get; set; } // PLC写入配置
+    }
+
+    /// <summary>
+    /// 返工流程配置
+    /// </summary>
+    public class ReworkProcess : ProcessBase
+    {
+        // PLC写入配置
+        [DisplayName("PLC写入配置")]
+        [Description("PLC写入配置")]
+        [JsonProperty]
+        public PlcWriteConfig PlcWriteConfig { get; set; } // PLC写入配置
+    }
+
+    /// <summary>
+    /// 点检流程配置
+    /// </summary>
+    public class CalibrationProcess : ProcessBase, IResultReadable, IPlcReadable, IFileSupport, IStatusFlagReadable
+    {
+        // 状态标志位地址
+        [DisplayName("状态标志位地址")]
+        [Description("状态标志位地址")]
+        [JsonProperty]
+        public string StatusFlagAddress { get; set; }     // 状态标志位地址
+
+        [DisplayName("点检类型")]
+        [Description("点检类型")]
+        [JsonProperty]
+        public List<TypeStationId> TypeStationIds { get; set; }
+
+        // 结果配置
+        [DisplayName("结果配置")]
+        [Description("结果配置")]
+        [JsonProperty]
+        public ResultConfig ResultConfig { get; set; } // 结果配置
+
+        // PLC读取配置
+        [DisplayName("PLC读取配置")]
+        [Description("PLC读取配置")]
+        [JsonProperty]
+        public PlcReadConfig PlcReadConfig { get; set; } // PLC读取配置
+
+        // 文件配置
+        [DisplayName("文件配置")]
+        [Description("文件配置")]
+        [JsonProperty]
+        public FileConfig FileConfig { get; set; }    // 文件配置
+    }
+
+    /// <summary>
+    /// 抽检流程配置
+    /// </summary>
+    public class PeriodProcess : ProcessBase, IResultReadable, IPlcReadable, IFileSupport, IStatusFlagReadable
+    {
+        // 状态标志位地址
+        [DisplayName("状态标志位地址")]
+        [Description("状态标志位地址")]
+        [JsonProperty]
+        public string StatusFlagAddress { get; set; }     // 状态标志位地址
+
+        [DisplayName("点检类型")]
+        [Description("点检类型")]
+        [JsonProperty]
+        public List<TypeStationId> TypeStationIds { get; set; }
+
+        // 结果配置
+        [DisplayName("结果配置")]
+        [Description("结果配置")]
+        [JsonProperty]
+        public ResultConfig ResultConfig { get; set; } // 结果配置
+
+        // PLC读取配置
+        [DisplayName("PLC读取配置")]
+        [Description("PLC读取配置")]
+        [JsonProperty]
+        public PlcReadConfig PlcReadConfig { get; set; } // PLC读取配置
+
+        // 文件配置
+        [DisplayName("文件配置")]
+        [Description("文件配置")]
+        [JsonProperty]
+        public FileConfig FileConfig { get; set; }    // 文件配置
+    }
+
+
+    /// <summary>
+    /// 绑定流程配置
+    /// </summary>
+    public class BarBindProcess : ProcessBase
+    {
+        // 绑定部件码信息
+        [DisplayName("绑定部件码信息")]
+        [Description("绑定部件码信息")]
+        [JsonProperty]
+        public List<PartInfo> PartInfos { get; set; }
+    }
+
+
+    /// <summary>
+    /// 仪器通讯流程配置
+    /// 职责：PLC触发后与仪器通讯，将仪器数据/结果写回PLC
+    /// 数据上传、结果判断由后续 StandardProcess 负责
+    /// </summary>
+    public class InstrumentProcess : ProcessBase
+    {
+        /// <summary>
+        /// 仪器标识
+        /// 系统根据此 Key 在注册表中匹配对应的 IInstrumentHandler
+        /// 例：HeliumTester / TorqueTester / VisionCamera
+        /// </summary>
+        [DisplayName("仪器标识")]
+        [Description("唯一标识，系统根据此标识匹配对应仪器处理器，需与代码注册的Name一致")]
+        [JsonProperty]
+        public string InstrumentName { get; set; }
+
+        [DisplayName("缓存上传配置")]
+        [Description("缓存上传配置")]
+        [JsonProperty]
+        public CombinedUpload CombinedUpload { get; set; } = new CombinedUpload();
+
+        // 把仪器数据写回 PLC
+        [DisplayName("PLC写入配置")]
+        [Description("仪器数据写回PLC的地址配置")]
+        [JsonProperty]
+        public PlcWriteConfig PlcWriteConfig { get; set; }
+
+        public override void Validate()
+        {
+            base.Validate();
+
+            if (string.IsNullOrWhiteSpace(InstrumentName))
+                throw new ArgumentException("仪器驱动标识(DriverKey)不能为空");
+
+            if (PlcWriteConfig?.IsEnabled == true &&
+                (PlcWriteConfig.WriteItems == null || PlcWriteConfig.WriteItems.Count == 0))
+                throw new ArgumentException("仪器流程启用了PLC写入，但未配置写入项");
+        }
+    }
+
+
+
+    #endregion
+
+    // ==================== 流程内容配置 ====================
+
+    #region 流程内容配置
+
+    /// <summary>
+    /// SN码读取配置
+    /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
+
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class SnConfig
+    {
+        // 是否启用
+        [DisplayName("是否启用")]
+        [Description("产品码读取是否启用")]
+        [JsonProperty]
+        public bool IsEnabled { get; set; }         // 是否启用
+
+        // SN码地址
+        [DisplayName("产品码地址")]
+        [Description("产品码PLC地址")]
+        [JsonProperty]
+        public string Address { get; set; }            // SN码地址
+
+        // 数据长度
+        [DisplayName("产品码长度")]
+        [Description("产品码长度（长度为奇数的要加1补成偶数）")]
+        [JsonProperty]
+        public int Length { get; set; }             // 数据长度
+
+        public override string ToString() => $"SN码读取配置 (启用: {IsEnabled})";// 可选：重写 ToString() 显示摘要
     }
 
     /// <summary>
@@ -467,7 +814,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("缓存上传配置")]
         [Description("缓存上传配置")]
         [JsonProperty]
-        public CombinedUpload CombinedUpload { get; set; }
+        public CombinedUpload CombinedUpload { get; set; }   
 
         [DisplayName("业务测点配置列表")]
         [Description("每个测点包含上限、下限、实际值、结果")]
@@ -634,7 +981,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("PLC地址")]
         [Description("PLC数据地址")]
         [JsonProperty]
-        public int Address { get; set; }
+        public string Address { get; set; }
 
         [DisplayName("读取长度")]
         [Description("PLC读取长度")]
@@ -663,8 +1010,9 @@ namespace GT.Factory.Station.ProcessConfig
             {
                 if (!IsConfigured()) return null;
 
-                if (columnName == nameof(Address) && Address <= 0)
-                    return "PLC地址必须大于0";
+                if (columnName == nameof(Address)
+                && string.IsNullOrWhiteSpace(Address))
+                    return "PLC地址不能为空";
 
                 if (columnName == nameof(Length) && Length <= 0)
                     return "读取长度必须大于0";
@@ -684,7 +1032,7 @@ namespace GT.Factory.Station.ProcessConfig
         /// </summary>
         public bool IsConfigured()
         {
-            return Address > 0 && Length > 0 && DataType > 0;
+            return !string.IsNullOrWhiteSpace(Address) && Length > 0 && DataType > 0;
         }
 
         /// <summary>
@@ -693,11 +1041,8 @@ namespace GT.Factory.Station.ProcessConfig
         /// <param name="channelName">通道名称（用于错误信息）</param>
         public void Validate(string channelName)
         {
-            if (Address < 0)
+            if (string.IsNullOrWhiteSpace(Address))
                 throw new ArgumentOutOfRangeException($"{channelName}的PLC地址", Address, "PLC地址不能为负数");
-
-            if (Address == 0 && IsConfigured())
-                throw new ArgumentException($"{channelName}的PLC地址不能为0（除非通道未使用）");
 
             if (Length <= 0)
                 throw new ArgumentException($"{channelName}的读取长度必须大于0，当前值: {Length}");
@@ -725,6 +1070,7 @@ namespace GT.Factory.Station.ProcessConfig
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
+
     public class CombinedUpload
     {
         // 是否启用
@@ -764,7 +1110,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("治具号PLC地址")]
         [Description("治具号PLC地址")]
         [JsonProperty]
-        public int Address { get; set; }            // 治具号地址
+        public string Address { get; set; }            // 治具号地址
 
         // 数据长度
         [DisplayName("读取长度")]
@@ -775,35 +1121,7 @@ namespace GT.Factory.Station.ProcessConfig
         public override string ToString() => $"治具配置 (启用: {IsEnabled})";   // 可选：重写 ToString() 显示摘要
     }
 
-    /// <summary>
-    /// SN码读取配置
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class SnConfig
-    {
-        // 是否启用
-        [DisplayName("是否启用")]
-        [Description("产品码读取是否启用")]
-        [JsonProperty]
-        public bool IsEnabled { get; set; }         // 是否启用
-
-        // SN码地址
-        [DisplayName("产品码地址")]
-        [Description("产品码PLC地址")]
-        [JsonProperty]
-        public int Address { get; set; }            // SN码地址
-
-        // 数据长度
-        [DisplayName("产品码长度")]
-        [Description("产品码长度（长度为奇数的要加1补成偶数）")]
-        [JsonProperty]
-        public int Length { get; set; }             // 数据长度
-
-        public override string ToString() => $"SN码读取配置 (启用: {IsEnabled})";// 可选：重写 ToString() 显示摘要
-    }
-
+    
     /// <summary>
     /// 结果配置
     /// </summary>
@@ -821,7 +1139,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("结果地址")]
         [Description("结果PLC地址")]
         [JsonProperty]
-        public int Address { get; set; }            // 结果地址
+        public string Address { get; set; }            // 结果地址
 
         // 是否启用
         [DisplayName("合格工艺代码")]
@@ -863,7 +1181,7 @@ namespace GT.Factory.Station.ProcessConfig
         [DisplayName("文件码地址")]
         [Description("文件码PLC地址")]
         [JsonProperty]
-        public int Address { get; set; }            // 文件信息地址
+        public string Address { get; set; }            // 文件信息地址
 
         // 数据长度
         [DisplayName("文件码长度")]
@@ -923,34 +1241,6 @@ namespace GT.Factory.Station.ProcessConfig
                 return null;
             }
         }
-    }
-
-    // 调用方法配置类
-    [JsonObject(MemberSerialization.OptIn)]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class MethodConfig
-    {
-        [JsonProperty]
-        public bool IsNeed { get; set; }
-
-        [JsonProperty]
-        public MethodInformation[] Methods { get; set; }
-        public override string ToString() => $"文件项配置 (启用: {IsNeed})";// 可选：重写 ToString() 显示摘要
-    }
-
-    /// <summary>
-    /// 方法信息
-    /// </summary>
-    public class MethodInformation
-    {
-        [JsonProperty]
-        public string ClassName { get; set; }       // 类名
-        [JsonProperty]
-        public string MethodName { get; set; }      // 方法名
-        [JsonProperty]
-        public object[] Parameters { get; set; }    // 参数列表
-        [JsonProperty]
-        public bool IsStatic { get; set; }          // 是否静态方法
     }
 
     /// <summary>
@@ -1026,39 +1316,6 @@ namespace GT.Factory.Station.ProcessConfig
     }
 
     /// <summary>
-    /// 写入PLC基本配置
-    /// </summary>
-    public class WriteDataToPlcConfigBase
-    {
-        [JsonProperty]
-        public string Name { get; set; }     // 地址
-
-        [JsonProperty]
-        public string Address { get; set; }     // 地址
-    }
-
-    public class BarBindProcess : StandardProcess
-    {
-        // 绑定部件码信息
-        [DisplayName("绑定部件码信息")]
-        [Description("绑定部件码信息")]
-        [JsonProperty]
-        public List<PartInfo> PartInfos { get; set; }
-    }
-
-    /// <summary>
-    /// 绑定
-    /// </summary>
-    public class CheckResultProcess : StandardProcess
-    {
-        // 过站检测信息
-        [DisplayName("过站检信息")]
-        [Description("过站检信息")]
-        [JsonProperty]
-        public CheckResultInfo CheckResultInfo { get; set; }
-    }
-
-    /// <summary>
     /// 过站检信息
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
@@ -1104,29 +1361,7 @@ namespace GT.Factory.Station.ProcessConfig
         public PlcChannel PlcChannel { get; set; }
     }
 
-
-    /// <summary>
-    /// 点检
-    /// </summary>
-    public class CalibrationProcess : StandardProcess
-    {
-        public int FlagAddr { get; set; }      // 地址
-
-        [DisplayName("点检类型")]
-        [Description("点检类型")]
-        [JsonProperty]
-        public List<TypeStationId> TypeStationIds { get; set; }
-    }
-
-    /// <summary>
-    /// 抽检
-    /// </summary>
-    public class PeriodProcess : StandardProcess
-    {
-        public int FlagAddr { get; set; }     // 地址
-        public List<TypeStationId> TypeStationIds { get; set; }
-    }
-
+    
     /// <summary>
     /// 抽检点检配置
     /// </summary>
@@ -1159,6 +1394,9 @@ namespace GT.Factory.Station.ProcessConfig
             return new StandardProcess(); // 或其他派生类
         }
     }
+
+    #endregion
+
 
     [AttributeUsage(AttributeTargets.Property)]
     public class PropertyOrderAttribute : Attribute
@@ -1194,8 +1432,6 @@ namespace GT.Factory.Station.ProcessConfig
             // 如果通道没有任何配置，跳过验证
             if (!channel.IsConfigured()) return ValidationResult.Success;
 
-            if (channel.Address <= 0)
-                return new ValidationResult($"PLC地址必须大于0，当前值: {channel.Address}");
 
             if (channel.Length <= 0)
                 return new ValidationResult($"读取长度必须大于0，当前值: {channel.Length}");

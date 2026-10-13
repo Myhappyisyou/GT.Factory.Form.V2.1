@@ -1,5 +1,7 @@
-﻿using GT.Factory.Common.Models;
+﻿using GT.Factory.Common.Interfaces;
+using GT.Factory.Common.Models;
 using GT.Factory.Data.Core;
+using GT.Factory.GTUser.Repository;
 using GT.Factory.Station;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,6 @@ using System.Data.OleDb;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace GT.Factory.Station.Helper.BydUser
 {

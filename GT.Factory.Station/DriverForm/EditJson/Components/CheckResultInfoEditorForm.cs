@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     public partial class CheckResultInfoEditorForm : UserControl, IApplyChanges
     {

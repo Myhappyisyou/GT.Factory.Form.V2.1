@@ -1,4 +1,4 @@
-﻿using EditJson;
+﻿using GT.Factory.Station.EditJson;
 using GT.Factory.Station.Helper.LanModelSync;
 using GT.Factory.Station.Helper;
 using System;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GT.Factory.Common.Helper;
+using GT.Factory.Common.Helpers;
 
 namespace GT.Factory.Station.DriverForm.ModelSelectForm
 {

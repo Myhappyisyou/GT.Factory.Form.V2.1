@@ -12,7 +12,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GT.Factory.Common.Helper;
+using GT.Factory.Common.Helpers;
 using GT.Factory.UI.Component;
 
 namespace GT.Factory.Station.Components

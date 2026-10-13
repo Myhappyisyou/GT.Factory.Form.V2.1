@@ -1,14 +1,6 @@
-﻿using GT.Factory.Common.Helper;
-using GT.Factory.Station.Helper;
+﻿using GT.Factory.Common.Helpers;
 using GT.Factory.Station.Model;
-using GT.Factory.Station.ProcessConfig;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station.OP010
 {
@@ -50,6 +42,7 @@ namespace GT.Factory.Station.OP010
         #endregion
         
         #region title信息
+
         public string ProcessNo { get; set; } = "OP010";
         public string StationName { get; set; } = "工位1"; 
         public string ProcessName { get; set; } = "OP010管壳上料&激光刻码";
@@ -70,12 +63,5 @@ namespace GT.Factory.Station.OP010
 
         #endregion
 
-        #region  UID
-
-        public string UIDIP { get; set; } = "192.168.0.95";//192.168.2.29
-
-        public int UIDPort { get; set; } = 1030;
-
-        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿using GT.Factory.Common.Helper;
+﻿using GT.Factory.Common.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -2,13 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace GT.Factory.Common.Helper
+namespace GT.Factory.Common.Helpers
 {
     public static class PathCenter
     {
         public static readonly string AppRoot =
             AppDomain.CurrentDomain.BaseDirectory;
-
 
         private static string _stationRoot;
 
@@ -37,6 +36,15 @@ namespace GT.Factory.Common.Helper
 
         public static string History =>
             Path.Combine(Data, "History");
+
+        public static readonly string Models =
+          Path.Combine(Config, "Model");
+
+        public static readonly string UserRole =
+          Path.Combine(Config, "UserRole");
+
+        public static readonly string Plugins =
+           Path.Combine(Config, "Plugins");
 
         private static string FindStationRoot(string start)
         {
@@ -75,7 +83,8 @@ namespace GT.Factory.Common.Helper
         public static string HistoryFile(string name)
            => Path.Combine(History, name);
 
-
+        public static string UserRoleFile(string name)
+         => Path.Combine(UserRole, name);
         public static string Model(
       string modelName)
         {

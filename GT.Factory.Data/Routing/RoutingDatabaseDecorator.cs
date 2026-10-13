@@ -1,6 +1,7 @@
 ﻿using GT.Factory.Data.Abstractions;
 using GT.Factory.Data.Core;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
@@ -82,7 +83,7 @@ namespace GT.Factory.Data.Routing
             _options.ConnectionString = builder.ConnectionString;
         }
 
-        public int Execute(string sql, object param = null)
+        public int Execute(string sql, object param = null, CommandType commandType = CommandType.Text)
         {
             // 同步调用异步方法，确保路由逻辑一致
             ApplyRouting().GetAwaiter().GetResult();
@@ -105,6 +106,11 @@ namespace GT.Factory.Data.Routing
         {
             ApplyRouting().GetAwaiter().GetResult();
             return _inner.Ping();
+        }
+
+        public Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

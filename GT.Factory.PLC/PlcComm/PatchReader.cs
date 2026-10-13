@@ -27,7 +27,7 @@ namespace GT.Factory.PLC.PlcComm
 
         private ushort _heartbeatValue;
         private CancellationTokenSource _cts;
-
+        
         /// <summary>
         /// 读取间隔，默认 50 毫秒
         /// </summary>

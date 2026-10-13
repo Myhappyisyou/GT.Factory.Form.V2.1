@@ -1,4 +1,5 @@
-﻿using GT.Factory.Common.Models;
+﻿using GT.Factory.Common.Interfaces;
+using GT.Factory.Common.Models;
 using GT.Factory.Station.Helper.ClientTask;
 using GT.Factory.Station.Helper.QueryClient;
 using System;

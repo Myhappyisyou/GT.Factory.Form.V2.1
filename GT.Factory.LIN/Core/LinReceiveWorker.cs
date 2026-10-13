@@ -92,6 +92,11 @@ namespace GT.Factory.LIN.Core
         /// </summary>
         private readonly LinRuntime _runtime;
 
+        /// <summary>
+        /// 复用统一的Signal写入路径，使RX解码后的值同步到所有关联FrameCache。
+        /// </summary>
+        private readonly LinSignalRuntime _signalRuntime;
+
 
 
 
@@ -137,6 +142,10 @@ namespace GT.Factory.LIN.Core
             _adapter = adapter;
 
             _runtime = runtime;
+
+            _signalRuntime =
+                new LinSignalRuntime(
+                    runtime);
 
         }
 
@@ -322,13 +331,20 @@ namespace GT.Factory.LIN.Core
                     //
                     // 更新运行值
                     //
-                    _runtime.SetSignalValue(
+                    _signalRuntime.SetValue(
                         signal.Name,
                         value);
 
 
 
                 }
+
+                //
+                // Runtime同时保存收到的原始Frame。
+                // SignalValues与FrameCache必须来自同一条RX消息。
+                //
+                _runtime.UpdateFrame(
+                    message);
 
 
 

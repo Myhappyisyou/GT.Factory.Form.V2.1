@@ -1,4 +1,5 @@
-﻿using GT.Factory.Station.MyEnum;
+﻿using GT.Factory.PLC.PlcComm;
+using GT.Factory.Station.MyEnum;
 using GT.Factory.Station.ProcessConfig;
 using System;
 using System.Drawing;
@@ -6,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     /// <summary>
     /// 单个PLC通道编辑器。
@@ -27,7 +28,7 @@ namespace EditJson
         private readonly string _title;
         private readonly bool _allowEmpty;
 
-        private NumericUpDown _numAddress;
+        private TextBox _txtAddress;
         private NumericUpDown _numLength;
         private ComboBox _cboDataType;
         private TextBox _txtScalingFactor;
@@ -146,19 +147,15 @@ namespace EditJson
             // 地址
             // =========================================================
 
-            panel.Controls.Add(
-                CreateLabel("地址"),
-                2,
-                0);
+            panel.Controls.Add(CreateLabel("地址"), 2, 0);
 
-            _numAddress =
-                CreateNumeric();
-
-            _numAddress.Maximum =
-                999999;
+            _txtAddress = new TextBox
+            {
+                Dock = DockStyle.Fill
+            };
 
             panel.Controls.Add(
-                _numAddress,
+                _txtAddress,
                 3,
                 0);
 
@@ -288,11 +285,7 @@ namespace EditJson
                     configured;
             }
 
-            _numAddress.Value =
-                Clamp(
-                    channel.Address,
-                    _numAddress.Minimum,
-                    _numAddress.Maximum);
+            _txtAddress.Text = channel.Address ?? string.Empty;
 
             _numLength.Value =
                 Clamp(
@@ -319,7 +312,8 @@ namespace EditJson
                 _chkEnabled.Checked = false;
             }
 
-            _numAddress.Value = 0;
+            _txtAddress.Text = string.Empty;
+            
             _numLength.Value = 0;
 
             SelectDataType(
@@ -400,7 +394,7 @@ namespace EditJson
                 _chkEnabled == null ||
                 _chkEnabled.Checked;
 
-            _numAddress.Enabled =
+            _txtAddress.Enabled =
                 enabled;
 
             _numLength.Enabled =
@@ -429,8 +423,7 @@ namespace EditJson
             var channel =
                 new PlcChannel();
 
-            channel.Address =
-                (int)_numAddress.Value;
+            channel.Address = _txtAddress.Text?.Trim();
 
             channel.Length =
                 (int)_numLength.Value;
@@ -486,11 +479,15 @@ namespace EditJson
                 return true;
             }
 
-            if (_numAddress.Value <= 0)
+            if (string.IsNullOrWhiteSpace(_txtAddress.Text))
             {
-                error =
-                    $"{_title}PLC地址必须大于0。";
+                error = $"{_title}PLC地址不能为空。";
+                return false;
+            }
 
+            if (!PlcAddressHelper.TryToReadAddress(_txtAddress.Text.Trim(), out _))
+            {
+                error = $"{_title}PLC地址格式不正确，例：D100 或 100。";
                 return false;
             }
 

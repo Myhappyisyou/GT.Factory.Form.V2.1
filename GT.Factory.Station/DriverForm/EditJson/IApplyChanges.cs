@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GT.Factory.Station.DriverForm.EditJson
+namespace GT.Factory.Station.EditJson
 {
     public interface IApplyChanges
     {

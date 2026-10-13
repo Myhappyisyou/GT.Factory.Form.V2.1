@@ -11,8 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GT.Factory.Station.EditJson.Components;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson
 {
     public partial class ProcessEditorForm : Form
     {
@@ -49,8 +50,9 @@ namespace EditJson
         private void InitializeUI()
         {
             // 窗体设置
-            Text = Process.TriggerAddress == 0 ? "添加新流程" : $"编辑流程 - {Process.Name}";
-            StartPosition = FormStartPosition.CenterParent;
+            Text = string.IsNullOrWhiteSpace(Process.TriggerAddress)
+                    ? "添加新流程"
+                    : $"编辑流程 - {Process.Name}"; StartPosition = FormStartPosition.CenterParent;
             MinimumSize = new Size(800, 600);
             //Icon = Properties.Resources.ProcessEditIcon;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -93,13 +95,13 @@ namespace EditJson
             {
                 InitializeStandardProcessTabs(tabControl, (StandardProcess)Process);
             }
-            //if (Process is StandardProcess stdProcess)
-            //{
-            //    InitializeStandardProcessTabs(tabControl, stdProcess);
-            //}
             else if (Process.ProcessType == ProcessType.CheckResultProcesses)
             {
                 InitializeCheckResultProcessTabs(tabControl, (CheckResultProcess)Process);
+            }
+            else if (Process is ReworkProcess reworkProcess)
+            {
+                InitializeReworkProcessTabs(tabControl, reworkProcess);
             }
             else if (Process is BarBindProcess bindProcess)
             {
@@ -193,15 +195,13 @@ namespace EditJson
                 AutoSize = true
             }, 0, 2);
 
-            var numTriggerAddress = new NumericUpDown
+            var txtTriggerAddress = new TextBox
             {
-                Name = "numTriggerAddress",
+                Name = "txtTriggerAddress",  // ← 改名，避免和原来混淆
                 Dock = DockStyle.Fill,
-                Minimum = 0,
-                Maximum = 99999,
-                Value = Process.TriggerAddress
+                Text = Process.TriggerAddress ?? string.Empty
             };
-            panel.Controls.Add(numTriggerAddress, 1, 2);
+            panel.Controls.Add(txtTriggerAddress, 1, 2);
 
             // 工序号
             panel.Controls.Add(new Label
@@ -233,22 +233,6 @@ namespace EditJson
                 Dock = DockStyle.Fill,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            //cmbProcessType.DataSource = Enum.GetValues(typeof(ProcessType));
-            ////cmbProcessType.SelectedIndex = (int)Process.ProcessType;
-
-            //// 延迟选中
-            //cmbProcessType.HandleCreated += (s, e) =>
-            //{
-            //    for (int i = 0; i < cmbProcessType.Items.Count; i++)
-            //    {
-            //        if ((ProcessType)cmbProcessType.Items[i] == Process.ProcessType)
-            //        {
-            //            cmbProcessType.SelectedIndex = i;
-            //            break;
-            //        }
-            //    }
-            //};
-
 
             panel.Controls.Add(cmbProcessType, 1, 4);
 
@@ -281,11 +265,6 @@ namespace EditJson
             var statusPanel = new PropertyGrid
             {
                 Dock = DockStyle.Fill,
-                //SelectedObject = new StatusFlagWrapper(process),
-                //SelectedObject = new
-                //{
-                //    process.StatusFlagAddress   //创建了一个 匿名类型对象，它的属性（如 StatusFlagAddress）默认是 只读的（没有 set 方法），所以 PropertyGrid 无法编辑它。
-                //}
             };
             statusPanel.SelectedObject = new StatusFlagWrapper(process);
 
@@ -313,7 +292,7 @@ namespace EditJson
             }
 
             // 总结果配置
-            if (process.PlcReadConfig != null)
+            if (process.ResultConfig != null)
             {
                 var resultConfigTab = new TabPage("总结果读取");
                 var resultConfigEditor = new ResultConfigEditor(process.ResultConfig);
@@ -383,6 +362,20 @@ namespace EditJson
             }
         }
 
+        private void InitializeReworkProcessTabs(TabControl tabControl, ReworkProcess process)
+        {
+            // PLC读取配置
+            if (process.PlcWriteConfig != null)
+            {
+                var writeTab = new TabPage("写入数据配置");
+                var readEditor = new PlcWriteConfigEditor(process.PlcWriteConfig);
+
+                writeTab.Controls.Add(readEditor);
+                tabControl.TabPages.Add(writeTab);
+            }
+
+        }
+
         private void InitializeBindProcessTabs(TabControl tabControl, BarBindProcess process)
         {
             // 绑定特定配置
@@ -431,16 +424,17 @@ namespace EditJson
             // 从控件加载数据
             var txtName = Controls.Find("txtName", true)[0] as TextBox;
             var txtSignalName = Controls.Find("txtSignalName", true)[0] as TextBox;
-            var numTriggerAddress = Controls.Find("numTriggerAddress", true)[0] as NumericUpDown;
+            var txtTriggerAddress = Controls.Find("txtTriggerAddress", true)[0] as TextBox;
             var txtProcessNo = Controls.Find("txtProcessNo", true)[0] as TextBox;
             var cmbProcessType = Controls.Find("cmbProcessType", true)[0] as ComboBox;
             var txtFeedbackAddress = Controls.Find("txtFeedbackAddress", true)[0] as TextBox;
 
             if (txtName != null) Process.Name = txtName.Text;
             if (txtSignalName != null) Process.SignalName = txtSignalName.Text;
-            if (numTriggerAddress != null) Process.TriggerAddress = (int)numTriggerAddress.Value;
+            if (txtTriggerAddress != null)
+                Process.TriggerAddress = txtTriggerAddress.Text?.Trim();
             if (txtProcessNo != null) Process.ProcessNo = txtProcessNo.Text;
-            if (cmbProcessType != null) Process.ProcessType = (ProcessType)cmbProcessType.SelectedIndex;
+            if (cmbProcessType != null) Process.ProcessType = (ProcessType)cmbProcessType.SelectedItem;
             if (txtFeedbackAddress != null) Process.FinishFeedbackAddress = txtFeedbackAddress.Text;
         }
 
@@ -471,7 +465,7 @@ namespace EditJson
 
             private readonly StandardProcess _process;
 
-            public int StatusFlagAddress
+            public string StatusFlagAddress
             {
                 get => _process.StatusFlagAddress;
                 set => _process.StatusFlagAddress = value;

@@ -1,10 +1,10 @@
 ﻿using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
 using GT.Factory.Common.Helpers;
 using GT.Factory.Common.Models;
 using GT.Factory.Data.Abstractions;
 using GT.Factory.Data.Core;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace GT.Factory.Data.Repository
@@ -17,13 +17,93 @@ namespace GT.Factory.Data.Repository
     {
         private readonly IDatabase _db;
         private readonly string alarmTable = TableNameResolver.Get(LogicalTable.Alarm);
-        private readonly string alarmParseTable = TableNameResolver.Get(LogicalTable.AlarmParse);
+        private readonly string equipmentRunTable = TableNameResolver.Get(LogicalTable.EquipmentRun);
 
         public EquipmentStatusRepository(DatabaseManager manager)
         {
             _db = manager.Primary
                 ?? throw new Exception("Primary 数据库未配置");
         }
+
+
+
+        #region 服务器时间
+
+        /// <summary>
+        /// 获取 SQL Server 当前时间。
+        ///
+        /// 正式产品码生成开始时调用一次。
+        ///
+        /// 该时间会作为本次产品码生成的统一时间，
+        /// 后续 Date、Shift、Serial 和 History
+        /// 均使用这个时间。
+        /// </summary>
+        public DateTime GetDatabaseTime()
+        {
+            const string sql = @"
+                SELECT GETDATE();";
+
+            return _db.QuerySingle<DateTime>(
+                sql,
+                null);
+        }
+
+        #endregion
+
+        #region 班次
+
+        public string GetCurrentShift(DateTime generationTime)
+        {
+
+            const string sql = @"
+                SELECT TOP 1 ShiftCode
+                FROM dbo.GTShiftConfig
+                WHERE Enabled = 1
+                AND
+                (
+                    (
+                        StartTime < EndTime
+                        AND CAST(@GenerationTime AS time) >= StartTime
+                        AND CAST(@GenerationTime AS time) < EndTime
+                    )
+                    OR
+                    (
+                        StartTime > EndTime
+                        AND
+                        (
+                            CAST(@GenerationTime AS time) >= StartTime
+                            OR CAST(@GenerationTime AS time) < EndTime
+                        )
+                    )
+                )
+                ORDER BY StartTime;";
+
+            return _db.QuerySingle<string>(
+                sql,
+                new
+                {
+                    GenerationTime = generationTime
+                });
+
+        }
+
+        #endregion
+
+
+
+        #region 设备状态
+
+        public async Task InsertEquipmentRunAsync(string processno, DateTime starttime, DateTime endtime, int state)
+        {
+            string sql = $"EXEC equipment_run_state_record @eqpt_id = '{processno}',@state_start_time = GETDATE(), @state_end_time = GETDATE(), @state = {state},@run_data = N'{{}}' ";
+
+
+            await _db.ExecuteAsync(sql);
+        }
+
+
+        #endregion
+
 
         #region ✅ 上传报警
 

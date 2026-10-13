@@ -69,17 +69,10 @@ namespace GT.Factory.LIN.Tests.Simulator
                     "BYD_300W_HEV_ELOP",
 
 
-                    LdfFile =
-                    ldf
-
                 };
 
             Console.WriteLine(
                 $"Project:{project.Name}");
-
-            Console.WriteLine(
-                $"LDF:{project.LdfFile}");
-
 
             //
             // 创建测试Case
@@ -525,7 +518,6 @@ namespace GT.Factory.LIN.Tests.Simulator
                     "BYD_300W_HEV_ELOP",
 
 
-                    LdfFile = ldf
 
                 };
 
@@ -593,7 +585,7 @@ namespace GT.Factory.LIN.Tests.Simulator
             // LDF文件
             //
             string ldf =
-                @"C:\Users\ding0\Desktop\BYD_300W_HEV_ELOP_V1.2(1).ldf";
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\BYD_300W_HEV_ELOP_V1.2.ldf";
 
 
 
@@ -601,8 +593,7 @@ namespace GT.Factory.LIN.Tests.Simulator
             // LIN配置
             //
             string config =
-                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\LinConfig.json";
-
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\SimulationConfig.json";
 
 
 
@@ -624,7 +615,8 @@ namespace GT.Factory.LIN.Tests.Simulator
                     ldf,
                     config,
                     adapter,
-                    LinRunMode.Simulation);
+                    LinRunMode.Simulation,
+                    new LinTestProject());
 
 
 

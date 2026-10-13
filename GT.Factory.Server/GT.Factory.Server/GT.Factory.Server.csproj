@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A9F2E740-8576-4BAB-AEAE-BF74BCC73AE8}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>GT.Factory.Server</RootNamespace>
+    <AssemblyName>GT.Factory.Server</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>图标.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AYNETTEK.HFModbus">
+      <HintPath>bin\Debug\AYNETTEK.HFModbus.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.8\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Owin, Version=4.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.2.3\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.HttpListener, Version=4.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.4.2.3\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Hosting, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Hosting.4.2.2\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.Bson.1.0.2\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog, Version=4.4.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Serilog.4.4.0\lib\net471\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.7.0.0\lib\net471\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.8.0.1\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=9.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipelines.9.0.8\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.6.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=9.0.0.6, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.9.0.6\lib\net462\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=9.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.9.0.8\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=9.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.9.0.8\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.8.0.0\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.3.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Owin, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.3.0\lib\net45\System.Web.Http.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppRuntime.cs" />
+    <Compile Include="Component\CodeRule_UC\AddModelForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Component\CodeRule_UC\AddModelForm.Designer.cs">
+      <DependentUpon>AddModelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Component\CodeRule_UC\CodeRule.cs" />
+    <Compile Include="Component\CodeRule_UC\CodeRuleForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Component\CodeRule_UC\CodeRuleForm.Designer.cs">
+      <DependentUpon>CodeRuleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Component\CodeRule_UC\CodeRuleService.cs" />
+    <Compile Include="Component\CodeRule_UC\SegmentEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Component\CodeRule_UC\SegmentEditForm.Designer.cs">
+      <DependentUpon>SegmentEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Component\ModelConfig_UC\UC_ModelConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Component\ModelConfig_UC\UC_ModelConfig.Designer.cs">
+      <DependentUpon>UC_ModelConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config.cs" />
+    <Compile Include="Core\ClientInfor\ProcessClient.cs" />
+    <Compile Include="Core\Consumable\Consumables.cs" />
+    <Compile Include="Core\IPageLifecycle.cs" />
+    <Compile Include="Core\LanModelSync\DeviceStateMonitor.cs" />
+    <Compile Include="Core\LanModelSync\DeviceStatus.cs" />
+    <Compile Include="Core\LanModelSync\DeviceSyncService.cs" />
+    <Compile Include="Core\LanModelSync\HeartbeatBroadcaster.cs" />
+    <Compile Include="Core\LanModelSync\ModelConfig.cs" />
+    <Compile Include="Core\LanModelSync\ModelConfigReceiver.cs" />
+    <Compile Include="Core\LanModelSync\ModelSender.cs" />
+    <Compile Include="Core\TreeEdit\TreeNodeConfig.cs" />
+    <Compile Include="Core\TreeEdit\TreeNodeFileConfiguration.cs" />
+    <Compile Include="Core\UIHelper.cs" />
+    <Compile Include="Help\CommMethod.cs" />
+    <Compile Include="Help\ObjectExtensions.cs" />
+    <Compile Include="Help\TCPHelp\AsyncTcpServer.cs" />
+    <Compile Include="Help\TCPHelp\EventArgsClasses.cs" />
+    <Compile Include="Help\TCPHelp\SocketClientManager.cs" />
+    <Compile Include="Help\TCPHelp\SocketInfo.cs" />
+    <Compile Include="Help\TCPHelp\TcpClientState.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PassWordFrom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PassWordFrom.Designer.cs">
+      <DependentUpon>PassWordFrom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Component\ProductionDashboardControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Component\ChangeOrder_UC\UC_ChangeOrder.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Component\ChangeOrder_UC\UC_ChangeOrder.Designer.cs">
+      <DependentUpon>UC_ChangeOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Runtime\ServerRuntime.cs" />
+    <EmbeddedResource Include="Component\CodeRule_UC\AddModelForm.resx">
+      <DependentUpon>AddModelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Component\CodeRule_UC\CodeRuleForm.resx">
+      <DependentUpon>CodeRuleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Component\CodeRule_UC\SegmentEditForm.resx">
+      <DependentUpon>SegmentEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Component\ModelConfig_UC\UC_ModelConfig.resx">
+      <DependentUpon>UC_ModelConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PassWordFrom.resx">
+      <DependentUpon>PassWordFrom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Component\ChangeOrder_UC\UC_ChangeOrder.resx">
+      <DependentUpon>UC_ChangeOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\green.jpg" />
+    <None Include="Images\red.jpg" />
+    <Content Include="Resources\BYD.png" />
+    <Content Include="Resources\Image1.png" />
+    <Content Include="Resources\Maximize-1.png" />
+    <Content Include="Resources\Maximize-11.png" />
+    <Content Include="Resources\Maximize1.png" />
+    <Content Include="Resources\Minimize2.png" />
+    <Content Include="Resources\User Settings.png" />
+    <Content Include="Resources\三花.jpg" />
+    <Content Include="Resources\三花1.jpg" />
+    <Content Include="Resources\主页.png" />
+    <Content Include="Resources\二维码.png" />
+    <Content Include="Resources\云上传.png" />
+    <Content Include="Resources\产品参数.png" />
+    <Content Include="Resources\关闭.png" />
+    <Content Include="Resources\切换模式.png" />
+    <Content Include="Resources\加.png" />
+    <Content Include="Resources\导入表单-资料_操作_jurassic.png" />
+    <Content Include="Resources\导出.png" />
+    <Content Include="Resources\打开文件.png" />
+    <Content Include="图标.ico" />
+    <None Include="Resources\数据库ECQL过滤读取.png" />
+    <Content Include="Resources\数据查询.png" />
+    <Content Include="Resources\时间.png" />
+    <None Include="Resources\易损件管理.png" />
+    <None Include="Resources\易损件管理 %281%29.png" />
+    <None Include="Resources\易损件管理 %283%29.png" />
+    <Content Include="Resources\更新.png" />
+    <Content Include="Resources\登录-用户.png" />
+    <Content Include="Resources\退出.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\GT.Factory.Common\GT.Factory.Common.csproj">
+      <Project>{2E4CB045-8A74-47F9-8FC5-B571F7A7019D}</Project>
+      <Name>GT.Factory.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.Data\GT.Factory.Data.csproj">
+      <Project>{6869136E-4F00-4914-A7AC-666518F6942A}</Project>
+      <Name>GT.Factory.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.GTUser\GT.Factory.GTUser.csproj">
+      <Project>{1F502A97-4B27-4E48-B390-A25338A27EA4}</Project>
+      <Name>GT.Factory.GTUser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.Logging\GT.Factory.Logging.csproj">
+      <Project>{2A3BC6F2-6E12-45CF-AD59-6C53EE280A76}</Project>
+      <Name>GT.Factory.Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.Login\GT.Factory.Login.csproj">
+      <Project>{FA5A71DC-4398-4947-BBE9-2BCC5BE76740}</Project>
+      <Name>GT.Factory.Login</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.Management.UI\GT.Factory.Management.UI.csproj">
+      <Project>{919EFC4F-A8E2-4EDF-A5E5-86C6AFD2A673}</Project>
+      <Name>GT.Factory.Management.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.MES\GT.Factory.MES.csproj">
+      <Project>{E84F271D-6D8F-4002-BA62-A7BFD06DDE23}</Project>
+      <Name>GT.Factory.MES</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.ProductCode\GT.Factory.ProductCode\GT.Factory.ProductCode.csproj">
+      <Project>{5AF64A53-5E86-43D3-8F98-C949DBAF9173}</Project>
+      <Name>GT.Factory.ProductCode</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.Product\GT.Factory.Product.csproj">
+      <Project>{D4BED9C9-0F83-4692-8862-5178A9B81DB6}</Project>
+      <Name>GT.Factory.Product</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.RFID\GT.Factory.RFID.csproj">
+      <Project>{9F74E752-48F5-4D27-8B58-3FEC5FEBF0B2}</Project>
+      <Name>GT.Factory.RFID</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.UI\GT.Factory.UI.csproj">
+      <Project>{43748b7a-dd23-46c3-9627-26a6692f0394}</Project>
+      <Name>GT.Factory.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GT.Factory.WebApi\GT.Factory.WebApi.csproj">
+      <Project>{2719e05b-c0de-4c1d-beb8-9faf36a27cdf}</Project>
+      <Name>GT.Factory.WebApi</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DriverForm\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Serilog.4.3.0\build\Serilog.targets" Condition="Exists('..\packages\Serilog.4.3.0\build\Serilog.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Serilog.4.3.0\build\Serilog.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Serilog.4.3.0\build\Serilog.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Serilog.4.4.0\build\Serilog.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Serilog.4.4.0\build\Serilog.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Serilog.4.4.0\build\Serilog.targets" Condition="Exists('..\..\packages\Serilog.4.4.0\build\Serilog.targets')" />
+</Project>

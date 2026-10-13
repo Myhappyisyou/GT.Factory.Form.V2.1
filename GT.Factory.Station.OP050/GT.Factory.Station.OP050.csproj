@@ -70,7 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControlEngine_new.cs" />
+    <Compile Include="ControlEngine.cs" />
     <Compile Include="LocalConfig.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -113,6 +113,22 @@
     <ProjectReference Include="..\GT.Factory.Common\GT.Factory.Common.csproj">
       <Project>{2e4cb045-8a74-47f9-8fc5-b571f7a7019d}</Project>
       <Name>GT.Factory.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.GTUser\GT.Factory.GTUser.csproj">
+      <Project>{1F502A97-4B27-4E48-B390-A25338A27EA4}</Project>
+      <Name>GT.Factory.GTUser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Logging\GT.Factory.Logging.csproj">
+      <Project>{2A3BC6F2-6E12-45CF-AD59-6C53EE280A76}</Project>
+      <Name>GT.Factory.Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Login\GT.Factory.Login.csproj">
+      <Project>{FA5A71DC-4398-4947-BBE9-2BCC5BE76740}</Project>
+      <Name>GT.Factory.Login</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.RFID\GT.Factory.RFID.csproj">
+      <Project>{9F74E752-48F5-4D27-8B58-3FEC5FEBF0B2}</Project>
+      <Name>GT.Factory.RFID</Name>
     </ProjectReference>
     <ProjectReference Include="..\GT.Factory.Station\GT.Factory.Station.csproj">
       <Project>{28369a6e-46fa-41b6-893a-6d970a890047}</Project>

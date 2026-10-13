@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,8 @@ namespace GT.Factory.Data.Abstractions
         /// </summary>
         int Execute(
         string sql,
-            object param = null);
+            object param = null,
+            CommandType commandType = CommandType.Text);
 
         /// <summary>
         /// 查询单条记录
@@ -65,6 +67,12 @@ namespace GT.Factory.Data.Abstractions
         /// 开启事务
         /// </summary>
         Task<IDatabaseTransaction> BeginTransactionAsync();
+
+
+         /// <summary> 
+         /// 按指定隔离级别创建数据库事务。
+         /// </summary> 
+         Task<IDatabaseTransaction> BeginTransactionAsync( IsolationLevel isolationLevel);
 
         /// <summary>
         /// 数据库健康检测

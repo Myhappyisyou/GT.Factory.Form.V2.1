@@ -5,6 +5,7 @@ using GT.Factory.LIN.Model;
 using GT.Factory.LIN.Parser;
 using GT.Factory.LIN.Project;
 using GT.Factory.LIN.Simulator;
+using GT.Factory.LIN.Test.Model;
 
 
 namespace GT.Factory.LIN.Tests.Simulator
@@ -19,12 +20,19 @@ namespace GT.Factory.LIN.Tests.Simulator
         public void Test_ELOP_LIN_Simulation()
         {
 
+            //
+            // LDF文件
+            //
             string ldf =
-                @"C:\Users\ding0\Desktop\BYD_300W_HEV_ELOP_V1.2(1).ldf";
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\BYD_300W_HEV_ELOP_V1.2.ldf";
 
 
+
+            //
+            // LIN配置
+            //
             string config =
-                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\LinConfig.json";
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\SimulationConfig.json";
 
 
 
@@ -38,7 +46,8 @@ namespace GT.Factory.LIN.Tests.Simulator
                     ldf,
                     config,
                     adapter,
-                    LinRunMode.Simulation);
+                    LinRunMode.Simulation,
+                    new LinTestProject());
 
 
 

@@ -380,6 +380,9 @@ namespace GT.Factory.LIN.Tests.Engine
 
             int count = 0;
 
+            LinMessage sentMessage =
+                null;
+
 
 
             controller.Engine.FrameSent +=
@@ -387,6 +390,8 @@ namespace GT.Factory.LIN.Tests.Engine
                 {
 
                     count++;
+
+                    sentMessage = msg;
 
                     Console.WriteLine(
                         $"Event ID:{msg.Id:X2}");
@@ -411,6 +416,21 @@ namespace GT.Factory.LIN.Tests.Engine
 
             Assert.IsTrue(
                 count > 0);
+
+            Assert.IsNotNull(
+                sentMessage);
+
+            var cachedFrame =
+                controller.Runtime.GetFrame(
+                    sentMessage.Id);
+
+            Assert.AreSame(
+                sentMessage,
+                cachedFrame);
+
+            CollectionAssert.AreEqual(
+                sentMessage.Data,
+                cachedFrame.Data);
 
 
         }

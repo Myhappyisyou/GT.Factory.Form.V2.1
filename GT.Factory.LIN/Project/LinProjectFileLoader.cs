@@ -173,6 +173,38 @@ namespace GT.Factory.LIN.Project
                     simulationConfig);
             }
 
+
+            if (project.Test == null)
+            {
+                throw new Exception(
+                    "缺少Test配置");
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                project.Test.ProjectTestCasePath))
+            {
+                throw new Exception(
+                    "未配置测试工程文件");
+            }
+
+            //
+            // 根据.linproj所在目录解析测试工程文件。
+            //
+            var testProjectFile =
+                Path.Combine(
+                    root,
+                    project.Test.ProjectTestCasePath);
+
+            //
+            // 确认测试工程文件存在。
+            //
+            if (!File.Exists(testProjectFile))
+            {
+                throw new FileNotFoundException(
+                    "测试工程文件不存在",
+                    testProjectFile);
+            }
+
         }
 
     }

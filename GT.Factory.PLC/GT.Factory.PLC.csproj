@@ -55,6 +55,7 @@
     <Compile Include="Enums\MyEnum.cs" />
     <Compile Include="PlcComm\Int16Block.cs" />
     <Compile Include="PlcComm\PatchReader.cs" />
+    <Compile Include="PlcComm\PlcAddressHelper.cs" />
     <Compile Include="PlcComm\ValueMonitorBool.cs" />
     <Compile Include="PlcComm\ValueMonitorShort.cs" />
     <Compile Include="PlcFactory.cs" />

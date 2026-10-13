@@ -10,6 +10,7 @@ using System.ComponentModel;
 using GT.Factory.Station.Model;
 using GT.Factory.Common.Models;
 using GT.Factory.UI.Enum;
+using GT.Factory.Common.Models.Mes;
 
 namespace GT.Factory.Station
 {

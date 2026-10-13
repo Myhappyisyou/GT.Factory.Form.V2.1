@@ -1,9 +1,8 @@
 ﻿using GT.Factory.Common.Models;
-using GT.Factory.Station;
+using GT.Factory.Logging.Logging;
 using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
-using GT.Factory.Station.Helper.Logging;
 using RecipeParameter.RecipeParameter;
 using System;
 using System.Collections.Generic;
@@ -20,7 +19,7 @@ namespace GT.Factory.Station.ProcessConfig
         protected readonly PatchReader _reader;
         protected readonly ComponentManager _componentManager;
         protected readonly UploadManager _uploadManager;
-        protected readonly AccessMdbHelper _db;
+        //protected readonly AccessMdbHelper _db;
         protected readonly List<Consumables> _lsConsumables;
         protected readonly List<PartRuntime> _partRuntimes;
         protected readonly ClientTaskSender _clientTaskSender;
@@ -29,30 +28,36 @@ namespace GT.Factory.Station.ProcessConfig
         protected readonly IProcessStageHandler _stageHandler;
         private readonly Dictionary<string, Func<ProcessContext, Task>> _handlers;
 
+        // ========== 新增 ==========
+        private readonly Dictionary<string, IInstrumentHandler> _instrumentHandlers
+            = new Dictionary<string, IInstrumentHandler>();
+
         protected BaseProcessExecutor(
             PatchReader reader,
             ComponentManager componentManager,
             UploadManager uploadManager,
-            AccessMdbHelper db,
+            //AccessMdbHelper db,
             List<Consumables> lsConsumables,
             ClientTaskSender clientTaskSender,
             ProductionMonitor productionMonitor,
             ITestDataProcessor testDataProcessor,
             IProcessStageHandler stageHandler = null,
-            Dictionary<string, Func<ProcessContext, Task>> specificHandlers = null)
+            Dictionary<string, Func<ProcessContext, Task>> specificHandlers = null,
+            Dictionary<string, IInstrumentHandler> instrumentHandlers = null)
 
         {
             _reader = reader;
             _componentManager = componentManager;
             _uploadManager = uploadManager;
-            _db = db;
+            //_db = db;
             _lsConsumables = lsConsumables;
             _clientTaskSender = clientTaskSender;
             _productionMonitor = productionMonitor;
-            _dataProcessor = testDataProcessor ?? new TestDataProcessor(_componentManager, _uploadManager, _db, _lsConsumables, _clientTaskSender, _productionMonitor);
+            _dataProcessor = testDataProcessor ?? new TestDataProcessor(_componentManager, _uploadManager,  _lsConsumables, _clientTaskSender, _productionMonitor);
             _stageHandler = stageHandler;
             _handlers = specificHandlers ?? new Dictionary<string, Func<ProcessContext, Task>>();
-
+            _instrumentHandlers = instrumentHandlers
+              ?? new Dictionary<string, IInstrumentHandler>();
         }
 
         public Task ExecuteAsync(StandardProcess process, LimitConfig limitConfig,List<ResultCodeParse> lsResultCodeParses) =>
@@ -62,6 +67,14 @@ namespace GT.Factory.Station.ProcessConfig
             context.LsResultCodeParses = lsResultCodeParses;
             return ExecutePipelineAsync(context, GetStandardPipeline());
         });
+
+        public Task ExecuteReworkAsync(ReworkProcess process, LimitConfig limitConfig, List<ResultCodeParse> lsResultCodeParses) =>
+       ExecuteProcessTemplate(process, context =>
+       {
+           context.LimitConfig = limitConfig;
+           context.LsResultCodeParses = lsResultCodeParses;
+           return ExecutePipelineAsync(context, GetReworkPipeline());
+       });
 
         public Task ExecuteCheckResultAsync(CheckResultProcess process) =>
         ExecuteProcessTemplate(process, context =>
@@ -77,11 +90,15 @@ namespace GT.Factory.Station.ProcessConfig
             return ExecutePipelineAsync(context, GetCalibrationPipeline());
         });
 
+        public Task ExecuteInstrumentAsync(InstrumentProcess process) =>
+       ExecuteProcessTemplate(process, context =>
+            ExecutePipelineAsync(context, GetInstrumentPipeline()));
+
         public Task ExecuteBarBindAsync(BarBindProcess process) =>
         ExecuteProcessTemplate(process, context =>
             ExecutePipelineAsync(context, GetBarBindPipeline()));
 
-        private async Task ExecuteProcessTemplate<TProcess>(TProcess process, Func<ProcessContext, Task> executor) where TProcess : StandardProcess
+        private async Task ExecuteProcessTemplate<TProcess>(TProcess process, Func<ProcessContext, Task> executor) where TProcess : ProcessBase
         {
             var context = new ProcessContext { Process = process, Reader = _reader };
             var sw = Stopwatch.StartNew();
@@ -93,7 +110,7 @@ namespace GT.Factory.Station.ProcessConfig
             }
             catch (Exception ex)
             {
-                ProcessMethods.WritePlcResult(process, _reader, "");
+                ProcessMethods.WritePlcResult(process, _reader,context.WritePlcResult);
                 DisplayLog.LogProcessError(process.Name, ex);
                 await (_stageHandler?.OnError(context, ex) ?? Task.CompletedTask);
             }
@@ -104,7 +121,9 @@ namespace GT.Factory.Station.ProcessConfig
             }
         }
 
+
         #region 流程执行
+
         protected virtual async Task ExecuteProcessInternal(ProcessContext context)
         {
             await RunStage("BeforeSnRead", async () =>
@@ -125,15 +144,7 @@ namespace GT.Factory.Station.ProcessConfig
 
         protected virtual async Task ExecuteCalibrationProcessInternal(ProcessContext context)
         {
-            //await RunStage("BeforeLoadCalibrationOrPeriodInspection", () => LoadCalibrationOrPeriodInspection(context),
-            //    "AfterLoadCalibrationOrPeriodInspection", context);
-
-            //await RunStage("BeforeSnRead", async () =>
-            //{
-            //    if (!await OnlyReadSnCode(context))
-            //        throw new OperationCanceledException("SN读取失败");
-            //}, "AfterSnRead", context);
-
+            
             await RunStage("BeforeSnRead", () => ReadSnCode(context), "AfterSnRead", context);
 
             await RunStage("BeforeResultRead", () => ReadResult(context), "AfterResultRead", context);
@@ -149,12 +160,7 @@ namespace GT.Factory.Station.ProcessConfig
 
         protected virtual async Task ExecuteBarBandProcessInternal(ProcessContext context)
         {
-            //await RunStage("BeforeSnRead", async () =>
-            //{
-            //    if (!await ReadSnCode(context))
-            //        throw new OperationCanceledException("SN读取失败");
-            //}, "AfterSnRead", context);
-
+            
             await RunStage("BeforeSnRead", () => ReadSnCode(context), "AfterSnRead", context);
 
             await RunStage("BeforeBindSnRead", () => BindSnRead(context), "AfterBindSnRead", context);
@@ -166,7 +172,9 @@ namespace GT.Factory.Station.ProcessConfig
 
         #endregion
 
+
         #region RunStage
+
         protected virtual async Task RunStage(string beforeStage, Func<Task> coreAction, string afterStage, ProcessContext context)
         {
             if (_stageHandler != null)
@@ -185,9 +193,12 @@ namespace GT.Factory.Station.ProcessConfig
                     await (Task)(afterMethod.Invoke(_stageHandler, new object[] { context }) ?? Task.CompletedTask);
             }
         }
+
         #endregion
 
+
         #region Pipeline 配置
+
         private StageStep[] GetStandardPipeline() => new[]
         {
             Stage("SnRead", async (ctx) =>
@@ -212,6 +223,16 @@ namespace GT.Factory.Station.ProcessConfig
             }),
             //Stage("SnRead",  ctx => ReadSnCode(ctx)),
             //Stage("ResultRead", ctx => ReadResult(ctx)),
+            Stage("PlcWrite", ctx => WritePlcResult(ctx))
+        };
+
+        private StageStep[] GetReworkPipeline() => new[]
+        {
+            Stage("SnRead", async (ctx) =>
+            {
+                if (!await ReadSnCode(ctx))
+                    throw new OperationCanceledException("SN读取失败");
+            }),
             Stage("PlcWrite", ctx => WritePlcResult(ctx))
         };
 
@@ -246,9 +267,34 @@ namespace GT.Factory.Station.ProcessConfig
             Stage("PlcWrite", ctx => WritePlcResult(ctx))
         };
 
+        
+        /// <summary>
+        /// 仪器通讯
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="OperationCanceledException"></exception>
+        private StageStep[] GetInstrumentPipeline() => new[]
+        {
+            // 读SN（知道在和哪个产品的仪器通讯）
+            Stage("SnRead", async ctx =>
+            {
+                if (!await ReadSnCode(ctx))
+                    throw new OperationCanceledException("SN读取失败");
+            }),
+
+            // 仪器通讯（由各站位子类重写）
+            Stage("InstrumentComm", ctx => InstrumentComm(ctx)),
+            Stage("UpdateData", ctx => UpdateData(ctx)),
+            // 把仪器数据写回PLC
+             Stage("InstrumentPlcWrite", ctx => WriteInstrumentData(ctx)),     // ← 调用下面的方法
+            Stage("PlcWrite", ctx => WritePlcResult(ctx))
+        };
+
         #endregion
 
+
         #region Pipeline 执行
+
         private async Task ExecutePipelineAsync(ProcessContext context, StageStep[] pipeline)
         {
             foreach (var step in pipeline)
@@ -292,6 +338,7 @@ namespace GT.Factory.Station.ProcessConfig
 
         #endregion
        
+
         #region 核心步骤实现
 
         // 读取SN方法实现...
@@ -331,9 +378,11 @@ namespace GT.Factory.Station.ProcessConfig
         // 读取结果方法实现...
         protected virtual async Task ReadResult(ProcessContext context)
         {
-            if (context.Process.ResultConfig?.IsEnabled == true)
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IResultReadable readable
+                && readable.ResultConfig?.IsEnabled == true)
             {
-                context.Result = ProcessMethods.ReadResult(context.Process, _reader, out string ResultCode);
+                context.Result = ProcessMethods.ReadResult(readable, _reader, out string ResultCode);
                 context.ResultCode = ResultCode;
                 context.ResultCode = context.LsResultCodeParses.FirstOrDefault(t => t.Ng_code == ResultCode)?.Ng_msg ?? ResultCode + "_";
             }
@@ -343,46 +392,62 @@ namespace GT.Factory.Station.ProcessConfig
         // 读取数据方法实现...
         protected virtual async Task ReadPlcData(ProcessContext context)
         {
-            if (context.Process.PlcReadConfig?.IsEnabled != true)
-                return;
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IPlcReadable readable
+                && readable.PlcReadConfig?.IsEnabled == true)
+            {
+                context.Data = await ProcessMethods.ReadPlcData(readable, _reader, context.Sn);
 
-            context.Data = await ProcessMethods.ReadPlcData(context.Process, _reader, context.Sn);
-            context.TaktTime = ProcessMethods.ReadTaktTime(context.Process, _reader);
+                // TaktTimeAddress 需要额外判断
+                if (context.Process is ITaktTimeReadable taktReadable)
+                {
+                    context.TaktTime = ProcessMethods.ReadTaktTime(taktReadable, _reader);
+                }
+            }
         }
 
+        // 数据上传方法实现...
         protected virtual async Task UpdateData(ProcessContext context)
         {
-            if (context.Process.PlcReadConfig?.IsEnabled != true)
+            // 只有存在测试数据时，才进入统一的数据处理和上传流程。
+            if (context.Data == null || context.Data.Count == 0)
                 return;
+
             await _dataProcessor.HandleData(context);
         }
 
         // 读取文件方法实现...
         protected virtual async Task ProcessFiles(ProcessContext context)
         {
-            if (context.Process.FileConfig?.IsEnabled == true)
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IFileSupport fileSupport
+                && fileSupport.FileConfig?.IsEnabled == true)
             {
-                ProcessMethods.HandleFileUploads(context.Process, context.Sn, _reader);
+                ProcessMethods.HandleFileUploads(fileSupport, context.Sn, _reader);
             }
-            await Task.CompletedTask; // 如果需要保持async兼容性就加上这行
+            await Task.CompletedTask;
         }
 
         // 点检抽检读取数据方法实现...
         protected virtual async Task OnlyReadPlcData(ProcessContext context)
         {
-            if (context.Process.PlcReadConfig?.IsEnabled != true)
-                return;
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IPlcReadable readable
+                && readable.PlcReadConfig?.IsEnabled == true)
+            {
+                context.Data = await ProcessMethods.ReadPlcData(readable, _reader, context.Sn);
 
-            context.Data = await ProcessMethods.ReadPlcData(context.Process, _reader, context.Sn);
-            context.TaktTime = ProcessMethods.ReadTaktTime(context.Process, _reader);
-
+            }
         }
 
         // 点检抽检读取标志方法实现...
         protected virtual async Task ReadCalibrationFlag(ProcessContext context)
         {
-           
-            context.CalibrationFlag =  ProcessMethods.ReadCalibrationFlag(context.Process, _reader);
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IStatusFlagReadable flagReadable)
+            {
+                context.CalibrationFlag = ProcessMethods.ReadCalibrationFlag(flagReadable, _reader);
+            }
         }
 
         // 点检抽检读取数据上传方法实现...
@@ -394,11 +459,13 @@ namespace GT.Factory.Station.ProcessConfig
         // 点检抽检读取文件实现...
         protected virtual async Task CombinedProcessFiles(ProcessContext context)
         {
-            if (context.Process.FileConfig?.IsEnabled == true)
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IFileSupport fileSupport
+                && fileSupport.FileConfig?.IsEnabled == true)
             {
-                //context.Data.AddRange(ProcessMethods.HandleFileUploads(context.Process, context.Sn, _reader));
+                //context.Data.AddRange(ProcessMethods.HandleFileUploads(fileSupport, context.Sn, _reader));
             }
-            await Task.CompletedTask; // 如果需要保持async兼容性就加上这行
+            await Task.CompletedTask;
         }
 
         // 写入PLC数据方法实现...
@@ -406,17 +473,20 @@ namespace GT.Factory.Station.ProcessConfig
         {
             if (context.Process.ResultWriteConfig?.IsEnabled == true)
             {
-                ProcessMethods.WritePlcResult(context.Process, _reader, context.Sn, context.WritePlcResult);
+                ProcessMethods.WritePlcResult(context.Process, _reader,context.WritePlcResult);
             }
             await Task.CompletedTask; // 如果需要保持async兼容性就加上这行
         }
 
         // 绑定方法实现...
-
         protected virtual async Task BindSnRead(ProcessContext context)
         {
-            ProcessMethods.ReadBinSnCode(context.Process, _reader, context.PartInfos);
-            await Task.CompletedTask; // 如果需要保持async兼容性就加上这行
+            // BarBindProcess 特有逻辑，需要类型转换
+            if (context.Process is BarBindProcess barBindProcess)
+            {
+                ProcessMethods.ReadBinSnCode(context.Process, _reader, context.PartInfos);
+            }
+            await Task.CompletedTask;
         }
 
         protected virtual async Task<bool> BarBand(ProcessContext context)
@@ -470,7 +540,112 @@ namespace GT.Factory.Station.ProcessConfig
         // 加载抽检点检项实现...
         protected virtual async Task LoadCalibrationOrPeriodInspection(ProcessContext context)
         {
-            context.CalibrationOrPeriodInspection = ProcessMethods.LoadCalibrationOrPeriodInspection(context.Process, context.Reader);
+            // ========== 修改：先做类型转换 ==========
+            if (context.Process is CalibrationProcess calibrationProcess)
+            {
+                context.CalibrationOrPeriodInspection = ProcessMethods.LoadCalibrationOrPeriodInspection(
+                    calibrationProcess,
+                    context.Reader);
+            }
+            else
+            {
+                DisplayLog.Warn($"LoadCalibrationOrPeriodInspection：当前流程不是 CalibrationProcess，跳过");
+            }
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 仪器通讯
+        /// 根据 InstrumentKey 找到对应 Handler 执行
+        /// </summary>
+        protected virtual async Task InstrumentComm(ProcessContext context)
+        {
+            if (!(context.Process is InstrumentProcess instrumentProcess))
+                return;
+
+            if (!_instrumentHandlers.TryGetValue(
+                instrumentProcess.InstrumentName ?? string.Empty,
+                out var handler))
+            {
+                DisplayLog.Warn(
+                    $"流程【{instrumentProcess.Name}】" +
+                    $"未找到仪器处理器: {instrumentProcess.InstrumentName}");
+                context.WritePlcResult = 2;
+                return;
+            }
+
+
+            try
+            {
+                // 调用具体仪器 Handler，获得标准化的测量结果。
+                List<IMeasurement> measurements =
+                    await handler.ExecuteAsync(context.Sn);
+
+                // 保存原始 Measurement，供 PLC 写入流程直接使用。
+                context.CustomProperties["InstrumentMeasurements"] =
+                    measurements;
+
+                // 将仪器结果转换成系统统一的测试数据，
+                // 供后续 UpdateData() 上传 MES / 数据库。
+                context.Data.Clear();
+
+                if (measurements != null && measurements.Count > 0)
+                {
+                    List<PlcMeasureGroup> data =
+                        CommMethod.ConvertInstrumentData(measurements);
+
+                    context.Data.AddRange(data);
+                }
+
+                DisplayLog.Info(
+                    $"流程【{instrumentProcess.Name}】" +
+                    $"【{context.Sn}】仪器通讯完成，数据项数: " +
+                    $"{measurements?.Count ?? 0}",
+                    true);
+            }
+            catch (Exception ex)
+            {
+                context.WritePlcResult = 2;
+
+                DisplayLog.LogProcessError(
+                    instrumentProcess.Name,
+                    ex,
+                    context.Sn);
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 把仪器数据写回 PLC
+        /// </summary>
+        protected virtual async Task WriteInstrumentData(ProcessContext context)
+        {
+            if (!(context.Process is InstrumentProcess instrumentProcess))
+                return;
+
+            if (instrumentProcess.PlcWriteConfig?.IsEnabled != true)
+                return;
+
+            var measurements = context
+                .GetProperty<List<IMeasurement>>("InstrumentMeasurements");
+
+            if (measurements == null || !measurements.Any())
+            {
+                DisplayLog.Warn(
+                    $"流程【{instrumentProcess.Name}】仪器数据为空，跳过写回PLC");
+                return;
+            }
+
+            ProcessMethods.WritePlcSwitch(
+                instrumentProcess.PlcWriteConfig.WriteItems,
+                measurements,
+                _reader);
+
+            DisplayLog.Info(
+                $"流程【{instrumentProcess.Name}】" +
+                $"【{context.Sn}】仪器数据写回PLC完成", true);
+
             await Task.CompletedTask;
         }
 

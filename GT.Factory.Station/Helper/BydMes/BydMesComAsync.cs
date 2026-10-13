@@ -1,17 +1,13 @@
-﻿using GT.Factory.Station.Helper.Logging;
+﻿using GT.Factory.Common.Models.Mes;
+using GT.Factory.Logging.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GT.Factory.Station.Helper
 {

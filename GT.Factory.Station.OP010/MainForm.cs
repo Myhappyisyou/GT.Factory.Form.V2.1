@@ -1,27 +1,34 @@
-﻿using System;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Common.Helpers;
+using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
+using GT.Factory.Station.DriverForm.Batch;
+using GT.Factory.Station.Helper.LanModelSync;
+using GT.Factory.Station.Model;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
-using GT.Factory.Common.Models;
-using GT.Factory.Station;
-using GT.Factory.Station.DriverForm.Batch;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.LanModelSync;
-using GT.Factory.Station.Model;
 
 namespace GT.Factory.Station.OP010
 {
     public partial class MainForm : BaseMainForm
     {
-        protected ControlEngine_new controlEngine;
+        //protected ControlEngine controlEngine;
 
-        public MainForm() : base()
+        private readonly AppRuntime _runtime;
+
+        public MainForm(AppRuntime runtime)
+            : base(runtime)
         {
             this.Text = "MES_OP010";
+
+            if (runtime == null)
+                throw new ArgumentNullException("runtime");
+
+            _runtime = runtime;
+
         }
 
         // 重写配置数据表格列
@@ -45,23 +52,32 @@ namespace GT.Factory.Station.OP010
         {
             base.IniteMenu();
 
-            this.MainMenuStrip.Items.Add(CreateBatchMenu());      // 新增批次码菜单
+            this.MainMenuStrip.Items.Add(CreateBatchMenu());
         }
 
         // 重写初始化
-        protected override async Task InitControlEngine()
+        //protected override async Task InitControlEngine()
+        //{
+        //    DisplayLog.Info("[InitControlEngine] enter");
+
+        //    if (controlEngine != null)
+        //    {
+        //        controlEngine.Shutdown();
+        //        controlEngine = null;
+        //    }
+
+        //    Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
+        //        PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
+
+        //    controlEngine = new ControlEngine();
+        //    await controlEngine.Init();
+        //    DisplayLog.Info("[InitControlEngine] init done");
+
+        //}
+
+        protected override ControlEngineBase CreateControlEngine()
         {
-            if (controlEngine != null)
-            {
-                controlEngine.Shutdown();
-                controlEngine = null;
-            }
-
-            Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
-                PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
-
-            controlEngine = new ControlEngine_new();
-            controlEngine.Init();
+            return new ControlEngine();
         }
 
         // 新增批次码菜单

@@ -33,9 +33,11 @@ namespace GT.Factory.UI.Theme
         /// <summary>边框颜色</summary>
         public static Color Border = Color.FromArgb(70, 80, 100);
 
+        /// <summary>工业高亮指示条</summary>
+        public static Color Accent = Color.FromArgb(245, 158, 11);
 
-        public static readonly Color BgHover =
-            Color.FromArgb(35, 45, 60);
+        public static readonly Color BgHover =Color.FromArgb(35, 45, 60);
+
         // ===== 字体定义 =====
 
         /// <summary>默认字体</summary>

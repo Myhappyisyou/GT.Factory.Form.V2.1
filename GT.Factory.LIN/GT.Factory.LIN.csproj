@@ -69,6 +69,7 @@
     <Compile Include="Project\LinProjectLinConfig.cs" />
     <Compile Include="Project\LinProjectLoader.cs" />
     <Compile Include="Project\LinProjectRuntimeConfig.cs" />
+    <Compile Include="Project\LinProjectTestConfig.cs" />
     <Compile Include="Project\LinRunMode.cs" />
     <Compile Include="Protocol\LinChecksum.cs" />
     <Compile Include="Core\LinEngine.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Test\Engine\LinTestReport.cs" />
     <Compile Include="Test\Engine\LinTestRunner.cs" />
     <Compile Include="Test\Loader\LinTestCaseLoader.cs" />
+    <Compile Include="Test\Loader\LinTestProjectLoader.cs" />
     <Compile Include="Test\Model\LinSignalCheck.cs" />
     <Compile Include="Test\Model\LinSignalValue.cs" />
     <Compile Include="Test\Model\LinStepResult.cs" />
@@ -112,6 +114,10 @@
     <Compile Include="Test\Model\LinTestResult.cs" />
     <Compile Include="Test\Model\LinTestStep.cs" />
     <Compile Include="Test\Model\LinTestEnums.cs" />
+    <Compile Include="UI\Controls\ILinDebugSessionView.cs" />
+    <Compile Include="UI\Controls\LinDebugMonitorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UI\Controls\LinFrameDataPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -122,6 +128,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\Controls\LinStatusBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\LinTestStepPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\Controls\LinTraceGrid.cs">

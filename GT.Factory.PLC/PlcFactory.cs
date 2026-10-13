@@ -1,6 +1,9 @@
 ﻿using GT.Factory.PLC.Enums;
 using HslCommunication.Core.Net;
+using HslCommunication.ModBus;
 using HslCommunication.Profinet.Keyence;
+using HslCommunication.Profinet.Melsec;
+using HslCommunication.Profinet.Omron;
 using HslCommunication.Profinet.Siemens;
 using System;
 
@@ -20,6 +23,15 @@ namespace GT.Factory.PLC
 
                 case PlcType.KeyenceNano:
                     return new KeyenceNanoSerialOverTcp(Ip);
+
+                case PlcType.Melsec:
+                    return new MelsecMcNet(Ip, 6000);
+
+                case PlcType.Omron:
+                    return new OmronFinsNet(Ip, 9600);
+
+                case PlcType.Modbus:
+                    return new ModbusTcpNet(Ip, 502);
 
                 default:
                     throw new NotSupportedException($"不支持的PLC类型: {plcType}");

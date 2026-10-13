@@ -1,4 +1,5 @@
 ﻿using GT.Factory.LIN.Hardware;
+using GT.Factory.LIN.Test.Loader;
 using System;
 
 namespace GT.Factory.LIN.Project
@@ -6,13 +7,26 @@ namespace GT.Factory.LIN.Project
     /// <summary>
     /// LIN工程加载器。
     ///
-    /// 负责:
+    /// 加载链：
     ///
-    /// ProjectFile
+    /// *.linproj
     ///     ↓
-    /// LinProject
+    /// LinProjectFile
+    ///     ↓
+    /// ┌───────────────┬────────────────┐
+    /// ↓               ↓                ↓
+    /// LDF             Runtime          Test
+    /// ↓               ↓                ↓
+    /// LinNetwork      LinController    LinTestProject
     ///
-    /// 这是ProjectJson与现有LIN Core之间的桥梁。
+    /// 本类只负责工程资源的组织与组装。
+    ///
+    /// 不负责：
+    ///
+    /// LIN协议解析实现
+    /// Runtime内部逻辑
+    /// Test执行
+    /// UI
     /// </summary>
     public static class LinProjectLoader
     {
@@ -84,15 +98,39 @@ namespace GT.Factory.LIN.Project
 
             }
 
-        
+
             //
-            // 调用现有LinProject
+            // 获取测试工程完整路径。
+            //
+            // 测试工程路径是相对于当前.linproj目录的。
+            //
+            var testProjectFile =
+                projectConfig.GetTestProjectPath();
+
+            //
+            // 加载测试工程。
+            //
+            var testProject =
+                LinTestProjectLoader.Load(
+                    testProjectFile);
+
+
+            //
+            // 创建完整LIN工程。
+            //
+            // 此时已经准备好：
+            //
+            // LDF
+            // Simulation
+            // Runtime Mode
+            // TestProject
             //
             return LinProject.Load(
                 ldfFile,
                 simulationFile,
                 adapter,
-                mode);
+                mode,
+                testProject);
         }
 
 

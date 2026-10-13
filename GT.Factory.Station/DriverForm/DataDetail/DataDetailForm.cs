@@ -141,34 +141,6 @@ namespace GT.Factory.Station.DriverForm.DataDetail
                 $"【测试时间】{first.Do_time}\n" +
                 $"【测试节拍】{first.Test_beat}";
 
-            // 根据整体结果改变 Header 背景色
-            //bool anyNg = items.Any(it =>
-            //{
-            //    if (string.IsNullOrWhiteSpace(it.Test_item_name)) return false;
-
-            //    var vals = it.Test_item_value?.Split(',');
-            //    var ups = it.Test_item_up?.Split(',');
-            //    var downs = it.Test_item_down?.Split(',');
-            //    //for (int i = 0; i < vals?.Length; i++)
-            //    //{
-            //    //    if (double.TryParse(vals[i], out double actual) &&
-            //    //        double.TryParse(SafeGet(ups, i), out double max) &&
-            //    //        double.TryParse(SafeGet(downs, i), out double min))
-            //    //    {
-            //    //        if (actual > max || actual < min)
-            //    //            return true;
-            //    //    }
-            //    //}
-            //    for (int i = 0; i < vals?.Length; i++)
-            //    {
-            //        if (it.Ok_flag == "OK")
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //    return false;
-            //});
-
             // "全都是OK才是OK" → 只要有一个不是 "OK" 就是 NG
             bool anyNg = items.Any(it => it.Ok_flag != "OK");
 
@@ -197,15 +169,6 @@ namespace GT.Factory.Station.DriverForm.DataDetail
                     string val = SafeGet(vals, i);
                     string unit = string.IsNullOrWhiteSpace(SafeGet(units, i)) ? "-" : SafeGet(units, i);
                     string result = results[i];
-
-                    //bool isNg = false;
-                    //if (double.TryParse(val, out double actual) &&
-                    //    double.TryParse(up, out double max) &&
-                    //    double.TryParse(down, out double min))
-                    //{
-                    //    if (actual > max || actual < min)
-                    //        isNg = true;
-                    //}
 
                     int rowIndex = dgv.Rows.Add(idx, name,  up, val, down, unit, result);
 

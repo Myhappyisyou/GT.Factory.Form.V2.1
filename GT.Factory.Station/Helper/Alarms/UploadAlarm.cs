@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Diagnostics;
-using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.Helper.ClientTask;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using GT.Factory.Common.Models;
 using AlarmInfo = GT.Factory.Common.Models.AlarmInfo;
 using GT.Factory.PLC.PlcComm;
+using GT.Factory.Logging.Logging;
 
 namespace GT.Factory.Station.Helper
 {
@@ -68,7 +68,7 @@ namespace GT.Factory.Station.Helper
         {
             LoadAlarm();
             boolAlarm = new bool[ReadLength];
-            StartAlarmWorker();   // ⭐ 新增
+            StartAlarmWorker();
             Start();            
         }
 
@@ -103,11 +103,11 @@ namespace GT.Factory.Station.Helper
                         //UploadSql.UpdateAlarmInfor(alarm);
                        await AppRuntime.Current.DataRuntime.Repositories.Alarms.InsertAlarmAsync(alarm);
                         // 本地Access
-                        DatabaseSessionManager.EnsureDatabase();
+                        //DatabaseSessionManager.EnsureDatabase();
 
-                        var db = DbContext.CurrentDb;
+                        //var db = DbContext.CurrentDb;
                         //UploadSql.Ac_InsertAlarmInfor(db, alarm);
-                        await AppRuntime.Current.DataRuntime.Repositories.Access.InsertAlarmAsync(alarm);
+                        //await AppRuntime.Current.DataRuntime.Repositories.Access.InsertAlarmAsync(alarm);
                     }
                     catch (Exception ex)
                     {
@@ -224,32 +224,12 @@ namespace GT.Factory.Station.Helper
             }
         }
 
-        /// <summary>
-        /// 触发报警上传数据事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void Alarm_SampleEvent(object sender, AlarmInfo e)
-        //{
-        //    //数据库长传
-        //    try
-        //    {
-        //        //UploadSql.Ac_Server_InsertAlarmInfor(_db, e);
-
-        //        UploadSql.UpdateAlarmInfor(e);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DisplayLog.Error("上传报警信息异常", ex);
-        //    }
-        //}
 
         private void Alarm_SampleEvent(object sender, AlarmInfo e)
         {
             if (!_alarmQueue.IsAddingCompleted)
             {
                 _alarmQueue.Add(e);   // ⭐ 核心：入队
-                Console.WriteLine("添加报警列队");
             }
         }
 

@@ -1,11 +1,8 @@
-﻿using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.Logging;
+﻿using GT.Factory.Logging.Logging;
 using HslCommunication;
 using Serilog;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 
 namespace GT.Factory.Station
 {
@@ -20,11 +17,8 @@ namespace GT.Factory.Station
             Process[] ps =
                 Process.GetProcessesByName(name);
 
-
             return ps.Length <= 1;
         }
-
-
 
         public static void Initialize()
         {
@@ -45,25 +39,6 @@ namespace GT.Factory.Station
 
             // UI display 暂时先传 null
             DisplayLog.Init(writer, null);
-
-            // 日志初始化
-            //Log.Logger =
-            //    new LoggerConfiguration()
-            //    .MinimumLevel.Debug()
-            //    .Enrich.FromLogContext()
-            //    .WriteTo.File(
-            //        path:
-            //        Path.Combine(
-            //            PathCenter.LogFile("MesLog"),
-            //            $"{DateTime.Now:yyyy-MM}",
-            //            "log-.txt"),
-
-            //        rollingInterval:
-            //        RollingInterval.Day,
-
-            //        rollOnFileSizeLimit: true)
-
-            //    .CreateLogger();
 
         }
     }

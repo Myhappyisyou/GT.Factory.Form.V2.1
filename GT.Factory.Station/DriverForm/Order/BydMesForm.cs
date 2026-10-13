@@ -1,11 +1,10 @@
-﻿using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.QueryClient;
+﻿using GT.Factory.Common.Models.Mes;
+using GT.Factory.Station.Helper;
 using GT.Factory.Station.Model;
+using GT.Factory.WebApi.QueryClient;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -379,6 +378,7 @@ namespace GT.Factory.Station.DriverForm.Order
                     BydMesCom.离散装配(
                         txtAssembleParent.Text,
                         txtAssemblePart.Text,
+                        Shared.user.JobNum,
                         out bool ok,
                         out string mes,
                         out string xml);
@@ -496,7 +496,7 @@ namespace GT.Factory.Station.DriverForm.Order
 
             try
             {
-                BydMesCom.条码验证(bar, out bool ok, out string mes, out string xml);
+                BydMesCom.条码验证(bar,Shared.user.JobNum, out bool ok, out string mes, out string xml);
 
                 SetLamp(ok);
 
@@ -520,7 +520,7 @@ namespace GT.Factory.Station.DriverForm.Order
 
             await Task.Run(() =>
             {
-                BydMesCom.工单绑定(txtBindOrder.Text, out string mes, out string xml);
+                BydMesCom.工单绑定(txtBindOrder.Text,Shared.user.JobNum,Shared.user.MesPassword, out string mes, out string xml);
             });
 
             MessageBox.Show("绑定成功");
@@ -537,7 +537,7 @@ namespace GT.Factory.Station.DriverForm.Order
             }
             try
             {
-                BydMesCom.条码上传(cbBarResult.Checked, txtUpDataBar.Text, txtTestItems.Text, out bool result, out string mes, out string xml);
+                BydMesCom.条码上传(cbBarResult.Checked, txtUpDataBar.Text,Shared.user.JobNum, txtTestItems.Text, out bool result, out string mes, out string xml);
                 SetUpLamp(result);
             }
             catch (Exception)

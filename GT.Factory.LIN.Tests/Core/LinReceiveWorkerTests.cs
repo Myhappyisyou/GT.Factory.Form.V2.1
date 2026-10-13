@@ -277,6 +277,19 @@ namespace GT.Factory.LIN.Tests.Core
                 3000,
                 Convert.ToInt32(value));
 
+            // RX原始Frame也必须成为Runtime当前FrameCache。
+            var cachedFrame =
+                runtime.GetFrame(
+                    0x20);
+
+            Assert.AreSame(
+                message,
+                cachedFrame);
+
+            CollectionAssert.AreEqual(
+                message.Data,
+                cachedFrame.Data);
+
 
 
             worker.Stop();

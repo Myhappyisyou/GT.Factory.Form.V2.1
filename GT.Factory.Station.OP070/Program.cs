@@ -1,11 +1,6 @@
-﻿using GT.Factory.Station;
-using GT.Factory.Station.DriverForm.Aynettek;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
-using GT.Factory.Station.Helper.Logging;
+﻿using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
 using System;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace GT.Factory.Station.OP070
@@ -30,16 +25,23 @@ namespace GT.Factory.Station.OP070
                 return;
             }
 
-
             // 初始化公共环境
             AppManager.Initialize();
 
-
             Application.EnableVisualStyles();
+
             Application.SetCompatibleTextRenderingDefault(false);
 
             // 初始化应用环境
             var runtime = new AppRuntime();
+
+
+            new LoginRuntime(
+                runtime.LocalUserService,
+                runtime.UserApiService,
+                runtime.MesService,
+                runtime.RfidService);
+
 
             try
             {
@@ -53,7 +55,7 @@ namespace GT.Factory.Station.OP070
 
                         Shared.user = AuthHelper.CurrentUser;
 
-                        Application.Run(new MainForm());
+                        Application.Run(new MainForm(runtime));
                     }
                     else
                     {

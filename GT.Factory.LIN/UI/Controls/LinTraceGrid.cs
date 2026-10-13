@@ -437,16 +437,24 @@ namespace GT.Factory.LIN.UI.Controls
             IEnumerable<LinTraceItem> items)
         {
 
-            if (items == null)
-                return;
-
             //
             // 更新缓存
             //
             _items.Clear();
 
-            _items.AddRange(
-                items);
+
+            if (items != null)
+            {
+                _items.AddRange(
+                    items);
+            }
+            else
+            {
+                lock (_buffer)
+                {
+                    _buffer.Clear();
+                }
+            }
 
             //
             // 刷新UI
@@ -456,16 +464,27 @@ namespace GT.Factory.LIN.UI.Controls
         }
 
         /// <summary>
-        /// 清空显示
-        ///
+        /// 清空Trace显示以及待刷新缓冲区。
         /// </summary>
         public void Clear()
         {
-
+            //
+            // 清空历史数据缓存
+            //
             _items.Clear();
 
-            _grid.Rows.Clear();
+            //
+            // 清空尚未Flush的数据
+            //
+            lock (_buffer)
+            {
+                _buffer.Clear();
+            }
 
+            //
+            // 清空UI
+            //
+            _grid.Rows.Clear();
         }
 
         #endregion

@@ -1,16 +1,7 @@
-﻿using GT.Factory.Common.Helper;
-using GT.Factory.Station.DriverForm.Login;
-using GT.Factory.Station.Helper;
+﻿using GT.Factory.Common.Helpers;
 using GT.Factory.Station.Model;
-using GT.Factory.Station.MyEnum;
-using GT.Factory.Station.ProcessConfig;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station
 {
@@ -50,35 +41,31 @@ namespace GT.Factory.Station
             //File.WriteAllText("Setting.json", JsonConvert.SerializeObject(Instance));
         }
         #endregion
-        
+
         #region title信息
+
+        [Category("机台配置"), DisplayName("工序号")]
+        [Browsable(false)]
         public string ProcessNo { get; set; } = "OP010";
-        public string StationName { get; set; } = "工位1"; 
+
+
+        [Category("机台配置"), DisplayName("工序名")]
+        [Browsable(false)]
         public string ProcessName { get; set; } = "OP010管壳上料&激光刻码";
+
+        [Category("机台配置"), DisplayName("版本")]
+        [Browsable(false)]
         public string vison { get; set; } = "V1.0";
 
         #endregion
 
-        public ActionTipModel[] actionTipModels { get; set; } =
-        {
-            new ActionTipModel{ Code=1,Tips="自动模式" },
-            new ActionTipModel{ Code=2,Tips="手动模式" },
-        };
-      
+
         #region  过站检前站及当站名
 
-        public string CurrProcessNo { get; set; } = "1100";
+        [Category("过站检"), DisplayName("前道工序号")]
+        [Browsable(false)]
+
         public string FrontProcessNo { get; set; } = "10";
-
-        #endregion
-
-        #region  UID
-
-        public bool EnableCardReader { get; set; } = false;
-
-        public string UIDIP { get; set; } = "192.168.0.95";//192.168.2.29
-
-        public int UIDPort { get; set; } = 1030;
 
         #endregion
 

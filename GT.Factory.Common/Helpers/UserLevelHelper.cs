@@ -1,6 +1,6 @@
 ﻿using GT.Factory.Common.Enums;
 
-namespace GT.Factory.Common.Helper
+namespace GT.Factory.Common.Helpers
 {
     public static class UserLevelHelper
     {

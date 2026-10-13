@@ -1,19 +1,6 @@
-﻿using GT.Factory.UI;
-using GT.Factory.UI.Apply;
-using GT.Factory.UI.Theme;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.Logging;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using GT.Factory.Logging.Logging;
 using System.Drawing;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using DisplayLog = GT.Factory.Station.Helper.Logging.DisplayLog;
 
 namespace GT.Factory.Station.Components
 {

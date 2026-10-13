@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using GT.Factory.Station.ProcessConfig;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     /// <summary>
     /// PLC业务测点编辑器。

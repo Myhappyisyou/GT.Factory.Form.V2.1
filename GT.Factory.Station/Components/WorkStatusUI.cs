@@ -77,8 +77,8 @@ namespace GT.Factory.Station.Components
             {
                 if (Shared.dataList[0].Col0 != DateTime.Now.ToString())
                     Shared.dataList[0].Col0 = DateTime.Now.ToString();
-                if (Shared.dataList[1].Col1 != (Shared.user != null ? Shared.user.JobNub + "<<>>" + Shared.user.UserRole : ""))
-                    Shared.dataList[1].Col1 = Shared.user != null ? Shared.user.JobNub + "<<>>" + Shared.user.UserRole : "";
+                if (Shared.dataList[1].Col1 != (Shared.user != null ? Shared.user.JobNum + "<<>>" + Shared.user.UserRole : ""))
+                    Shared.dataList[1].Col1 = Shared.user != null ? Shared.user.JobNum + "<<>>" + Shared.user.UserRole : "";
                 if (Shared.dataList[1].Col3 != (Shared.isOffline ? "单机" : "MES"))
                     Shared.dataList[1].Col3 = Shared.isOffline ? "单机" : "MES";
                 if (Shared.dataList[2].Col1 != Shared.productModel.BaseInfo.ProductNumber)

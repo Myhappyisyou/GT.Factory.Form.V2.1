@@ -11,7 +11,10 @@ namespace GT.Factory.PLC.Enums
     {
         SiemensS1500,
         SiemensS1200,
-        KeyenceNano
+        KeyenceNano,
+        Melsec,
+        Omron,
+        Modbus,
     }
 
 }

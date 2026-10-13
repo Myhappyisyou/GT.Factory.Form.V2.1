@@ -1,5 +1,6 @@
-﻿using GT.Factory.Station.ProcessConfig;
+﻿using GT.Factory.PLC.PlcComm;
 using GT.Factory.Station.DriverForm.EditJson;
+using GT.Factory.Station.ProcessConfig;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     public partial class FixtureConfigEditor : UserControl, IApplyChanges
     {
@@ -26,7 +27,17 @@ namespace EditJson
 
         public void ApplyChanges()
         {
-            SaveData(); // 调用内部逻辑，把界面写回到 _config
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
+            var addr = txtAddress.Text?.Trim();
+
+            if (!(PlcAddressHelper.ToReadAddress(addr) > 0))
+            {
+                MessageBox.Show("地址格式无效，请输入如 D100 或 100。");
+                txtAddress.Focus();
+                return;
+            }
+
+            SaveData();
         }
 
         private void InitializeUI()
@@ -54,15 +65,14 @@ namespace EditJson
 
             // 地址
             mainPanel.Controls.Add(new Label { Text = "地址:", AutoSize = true }, 0, 1);
-            var numAddress = new NumericUpDown
+            // 地址控件
+            var txtAddress = new TextBox
             {
-                Name = "numAddress",
-                Minimum = 0,
-                Maximum = 99999,
-                Value = _config.Address,
+                Name = "txtAddress",
+                Text = _config.Address ?? string.Empty,
                 Dock = DockStyle.Fill
             };
-            mainPanel.Controls.Add(numAddress, 1, 1);
+            mainPanel.Controls.Add(txtAddress, 1, 1);
 
             // 长度
             mainPanel.Controls.Add(new Label { Text = "长度:", AutoSize = true }, 0, 2);
@@ -82,23 +92,26 @@ namespace EditJson
         private void LoadData()
         {
             var chkEnabled = Controls.Find("chkEnabled", true)[0] as CheckBox;
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
             var numLength = Controls.Find("numLength", true)[0] as NumericUpDown;
 
             chkEnabled.Checked = _config.IsEnabled;
-            numAddress.Value = _config.Address;
+            txtAddress.Text = _config.Address ?? string.Empty;
             numLength.Value = _config.Length;
         }
 
         public void SaveData()
         {
             var chkEnabled = Controls.Find("chkEnabled", true)[0] as CheckBox;
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
             var numLength = Controls.Find("numLength", true)[0] as NumericUpDown;
 
             _config.IsEnabled = chkEnabled.Checked;
-            _config.Address = (int)numAddress.Value;
+            _config.Address = txtAddress.Text?.Trim();
             _config.Length = (int)numLength.Value;
         }
+
+
+        
     }
 }

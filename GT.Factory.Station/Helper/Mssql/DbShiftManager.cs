@@ -12,10 +12,12 @@ namespace GT.Factory.Station.Helper.Mssql
     public static class DbShiftManager
     {
         private static readonly object _lock = new object();
+
         private static string _currentDbChecked = null;
 
         private static string BakPath = @"E:\GT_System\Server\Config\SqlBackup\BYD_Template.bak";  // 模板备份
-        private static string DataPath = @"D:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA";                   // MDF/LDF存放路径
+
+        private static string DataPath = @"D:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA";  // MDF/LDF存放路径
 
         /// <summary>
         /// 每次数据库操作前调用，保证数据库存在并切换 Conn1

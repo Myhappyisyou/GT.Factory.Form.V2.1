@@ -56,7 +56,6 @@ namespace GT.Factory.Data.Core
         public DatabaseHealthMonitor HealthMonitor { get; }
 
 
-
         public DataRuntime(
             MultiDatabaseOptions options)
         {
@@ -70,11 +69,9 @@ namespace GT.Factory.Data.Core
                 new DatabaseManager(options);
 
 
-
             // 创建Repository
             Repositories =
                 new RepositoryContainer(Database);
-
 
 
             // 创建业务服务
@@ -84,7 +81,6 @@ namespace GT.Factory.Data.Core
                     Repositories.SyncQueue);
 
 
-
             // 创建业务服务
             AccessService =
                 new AccessService(
@@ -92,12 +88,10 @@ namespace GT.Factory.Data.Core
                     Repositories.SyncQueue);
 
 
-
             SyncService =
                 new SyncService(
                     Database,
                     Repositories.SyncQueue);
-
 
 
             // 健康检测
@@ -110,7 +104,6 @@ namespace GT.Factory.Data.Core
         {
             throw new NotImplementedException();
         }
-
 
 
         //public void Dispose()

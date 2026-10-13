@@ -1,12 +1,6 @@
-﻿using GT.Factory.Station.Helper.Logging;
-using Serilog;
+﻿using GT.Factory.Logging.Logging;
 using System;
-using System.Collections.Generic;
-using System.Data.OleDb;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station.Helper
 {

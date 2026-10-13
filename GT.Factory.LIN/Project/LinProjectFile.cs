@@ -78,6 +78,15 @@ namespace GT.Factory.LIN.Project
         }
 
         /// <summary>
+        /// 测试配置。
+        /// </summary>
+        public LinProjectTestConfig Test
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// 当前linproj文件完整路径。
         ///
         /// Loader加载后自动赋值。
@@ -187,6 +196,23 @@ namespace GT.Factory.LIN.Project
 
         }
 
+        /// <summary>
+        /// 获取LIN测试工程文件完整路径。
+        ///
+        /// 测试工程路径来源于:
+        ///
+        /// Test.ProjectTestCasePath
+        ///
+        /// 路径相对于当前 .linproj 文件所在目录。
+        /// </summary>
+        public string GetTestProjectPath()
+        {
+            if (Test == null)
+                return null;
+
+            return GetFullPath(
+                Test.ProjectTestCasePath);
+        }
 
         /// <summary>
         /// 获取工程名称。

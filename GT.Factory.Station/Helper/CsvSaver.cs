@@ -1,4 +1,4 @@
-﻿using GT.Factory.Common.Helper;
+﻿using GT.Factory.Common.Helpers;
 using Serilog;
 using System;
 using System.Collections.Generic;

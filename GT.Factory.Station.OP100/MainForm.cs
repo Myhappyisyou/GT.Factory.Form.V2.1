@@ -1,26 +1,29 @@
 ﻿using System;
-using System.Drawing;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using EditJson;
 using System.IO;
 using System.Collections.Generic;
-using GT.Factory.Station;
-using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.LanModelSync;
-using GT.Factory.Common.Models;
-using GT.Factory.Common.Helper;
 using GT.Factory.Station.Model;
+using GT.Factory.Common.Helpers;
 
 namespace GT.Factory.Station.OP100
 {
     public partial class MainForm : BaseMainForm
     {
-        protected ControlEngine_new controlEngine;
+        protected ControlEngine controlEngine;
 
-        public MainForm() : base()
+        private readonly AppRuntime _runtime;
+
+        public MainForm(AppRuntime runtime)
+            : base(runtime)
         {
             this.Text = "MES_OP100";
+
+            if (runtime == null)
+                throw new ArgumentNullException("runtime");
+
+            _runtime = runtime;
+
         }
 
         // 重写配置数据表格列
@@ -41,19 +44,24 @@ namespace GT.Factory.Station.OP100
         }
 
         // 重写初始化
-        protected override async Task InitControlEngine()
+        //protected override async Task InitControlEngine()
+        //{
+        //    if (controlEngine != null)
+        //    {
+        //        controlEngine.Shutdown();
+        //        controlEngine = null;
+        //    }
+
+        //    Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
+        //        PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
+
+        //    controlEngine = new ControlEngine();
+        //    controlEngine.Init();
+        //}
+
+        protected override ControlEngineBase CreateControlEngine()
         {
-            if (controlEngine != null)
-            {
-                controlEngine.Shutdown();
-                controlEngine = null;
-            }
-
-            Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
-                PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
-
-            controlEngine = new ControlEngine_new();
-            controlEngine.Init();
+            return new ControlEngine();
         }
     }
 }

@@ -1,22 +1,16 @@
 ﻿using GT.Factory.Data.Core;
-using GT.Factory.Common.Models;
 using GT.Factory.Station.Helper.ClientTask;
-using GT.Factory.Station.Helper.QueryClient;
-using GT.Factory.Station.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows.Forms;
 using Consumables = GT.Factory.Common.Models.Consumables;
-using GT.Factory.Common.Helper;
 using GT.Factory.Common.Helpers;
+using GT.Factory.WebApi.QueryClient;
 
 //using Consumables = TaskContracts.Models.Consumables;
 

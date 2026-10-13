@@ -4,6 +4,7 @@ using GT.Factory.LIN.Hardware;
 using GT.Factory.LIN.Model;
 using GT.Factory.LIN.Parser;
 using GT.Factory.LIN.Simulator;
+using GT.Factory.LIN.Test.Model;
 using System;
 using System.Collections.Generic;
 
@@ -62,6 +63,24 @@ namespace GT.Factory.LIN.Project
         }
 
         /// <summary>
+        /// 当前LIN工程关联的测试工程。
+        ///
+        /// 测试工程来源于:
+        ///
+        /// LinProjectFile.Test.ProjectFile
+        ///
+        /// 用于Debug模式下加载测试案例。
+        ///
+        /// 本属性只保存已经加载后的测试工程对象，
+        /// 不负责测试执行。
+        /// </summary>
+        public LinTestProject TestProject
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Controller
         /// </summary>
         public LinController Controller
@@ -102,7 +121,8 @@ namespace GT.Factory.LIN.Project
             string ldfFile,
             string simulationFile,
             ILinAdapter adapter,
-            LinRunMode mode)
+             LinRunMode mode,
+    LinTestProject testProject)
         {
 
             var project =
@@ -177,6 +197,15 @@ namespace GT.Factory.LIN.Project
                     project._virtualBus);
 
             }
+
+            //
+            // 保存已经加载完成的测试工程。
+            //
+            // LinProject只保存测试工程对象，
+            // 不负责测试执行。
+            //
+            project.TestProject =
+                testProject;
 
             return project;
 

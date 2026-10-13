@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     /// <summary>
     /// PLC读取配置编辑器。

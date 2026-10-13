@@ -1,20 +1,16 @@
-﻿
-using GT.Factory.Common.Helper;
-using GT.Factory.Common.Helpers;
+﻿using GT.Factory.Common.Helpers;
 using GT.Factory.Common.Models;
 using GT.Factory.Data.Core;
 using GT.Factory.UI.Component;
 using GT.Factory.UI.Enum;
 using GT.Factory.UI.PageTemplate;
 using GT.Factory.UI.Style;
-using GT.Factory.Station.DriverForm.Login;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;

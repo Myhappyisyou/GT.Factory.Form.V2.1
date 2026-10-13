@@ -3,6 +3,7 @@ using GT.Factory.Data.Abstractions;
 using GT.Factory.Data.Core;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
 using System.Linq;
 using System.Threading.Tasks;
@@ -151,7 +152,7 @@ namespace GT.Factory.Data.Providers
         /// <summary>
         /// 执行非查询语句（同步实现）
         /// </summary>
-        public int Execute(string sql, object param = null)
+        public int Execute(string sql, object param = null, CommandType commandType = CommandType.Text)
         {
             using (var conn = CreateConnection())
             {
@@ -208,6 +209,11 @@ namespace GT.Factory.Data.Providers
             {
                 return false;
             }
+        }
+
+        public Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using GT.Factory.PLC.PlcComm;
+﻿using GT.Factory.Logging.Logging;
+using GT.Factory.PLC.PlcComm;
 using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,7 +31,7 @@ namespace GT.Factory.Station.DriverForm.Batch
                 Config = c
             }).ToList();
 
-            RefreshFromPlc();
+            //RefreshFromPlc();
         }
 
         public static PartRuntime GetPart(string part)

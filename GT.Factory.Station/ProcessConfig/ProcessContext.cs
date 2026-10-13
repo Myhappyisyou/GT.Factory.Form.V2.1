@@ -7,7 +7,7 @@ namespace GT.Factory.Station.ProcessConfig
 {
     public class ProcessContext
     {
-        public StandardProcess Process { get; set; }
+        public ProcessBase Process { get; set; }
         public PatchReader Reader { get; set; }
         public LimitConfig LimitConfig { get; set; }
         public List<ResultCodeParse> LsResultCodeParses { get; set; }

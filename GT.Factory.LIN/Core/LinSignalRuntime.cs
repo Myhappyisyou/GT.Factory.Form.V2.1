@@ -182,8 +182,6 @@ $"SignalRuntime Set!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:{signalName}={value}");
 
     //            Console.WriteLine(
     //$"Frame Update:{frame.Name} Data={BitConverter.ToString(message.Data)}");
-                break;
-
             }
 
         }

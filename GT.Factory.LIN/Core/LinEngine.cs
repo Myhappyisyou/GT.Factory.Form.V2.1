@@ -354,6 +354,14 @@ namespace GT.Factory.LIN.Core
                 message);
 
 
+            //
+            // 保存已经交给Adapter的最终TX报文。
+            // 不重新构建或发送，只同步Runtime状态。
+            //
+            _runtime.UpdateFrame(
+                message);
+
+
             //Console.WriteLine(
             //    "After Adapter.Send");
 

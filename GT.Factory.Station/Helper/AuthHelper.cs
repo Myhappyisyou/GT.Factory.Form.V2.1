@@ -1,9 +1,6 @@
 ﻿using GT.Factory.Common.Enums;
 using GT.Factory.Common.Models;
-using GT.Factory.Station.DriverForm.Aynettek;
-using GT.Factory.Station.DriverForm.Login;
-using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
+using GT.Factory.Login.Login;
 using System;
 using System.Windows.Forms;
 
@@ -14,12 +11,12 @@ namespace GT.Factory.Station.Helper
         /// <summary>
         /// 当前是否启用超时验证
         /// </summary>
-        private static bool EnableTimeout => Config.Instance.EnableLoginTimeout;
+        private static bool EnableTimeout => LoginConfigProvider.Instance.Settings.EnableLoginTimeout;
 
         /// <summary>
         /// 当前登录超时时间
         /// </summary>
-        private static TimeSpan _timeout => TimeSpan.FromMinutes(Config.Instance.LoginTimeoutMinutes);
+        private static TimeSpan _timeout => TimeSpan.FromMinutes(LoginConfigProvider.Instance.Settings.LoginTimeoutMinutes);
 
 
         private static User _lastUser;                 // 最近一次登录用户
@@ -35,7 +32,8 @@ namespace GT.Factory.Station.Helper
         }
 
         // ✅ 提取公共方法：生成配置好的登录窗体
-        public static DriverForm.Login.LoginForm CreateLoginForm()
+        public static LoginForm CreateLoginForm(string ip = null,
+    int port = 8080)
         {
             var localConfig = Config.Instance;
             localConfig.Login.Validate();
@@ -50,7 +48,7 @@ namespace GT.Factory.Station.Helper
                 loginService,
                 AppRuntime.Current.RfidService);
 
-            return new DriverForm.Login.LoginForm(providers);
+            return new LoginForm(providers);
         }
 
         /// <summary>

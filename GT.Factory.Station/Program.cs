@@ -1,15 +1,15 @@
-﻿using GT.Factory.Common.Helper;
-using GT.Factory.Station.Helper;
+﻿using GT.Factory.Common.Helpers;
+using GT.Factory.Common.Interfaces;
+using GT.Factory.Data.Core;
+using GT.Factory.GTUser.Repository;
+using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
+using GT.Factory.RFID.Aynettek;
 using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
-using GT.Factory.Station.Helper.ClientTask;
-using GT.Factory.Station.Model;
+using GT.Factory.WebApi.QueryClient;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GT.Factory.Station.DriverForm.Aynettek
@@ -45,26 +45,62 @@ namespace GT.Factory.Station.DriverForm.Aynettek
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            DataRuntime dataRuntime =
+    new DataRuntime(Config.Instance.DatabaseOptions);
+
             // 初始化应用环境
             var runtime = new AppRuntime();
 
-            // 首先显示登录窗口
+            ILocalUserService localUserService =
+    new LocalUserService(
+        new LocalUserRepository(dataRuntime.Database));
 
-            using (var loginForm = new LoginForm(new RfidService(), new UserApiService(Config.Instance.ServerApi, Config.Instance.ServerDbtask), new MesService(), new LocalUserService(), Config.Instance.UIDIP, Config.Instance.UIDPort))
+            IUserService userApiService =
+                new UserApiService(
+                    Config.Instance.ServerApi,
+                    Config.Instance.ServerDbtask);
+
+            IMesService mesService =
+                new MesService();
+
+            IRfidService rfidService =
+                new RfidService();
+
+            new LoginRuntime(
+                localUserService,
+                userApiService,
+                mesService,
+                rfidService);
+
+            try
             {
-                if (loginForm.ShowDialog() == DialogResult.OK)
+                // ✅ 只有简单干脆的一处 using
+                using (var loginForm = AuthHelper.CreateLoginForm())
                 {
-                    // 登录成功
-                    var user = loginForm.currentUser;
-                    AuthHelper.RecordLogin(user); // ✅ 记录用户到 AuthHelper
-                    // 登录成功，显示主测试界面
-                    Application.Run(new BaseMainForm());
+                    // ✅ 只调用一次 ShowDialog
+                    if (loginForm.ShowDialog() == DialogResult.OK)
+                    {
+                        AuthHelper.RecordLogin(loginForm.CurrentUser);
+
+                        Shared.user = AuthHelper.CurrentUser;
+
+                        Application.Run(new BaseMainForm());
+                    }
+                    else
+                    {
+                        // 用户点了右上角 X 退出，直接结束程序
+                        Application.Exit();
+                    }
                 }
-                else
-                {
-                    // 登录失败或取消，退出程序
-                    Application.Exit();
-                }
+            }
+            catch (Exception ex)
+            {
+                DisplayLog.Error("OP070启动异常", ex);
+                MessageBox.Show(
+                    ex.Message,
+                    "系统异常",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 

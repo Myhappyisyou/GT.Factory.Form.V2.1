@@ -20,8 +20,9 @@ namespace GT.Factory.Data.Repository
 
         public AccessRepository(DatabaseManager manager)
         {
-            _db = manager.Master 
-                ?? throw new Exception("Access 本地数据库未配置");
+            //_db = manager.Master 
+            //    ?? throw new Exception("Access 本地数据库未配置");
+            _db = manager.Master;
         }
 
         #region 生产数据
@@ -211,7 +212,7 @@ namespace GT.Factory.Data.Repository
                 UserPassword = row.用户密码?.ToString(),
                 UserRole = row.用户权限?.ToString(),
                 UID = row.厂牌UID?.ToString(),
-                JobNub = row.工号?.ToString(),
+                JobNum = row.工号?.ToString(),
                 MesAccount = row.MES账号?.ToString(),
                 MesPassword = row.MES密码?.ToString()
             };
@@ -237,7 +238,7 @@ namespace GT.Factory.Data.Repository
                 UserPassword = row.用户密码?.ToString(),
                 UserRole = row.用户权限?.ToString(),
                 UID = row.厂牌UID?.ToString(),
-                JobNub = row.工号?.ToString(),
+                JobNum = row.工号?.ToString(),
                 MesAccount = row.MES账号?.ToString(),
                 MesPassword = row.MES密码?.ToString()
             };

@@ -16,14 +16,15 @@ namespace GT.Factory.Station.ProcessConfig
             PatchReader reader,
             ComponentManager componentManager,
             UploadManager uploadManager,
-            AccessMdbHelper db,
+            //AccessMdbHelper db,
             List<Consumables> lsConsumables,
             ClientTaskSender clientTask,
                         ProductionMonitor productionMonitor,
 
             TestDataProcessor testDataProcessor,
-            Dictionary<string, Func<ProcessContext, Task>> handlers)
-            : base(reader, componentManager, uploadManager, db, lsConsumables, clientTask, productionMonitor, testDataProcessor, null, handlers)
+            Dictionary<string, Func<ProcessContext, Task>> handlers,
+            Dictionary<string, IInstrumentHandler> instrumentHandlers)
+            : base(reader, componentManager, uploadManager, lsConsumables, clientTask, productionMonitor, testDataProcessor, null, handlers, instrumentHandlers)
         {
         }
     }

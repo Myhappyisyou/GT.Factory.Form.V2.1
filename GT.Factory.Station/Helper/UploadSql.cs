@@ -1,6 +1,5 @@
 ﻿using GT.Factory.Station.Helper;
 using GT.Factory.Station.ProcessConfig;
-using GT.Factory.Station.Helper.Alarms;
 using GT.Factory.Station.Helper.Mssql;
 using GT.Factory.Station.Model;
 using System;
@@ -13,7 +12,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Common.Models;
 using User = GT.Factory.Common.Models.User;
 using AlarmInfo = GT.Factory.Common.Models.AlarmInfo;
@@ -22,6 +20,7 @@ using AlarmParse = GT.Factory.Common.Models.AlarmParse;
 using GT.Factory.Data.Service;
 using ProcessPropertyPayload = GT.Factory.Common.Models.ProcessPropertyPayload;
 using Consumables = GT.Factory.Common.Models.Consumables;
+using GT.Factory.Logging.Logging;
 
 namespace GT.Factory.Station
 {
@@ -89,7 +88,7 @@ namespace GT.Factory.Station
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserRole ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UID ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value =  1 },
-                new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNub ?? "" },
+                new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNum ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesAccount ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesPassword ?? "" }
             };
@@ -130,7 +129,7 @@ namespace GT.Factory.Station
                     UserPassword = row["用户密码"].ToString(),
                     UserRole = row["用户权限"].ToString(),
                     UID = row["厂牌UID"].ToString(),
-                    JobNub = row["工号"].ToString(),
+                    JobNum = row["工号"].ToString(),
                     MesAccount = row["MES账号"].ToString(),
                     MesPassword = row["MES密码"].ToString()
                 };
@@ -173,7 +172,7 @@ namespace GT.Factory.Station
                     UserPassword = row["用户密码"].ToString(),
                     UserRole = row["用户权限"].ToString(),
                     UID = row["厂牌UID"].ToString(),
-                    JobNub = row["工号"].ToString(),
+                    JobNum = row["工号"].ToString(),
                     MesAccount = row["MES账号"].ToString(),
                     MesPassword = row["MES密码"].ToString()
                 };
@@ -219,7 +218,7 @@ namespace GT.Factory.Station
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserPassword ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserRole ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UID ?? "" },
-                    new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNub ?? "" },
+                    new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNum ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesAccount ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesPassword ?? "" }
                 };
@@ -255,7 +254,7 @@ namespace GT.Factory.Station
                     new OleDbParameter("用户密码", OleDbType.VarChar) { Value = user.UserPassword },
                     new OleDbParameter("用户权限", OleDbType.VarChar) { Value = user.UserRole },
                     new OleDbParameter("厂牌UID", OleDbType.VarChar) { Value = user.UID },
-                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNub },
+                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNum },
                     new OleDbParameter("MES账号", OleDbType.VarChar) { Value = user.MesAccount },
                     new OleDbParameter("MES密码", OleDbType.VarChar) { Value = user.MesPassword },
                     new OleDbParameter("ID", OleDbType.Integer) { Value = user.ID }
@@ -280,7 +279,7 @@ namespace GT.Factory.Station
 
                 var param = new[]
                 {
-                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNub }
+                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNum }
                 };
 
                 db.ExecuteNonQuery(updateSql, param);
@@ -984,7 +983,7 @@ namespace GT.Factory.Station
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserRole ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UID ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value =  1 },
-                new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNub ?? "" },
+                new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNum ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesAccount ?? "" },
                 new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesPassword ?? "" }
             };
@@ -1025,7 +1024,7 @@ namespace GT.Factory.Station
                     UserPassword = row["用户密码"].ToString(),
                     UserRole = row["用户权限"].ToString(),
                     UID = row["厂牌UID"].ToString(),
-                    JobNub = row["工号"].ToString(),
+                    JobNum = row["工号"].ToString(),
                     MesAccount = row["MES账号"].ToString(),
                     MesPassword = row["MES密码"].ToString()
                 };
@@ -1068,7 +1067,7 @@ namespace GT.Factory.Station
                     UserPassword = row["用户密码"].ToString(),
                     UserRole = row["用户权限"].ToString(),
                     UID = row["厂牌UID"].ToString(),
-                    JobNub = row["工号"].ToString(),
+                    JobNum = row["工号"].ToString(),
                     MesAccount = row["MES账号"].ToString(),
                     MesPassword = row["MES密码"].ToString()
                 };
@@ -1114,7 +1113,7 @@ namespace GT.Factory.Station
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserPassword ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UserRole ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.UID ?? "" },
-                    new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNub ?? "" },
+                    new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.JobNum ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesAccount ?? "" },
                     new OleDbParameter { OleDbType = OleDbType.VarWChar, Value = user.MesPassword ?? "" }
                 };
@@ -1150,7 +1149,7 @@ namespace GT.Factory.Station
                     new OleDbParameter("用户密码", OleDbType.VarChar) { Value = user.UserPassword },
                     new OleDbParameter("用户权限", OleDbType.VarChar) { Value = user.UserRole },
                     new OleDbParameter("厂牌UID", OleDbType.VarChar) { Value = user.UID },
-                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNub },
+                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNum },
                     new OleDbParameter("MES账号", OleDbType.VarChar) { Value = user.MesAccount },
                     new OleDbParameter("MES密码", OleDbType.VarChar) { Value = user.MesPassword },
                     new OleDbParameter("ID", OleDbType.Integer) { Value = user.ID }
@@ -1175,7 +1174,7 @@ namespace GT.Factory.Station
 
                 var param = new[]
                 {
-                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNub }
+                    new OleDbParameter("工号", OleDbType.VarChar) { Value = user.JobNum }
                 };
 
                 db.ExecuteNonQuery(updateSql, param);

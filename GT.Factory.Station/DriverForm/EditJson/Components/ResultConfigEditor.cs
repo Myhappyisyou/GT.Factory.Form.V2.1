@@ -1,4 +1,5 @@
-﻿using GT.Factory.Station.ProcessConfig;
+﻿using GT.Factory.Station.EditJson;
+using GT.Factory.Station.ProcessConfig;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -56,15 +57,13 @@ namespace GT.Factory.Station.DriverForm.EditJson.Components
 
             // 地址
             mainPanel.Controls.Add(new Label { Text = "地址:", AutoSize = true }, 0, 1);
-            var numAddress = new NumericUpDown
+            var txtAddress = new TextBox
             {
-                Name = "numAddress",
-                Minimum = 0,
-                Maximum = 99999,
-                Value = _config.Address,
-                Dock = DockStyle.Fill
+                Name = "txtAddress",
+                Dock = DockStyle.Fill,
+                Text = _config.Address ?? string.Empty
             };
-            mainPanel.Controls.Add(numAddress, 1, 1);
+            mainPanel.Controls.Add(txtAddress, 1, 1);
 
             // 长度
             var length = _config.SuccessFlag;
@@ -89,8 +88,8 @@ namespace GT.Factory.Station.DriverForm.EditJson.Components
             var chkEnabled = Controls.Find("chkEnabled", true)[0] as CheckBox;
             chkEnabled.Checked = _config.IsEnabled;
 
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
-            numAddress.Value = _config.Address;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
+            txtAddress.Text = _config.Address ?? string.Empty;
 
             var numFlag = Controls.Find("numFlag", true)[0] as NumericUpDown;
             numFlag.Value = _config.SuccessFlag;
@@ -101,8 +100,8 @@ namespace GT.Factory.Station.DriverForm.EditJson.Components
             var chkEnabled = Controls.Find("chkEnabled", true)[0] as CheckBox;
             _config.IsEnabled = chkEnabled.Checked;
 
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
-            _config.Address = (int)numAddress.Value;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
+            _config.Address = txtAddress.Text?.Trim();
 
             var numFlag = Controls.Find("numFlag", true)[0] as NumericUpDown;
             _config.SuccessFlag = (int)numFlag.Value;

@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="Abstractions\IDatabase.cs" />
     <Compile Include="Abstractions\IDatabaseTransaction.cs" />
+    <Compile Include="Config\DatabaseConfigProvider.cs" />
     <Compile Include="Core\DatabaseConnectionResolver.cs" />
     <Compile Include="Core\DatabaseFactory.cs" />
     <Compile Include="Core\DatabaseManager.cs" />

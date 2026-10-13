@@ -2,9 +2,11 @@
 using GT.Factory.LIN.ProjectDebug;
 using GT.Factory.LIN.UI.Controls;
 using GT.Factory.LIN.UI.Version;
+using GT.Factory.UI.Component;
 using GT.Factory.UI.Style;
 using GT.Factory.UI.Theme;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -45,6 +47,14 @@ namespace GT.Factory.LIN.UI
     /// </summary>
     public partial class LinDebugForm : Form
     {
+        #region 事件（对外，保持不变）
+
+        public event EventHandler ProjectOpenRequested;
+        public event EventHandler ProjectCloseRequested;
+        public event EventHandler RuntimeStartRequested;
+        public event EventHandler RuntimeStopRequested;
+
+        #endregion
 
         #region 字段
 
@@ -54,7 +64,7 @@ namespace GT.Factory.LIN.UI
         /// UI和Core之间唯一桥梁
         ///
         /// </summary>
-        private readonly LinDebugSession _session;
+        private LinDebugSession _session;
 
         /// <summary>
         /// UI刷新定时器
@@ -65,41 +75,40 @@ namespace GT.Factory.LIN.UI
         private Timer _refreshTimer;
 
         /// <summary>
+        /// “通信 → 启动”菜单项。
+        ///
+        /// 用于根据当前Project和Runtime状态控制菜单是否可用。
+        /// </summary>
+        private ToolStripMenuItem _startMenuItem;
+
+        /// <summary>
+        /// “通信 → 停止”菜单项。
+        ///
+        /// 用于根据当前Project和Runtime状态控制菜单是否可用。
+        /// </summary>
+        private ToolStripMenuItem _stopMenuItem;
+
+        private ToolStripMenuItem _openProjectMenu;
+        private ToolStripMenuItem _closeProjectMenu;
+
+        // Tab 容器
+        private TabControl _tabControl;
+        private TabPage _debugTabPage;
+        private TabPage _testTabPage;
+
+        // 两个子面板
+        private LinDebugMonitorPanel _monitorPanel;
+        private LinTestStepPanel _testStepPanel;
+
+        // 统一驱动 Session 绑定的视图集合
+        private readonly List<ILinDebugSessionView> _sessionViews =
+            new List<ILinDebugSessionView>();
+
+
+        /// <summary>
         /// LIN调试菜单
         /// </summary>
         private MenuStrip _menuStrip;
-
-        /// <summary>
-        /// Frame树
-        ///
-        /// 左侧显示
-        ///
-        /// </summary>
-        private LinFrameTreeView _frameTree;
-
-        /// <summary>
-        /// Trace列表
-        ///
-        /// 中间显示TX/RX
-        ///
-        /// </summary>
-        private LinTraceGrid _traceGrid;
-
-
-        /// <summary>
-        /// Frame Data显示
-        /// </summary>
-        private LinFrameDataPanel _frameDataPanel;
-
-
-        /// <summary>
-        /// Signal面板
-        ///
-        /// 下方显示Signal
-        ///
-        /// </summary>
-        private LinSignalPanel _signalPanel;
-
 
         /// <summary>
         /// LIN状态栏
@@ -109,9 +118,30 @@ namespace GT.Factory.LIN.UI
         /// </summary>
         private LinStatusBar _statusBar;
 
+        /// <summary>
+        /// Runtime 状态
+        /// </summary>
+        private bool _runtimeRunning;
+
         #endregion
 
+
         #region 构造
+
+        /// <summary>
+        /// 创建空的LIN Debug窗口。
+        ///
+        /// 软件启动时使用。
+        ///
+        /// 此时可以没有打开任何LIN工程。
+        /// </summary>
+        public LinDebugForm()
+        {
+            Initialize();
+
+            StartRefreshTimer();
+        }
+
 
         /// <summary>
         /// 创建LIN调试窗口
@@ -120,22 +150,13 @@ namespace GT.Factory.LIN.UI
         /// <param name="session">
         /// LIN调试数据会话
         /// </param>
-        public LinDebugForm(
-            LinDebugSession session)
+        public LinDebugForm(LinDebugSession session)
         {
-
-            if (session == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(session));
-            }
-
-            _session =
-                session;
+            _session = session ?? throw new ArgumentNullException(nameof(session));
 
             Initialize();
 
-            BindData();
+            ReplaceSession(session);
 
             StartRefreshTimer();
 
@@ -159,79 +180,46 @@ namespace GT.Factory.LIN.UI
             //
             // Form基础属性
             //
-            this.Text =
-                $"LIN Debug Tool {LinUIVersion.Version}";
-
-            this.StartPosition =
-                FormStartPosition.CenterScreen;
-
-            this.Size =
-                new Size(
-                    1400,
-                    900);
-
-            this.MinimumSize =
-                new Size(
-                    900,
-                    700);
-
-            this.BackColor =
-                UITheme.BgBase;
-
-            this.Font =
-                UITheme.BodyFont;
-
-         
+            Text = $"LIN Debug Tool {LinUIVersion.Version}";
+            StartPosition = FormStartPosition.CenterScreen;
+            Size = new Size(1400, 900);
+            MinimumSize = new Size(900, 700);
+            BackColor = UITheme.BgBase;
+            Font = UITheme.BodyFont;
 
             //
-            // 主布局
+            // Tab 容器：调试 / 测试流程
             //
-            var main =
-                new TableLayoutPanel();
+            _tabControl = UITabControl.Create(DockStyle.Fill);
 
-            main.Dock =
-                DockStyle.Fill;
+            _debugTabPage = UITabControl.AddTab(_tabControl, "调试");
+            _monitorPanel = new LinDebugMonitorPanel();
+            _debugTabPage.Controls.Add(_monitorPanel);
 
-            main.RowCount =
-                3;
+            _testTabPage = UITabControl.AddTab(_tabControl, "测试流程");
+            _testStepPanel = new LinTestStepPanel();
+            _testTabPage.Controls.Add(_testStepPanel);
 
-            main.ColumnCount =
-                1;
-
-            //
-            // 上方区域
-            //
-            main.RowStyles.Add(
-                new RowStyle(
-                    SizeType.Percent,
-                    40));
+            // 统一登记，后续 Bind/Unbind/Clear 只需要遍历这个列表
+            _sessionViews.Add(_monitorPanel);
+            _sessionViews.Add(_testStepPanel);
 
             //
-            // 下方Signal
+            // 状态栏
             //
-            main.RowStyles.Add(
-                new RowStyle(
-                    SizeType.Percent,
-                    30));
+            _statusBar = new LinStatusBar();
 
             //
-            // 下方Frame
+            // 组装 Form：菜单在上，Tab 填满，状态栏在下
             //
-            main.RowStyles.Add(
-                new RowStyle(
-                    SizeType.Percent,
-                    30));
+            Controls.Add(_tabControl);
+            Controls.Add(_statusBar);
 
-            //
-            // 创建上部Split
-            //
-            var topSplit =
-                new SplitContainer();
+            InitializeMenu();
+
+            //=======================================
 
 
-
-            topSplit.Dock =
-                DockStyle.Fill;
 
             //
             // 注意:
@@ -242,107 +230,21 @@ namespace GT.Factory.LIN.UI
             //
             // 放到Load事件中设置。
             //
-            this.Load +=
-                (s, e) =>
-                {
+            //this.Load +=
+            //    (s, e) =>
+            //    {
 
-                    if (topSplit.Width >
-                        topSplit.Panel1MinSize +
-                        topSplit.Panel2MinSize)
-                    {
+            //        if (topSplit.Width >
+            //            topSplit.Panel1MinSize +
+            //            topSplit.Panel2MinSize)
+            //        {
+            //            topSplit.SplitterDistance =
+            //                280;
+            //        }
+            //    };
 
-                        topSplit.SplitterDistance =
-                            280;
+      
 
-                    }
-
-                };
-
-
-            //
-            // Frame Tree
-            //
-            _frameTree =
-                new LinFrameTreeView();
-
-
-
-            topSplit.Panel1.Controls.Add(
-                _frameTree);
-
-
-            //
-            // Trace
-            //
-            _traceGrid =
-                new LinTraceGrid();
-
-
-
-            topSplit.Panel2.Controls.Add(
-                _traceGrid);
-
-            
-            //
-            // 加入顶部
-            //
-            main.Controls.Add(
-                topSplit,
-                0,
-                0);
-
-
-            //
-            // Signal区域
-            //
-            _signalPanel =
-                new LinSignalPanel();
-
-
-
-            main.Controls.Add(
-                _signalPanel,
-                0,
-                1);
-
-            //
-            // FrameData
-            //
-            _frameDataPanel =
-                new LinFrameDataPanel();
-
-
-            main.Controls.Add(
-                _frameDataPanel,
-                0,
-                2);
-
-
-            //
-            // 创建状态栏
-            //
-            _statusBar =
-                new LinStatusBar();
-
-
-            //
-            // 添加主界面
-            //
-            this.Controls.Add(
-                main);
-
-
-
-            //
-            // 添加底部状态栏
-            //
-            this.Controls.Add(
-                _statusBar);
-
-            //
-            // 创建菜单
-            //
-            InitializeMenu();
         }
 
 
@@ -356,61 +258,63 @@ namespace GT.Factory.LIN.UI
         /// <summary>
         /// 新建工程
         /// </summary>
-        private void Menu_NewProject(
-            object sender,
-            EventArgs e)
+        private void Menu_NewProject(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "新建工程功能后续实现。",
-                "LIN工程");
+            MessageBox.Show("新建工程功能后续实现。","LIN工程");
         }
 
 
         /// <summary>
-        /// 打开工程
+        /// 打开工程。
+        ///
+        /// Form只提出请求，
+        /// 实际Project生命周期由LinDebugHost处理。
         /// </summary>
-        private void Menu_OpenProject(
-            object sender,
-            EventArgs e)
+        private void Menu_OpenProject(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "打开工程功能后续实现。",
-                "LIN工程");
+            var handler =ProjectOpenRequested;
+
+            if (handler != null)
+            {
+                handler(this,EventArgs.Empty);
+            }
         }
 
+        /// <summary>
+        /// 关闭工程。
+        ///
+        private void Menu_CloseProject(object sender,EventArgs e)
+        {
+            var handler =ProjectCloseRequested;
+
+            if (handler != null)
+            {
+                handler(this,EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// 保存工程
         /// </summary>
-        private void Menu_SaveProject(
-            object sender,
-            EventArgs e)
+        private void Menu_SaveProject(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "保存工程功能后续实现。",
-                "LIN工程");
+            MessageBox.Show("保存工程功能后续实现。","LIN工程");
         }
 
 
         /// <summary>
         /// 工程另存为
         /// </summary>
-        private void Menu_SaveProjectAs(
-            object sender,
-            EventArgs e)
+        private void Menu_SaveProjectAs(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "工程另存为功能后续实现。",
-                "LIN工程");
+            MessageBox.Show("工程另存为功能后续实现。","LIN工程");
         }
 
 
         /// <summary>
         /// 退出
         /// </summary>
-        private void Menu_Exit(
-            object sender,
-            EventArgs e)
+        private void Menu_Exit(object sender,EventArgs e)
         {
             Close();
         }
@@ -419,40 +323,37 @@ namespace GT.Factory.LIN.UI
         /// <summary>
         /// 启动LIN
         /// </summary>
-        private void Menu_Start(
-            object sender,
-            EventArgs e)
+        private void Menu_Start(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "LIN启动功能后续接入。",
-                "LIN通信");
+            var handler =RuntimeStartRequested;
+
+            if (handler != null)
+            {
+                handler(this,EventArgs.Empty);
+            }
         }
 
 
         /// <summary>
         /// 停止LIN
         /// </summary>
-        private void Menu_Stop(
-            object sender,
-            EventArgs e)
+        private void Menu_Stop(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                "LIN停止功能后续接入。",
-                "LIN通信");
+            var handler =RuntimeStopRequested;
+
+            if (handler != null)
+            {
+                handler(this,EventArgs.Empty);
+            }
         }
 
 
         /// <summary>
         /// 关于
         /// </summary>
-        private void Menu_About(
-            object sender,
-            EventArgs e)
+        private void Menu_About(object sender,EventArgs e)
         {
-            MessageBox.Show(
-                $"LIN Debug Tool\r\n" +
-                $"Version: {LinUIVersion.Version}",
-                "关于");
+            MessageBox.Show($"LIN Debug Tool\r\n" +$"Version: {LinUIVersion.Version}","关于");
         }
 
         #endregion
@@ -476,122 +377,73 @@ namespace GT.Factory.LIN.UI
             //
             // 创建统一菜单
             //
-            _menuStrip =
-                UIMenu.Create(DockStyle.Top);
-
+            _menuStrip =UIMenu.Create(DockStyle.Top);
 
             //
             // 工程
             //
-            var projectMenu =
-                UIMenu.AddMenu(
-                    _menuStrip,
-                    "工程");
+            var projectMenu =UIMenu.AddMenu(_menuStrip,"工程");
 
+            UIMenu.AddItem(projectMenu,"新建工程...",Menu_NewProject);
 
-            UIMenu.AddItem(
-                projectMenu,
-                "新建工程...",
-                Menu_NewProject);
+            _openProjectMenu =UIMenu.AddItem(projectMenu,"打开工程...",Menu_OpenProject);
 
+            _closeProjectMenu =UIMenu.AddItem(projectMenu,"关闭工程",Menu_CloseProject);
 
-            UIMenu.AddItem(
-                projectMenu,
-                "打开工程...",
-                Menu_OpenProject);
+            UIMenu.AddItem(projectMenu,"保存工程",Menu_SaveProject);
 
+            UIMenu.AddItem(projectMenu,"另存为...",Menu_SaveProjectAs);
 
-            UIMenu.AddItem(
-                projectMenu,
-                "保存工程",
-                Menu_SaveProject);
+            UIMenu.AddSeparator(projectMenu);
 
-
-            UIMenu.AddItem(
-                projectMenu,
-                "另存为...",
-                Menu_SaveProjectAs);
-
-
-            UIMenu.AddSeparator(
-                projectMenu);
-
-
-            UIMenu.AddItem(
-                projectMenu,
-                "退出",
-                Menu_Exit);
-
+            UIMenu.AddItem(projectMenu,"退出",Menu_Exit);
 
             //
             // 通信
             //
-            var communicationMenu =
-                UIMenu.AddMenu(
-                    _menuStrip,
-                    "通信");
+            var communicationMenu =UIMenu.AddMenu(_menuStrip,"通信");
 
+            //
+            // 创建“通信 → 启动”菜单项。
+            //
+            // 保存菜单项引用，
+            // 后续根据Runtime状态控制Enabled。
+            //
+            _startMenuItem =UIMenu.AddItem(communicationMenu,"启动",Menu_Start);
 
-            UIMenu.AddItem(
-                communicationMenu,
-                "启动",
-                Menu_Start);
-
-
-            UIMenu.AddItem(
-                communicationMenu,
-                "停止",
-                Menu_Stop);
-
+            //
+            // 创建“通信 → 停止”菜单项。
+            //
+            // 保存菜单项引用，
+            // 后续根据Runtime状态控制Enabled。
+            //
+            _stopMenuItem =UIMenu.AddItem(communicationMenu,"停止",Menu_Stop);
 
             //
             // 视图
             //
-            var viewMenu =
-                UIMenu.AddMenu(
-                    _menuStrip,
-                    "视图");
+            var viewMenu =UIMenu.AddMenu(_menuStrip,"视图");
 
+            UIMenu.AddItem(viewMenu,"Frame");
 
-            UIMenu.AddItem(
-                viewMenu,
-                "Frame");
+            UIMenu.AddItem(viewMenu,"Signal");
 
-
-            UIMenu.AddItem(
-                viewMenu,
-                "Signal");
-
-
-            UIMenu.AddItem(
-                viewMenu,
-                "Trace");
-
+            UIMenu.AddItem(viewMenu,"Trace");
 
             //
             // 帮助
             //
-            var helpMenu =
-                UIMenu.AddMenu(
-                    _menuStrip,
-                    "帮助");
+            var helpMenu =UIMenu.AddMenu(_menuStrip,"帮助");
 
-
-            UIMenu.AddItem(
-                helpMenu,
-                "关于",
-                Menu_About);
-
+            UIMenu.AddItem(helpMenu,"关于",Menu_About);
 
             //
             // 加入Form
             //
-            Controls.Add(
-                _menuStrip);
+            Controls.Add(_menuStrip);
 
             _menuStrip.Dock = DockStyle.Top;
-            MainMenuStrip =
-                _menuStrip;
+            MainMenuStrip = _menuStrip;
 
         }
 
@@ -601,160 +453,75 @@ namespace GT.Factory.LIN.UI
         #region 数据绑定
 
         /// <summary>
-        /// 绑定Session数据
+        /// 将当前Debug窗口切换到新的Session。
         ///
+        /// Project生命周期由LinDebugHost管理，
+        /// Form只负责重新绑定UI数据。
         /// </summary>
-        private void BindData()
+        public void ReplaceSession(LinDebugSession session)
         {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+
+            foreach (var view in _sessionViews)
+            {
+                view.UnbindSession(_session);
+            }
+            
+            //
+            // 切换Session。
+            //
+            _session =session;
 
             //
-            // Frame
+            // 重新绑定UI。
             //
-            _frameTree.LoadFrames(
-                _session.Frames);
-
-
-            //
-            // Signal
-            //
-            _signalPanel.LoadSignals(
-                _session.Signals);
-
+            foreach (var view in _sessionViews)
+            {
+                view.BindSession(_session);
+            }
 
             //
-            // FrameData
+            // 新工程刚打开时一定是停止状态。
             //
-            _frameDataPanel.LoadFrames(
-                _session.Frames);
+            _runtimeRunning =false;
 
-
-            //
-            // Frame选择事件
-            //
-            _frameTree.FrameSelected +=
-                FrameTree_FrameSelected;
-
+            UpdateRuntimeMenuState();
 
             //
-            // Trace
+            // 立即刷新状态栏。
             //
-            _traceGrid.UpdateTrace(
-                _session.Trace.Items);
-
-
-            //
-            // Trace实时事件
-            //
-            // LIN收到一帧
-            //
-            // 立即刷新UI
-            //
-            _session.TraceAdded +=
-                Session_TraceAdded;
-
-
-            //
-            // Signal修改事件
-            //
-            _signalPanel.SignalValueChanged +=
-                SignalPanel_SignalValueChanged;
-
-
-            //
-            // Frame数据变化
-            //
-            _session.FrameChanged +=
-                Session_FrameChanged;
+            RefreshData();
         }
-
-
-        #endregion
-
-
-        #region Frame选择
-
 
         /// <summary>
-        /// Frame选择
+        /// 清除当前Project Debug数据。
         ///
-        /// Tree选择Frame后
-        ///
-        /// 更新Signal显示
-        ///
+        /// 用于关闭工程。
         /// </summary>
-        private void FrameTree_FrameSelected(
-            LinFrameInfo frame)
+        public void ClearSession()
         {
+            foreach (var view in _sessionViews)
+            {
+                view.UnbindSession(_session);
+                view.ClearSession();
+            }
 
-            if (frame == null)
-                return;
+            _session =null;
 
             //
-            // 显示当前Frame Signal
+            // 更新运行状态。
             //
-            _signalPanel.ShowFrame(frame);
+            SetRuntimeRunning(false);
 
-        }
-
-
-        #endregion
-
-
-        #region Signal修改
-
-
-        /// <summary>
-        /// UI修改Signal
-        ///
-        /// 转交Session
-        ///
-        /// </summary>
-        private void SignalPanel_SignalValueChanged(
-            string name,
-            object value)
-        {
-
-            _session.SetSignalValue(
-                name,
-                value);
-
-        }
-
-
-        #endregion
-
-
-        #region Trace新增
-
-
-        /// <summary>
-        /// Trace新增
-        ///
-        /// 来源:
-        ///
-        /// LinDebugSession
-        ///
-        /// </summary>
-        private void Session_TraceAdded(
-            LinTraceItem item)
-        {
-
-            _traceGrid.AddTrace(
-                item);
-
-        }
-
-
-        private void Session_FrameChanged(
-            LinFrameInfo frame)
-        {
-
-            _frameDataPanel.UpdateFrame(
-                frame);
-
+            //
+            // 刷新UI。
+            //
+            RefreshData();
         }
 
         #endregion
+
+
 
 
         #region 窗体刷新
@@ -770,29 +537,14 @@ namespace GT.Factory.LIN.UI
         /// </summary>
         private void StartRefreshTimer()
         {
-
-            _refreshTimer =
-                new Timer();
-
+            _refreshTimer =new Timer();
 
             //
             // 100ms刷新一次
             //
-            _refreshTimer.Interval =
-                100;
-
-
-            _refreshTimer.Tick +=
-                (s, e) =>
-                {
-
-                    RefreshData();
-
-                };
-
-
+            _refreshTimer = new Timer { Interval = 100 };
+            _refreshTimer.Tick += (s, e) => RefreshData();
             _refreshTimer.Start();
-
         }
 
 
@@ -816,41 +568,11 @@ namespace GT.Factory.LIN.UI
         public void RefreshData()
         {
 
-            //
-            // Trace刷新
-            //
-            // 数据来源:
-            //
-            // LinTraceLogger.Items
-            //
-            //_traceGrid.UpdateTrace(
-            //    _session.Trace.Items);
-
-            //
-            // Signal刷新
-            //
-            // 请求Core更新Signal
-            //
-            //_session.RefreshSignals();
-
-            //_session.RefreshFrames();
-
-            //
-            // 更新Signal显示
-            //
-            //_signalPanel.RefreshValues();
-
-            //
-            // 更新FrameData
-            //
-            //_frameDataPanel.RefreshData();
-
-
+            if (_session == null) return;
             //
             // 状态刷新
             //
-            _statusBar.UpdateStatus(
-                _session);
+            _statusBar.UpdateStatus(_session);
         }
 
         #endregion
@@ -870,31 +592,45 @@ namespace GT.Factory.LIN.UI
             FormClosedEventArgs e)
         {
 
-            //
-            // 停止Timer
-            //
-            if (_refreshTimer != null)
-            {
-
-                _refreshTimer.Stop();
-
-
-                _refreshTimer.Dispose();
-
-
-                _refreshTimer =
-                    null;
-
-            }
-
-            base.OnFormClosed(
-                e);
-
+            _refreshTimer?.Stop();
+            _refreshTimer?.Dispose();
+            _refreshTimer = null;
+            base.OnFormClosed(e);
         }
 
 
         #endregion
 
+        public void SetRuntimeRunning(bool running)
+        {
+            _runtimeRunning = running;
+            UpdateRuntimeMenuState();
+        }
+
+        /// <summary>
+        /// 根据当前Project和Runtime状态更新通信菜单。
+        ///
+        /// 状态规则：
+        ///
+        /// 1. 没有Project：
+        ///    启动 = 禁用
+        ///    停止 = 禁用
+        ///
+        /// 2. Project已加载但Runtime未运行：
+        ///    启动 = 可用
+        ///    停止 = 禁用
+        ///
+        /// 3. Project已加载且Runtime正在运行：
+        ///    启动 = 禁用
+        ///    停止 = 可用
+        /// </summary>
+        private void UpdateRuntimeMenuState()
+        {
+            bool hasProject = _session != null;
+
+            if (_startMenuItem != null) _startMenuItem.Enabled = hasProject && !_runtimeRunning;
+            if (_stopMenuItem != null) _stopMenuItem.Enabled = hasProject && _runtimeRunning;
+        }
     }
 
 }

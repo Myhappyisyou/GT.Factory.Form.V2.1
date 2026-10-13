@@ -21,13 +21,17 @@ namespace GT.Factory.LIN
             Application.SetCompatibleTextRenderingDefault(false);
 
             var host =
-                        new LinDebugHost();
+                new LinDebugHost();
 
-
-            var projectFile =
-       @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\BYD_300W.linproj";
-
-            host.Start(projectFile, new MockLinAdapter());
+            //
+            // Project Debug正式入口：
+            //
+            // 不再硬编码具体.linproj。
+            //
+            // 由Host负责选择并加载工程。
+            //
+            host.Start(
+                new MockLinAdapter());
         }
     }
 }

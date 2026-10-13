@@ -1,10 +1,5 @@
-﻿using GT.Factory.Station;
-using GT.Factory.Station.DriverForm.Aynettek;
-using GT.Factory.Station.DriverForm.Login;
-using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
-using GT.Factory.Station.Helper.Logging;
+﻿using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
 using System;
 using System.Windows.Forms;
 
@@ -31,56 +26,43 @@ namespace GT.Factory.Station.OP010
                 return;
             }
 
-
             // 初始化公共环境
             AppManager.Initialize();
 
-
             Application.EnableVisualStyles();
+
             Application.SetCompatibleTextRenderingDefault(false);
 
 
+            // 初始化应用环境
+            var runtime = new AppRuntime();
+
+            new LoginRuntime(
+                runtime.LocalUserService,
+                runtime.UserApiService,
+                runtime.MesService,
+                runtime.RfidService);
+
             try
             {
-                //using (var loginForm =
-                //    new LoginForm(
-                //        new RfidService(),
-                //        new UserApiService(
-                //            Config.Instance.ServerApi,
-                //            Config.Instance.ServerDbtask),
-                //        new MesService(),
-                //        new LocalUserService(),
-                //        LocalConfig.Instance.UIDIP,
-                //        LocalConfig.Instance.UIDPort))
-                var localConfig = Config.Instance;
-
-                // 校验登录配置
-                localConfig.Login.Validate();
-
-                // 初始化 RFID（如果启用）
-                if (localConfig.EnableCardReader)
+                // ✅ 只有简单干脆的一处 using
+                using (var loginForm = AuthHelper.CreateLoginForm())
                 {
-                    //rfidService.Init(localConfig.UIDIP, localConfig.UIDPort);
-                }
-
-                var loginService = new LoginService(
-                    AppRuntime.Current.LocalUserService,
-                    AppRuntime.Current.UserApiService,
-                    AppRuntime.Current.MesService);
-
-                var providers = IdentityProviderFactory.CreateProviders(
-                    localConfig.Login,
-                    loginService,
-                    AppRuntime.Current.RfidService);
-
-                var loginForm = new GT.Factory.Station.DriverForm.Login.LoginForm(providers);
-
+                    // ✅ 只调用一次 ShowDialog
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
                         AuthHelper.RecordLogin(loginForm.CurrentUser);
 
-                        Application.Run(new MainForm());
+                        Shared.user = AuthHelper.CurrentUser;
+
+                        Application.Run(new MainForm(runtime));
                     }
+                    else
+                    {
+                        // 用户点了右上角 X 退出，直接结束程序
+                        Application.Exit();
+                    }
+                }
             }
             catch (Exception ex)
             {

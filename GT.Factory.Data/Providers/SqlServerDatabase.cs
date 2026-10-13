@@ -122,14 +122,24 @@ namespace GT.Factory.Data.Providers
         /// </summary>
         public async Task<List<T>> QueryAsync<T>(string sql, object param = null)
         {
+            //await PingAsync();
             using (var conn = CreateConnection())
             {
-                var result = await conn.QueryAsync<T>(
-                    sql,
-                    param,
-                    commandType: CommandType.Text);
+                try
+                {
+                    var result = await conn.QueryAsync<T>(
+                 sql,
+                 param,
+                 commandType: CommandType.Text);
 
-                return result.ToList();
+                    return result.ToList();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+             
             }
         }
 
@@ -139,16 +149,53 @@ namespace GT.Factory.Data.Providers
         /// 注意：
         /// 调用方必须 using await using 释放事务
         /// </summary>
+        //public async Task<IDatabaseTransaction> BeginTransactionAsync()
+        //{
+        //    var conn = CreateConnection();
+
+        //    await conn.OpenAsync();
+
+        //    var transaction = conn.BeginTransaction();
+
+        //    return new SqlServerTransaction(conn, transaction);
+        //}
+
+        /// <summary>
+        /// 创建数据库事务。
+        /// 使用 SQL Server 默认隔离级别。
+        /// </summary>
         public async Task<IDatabaseTransaction> BeginTransactionAsync()
         {
-            var conn = CreateConnection();
-
-            await conn.OpenAsync();
-
-            var transaction = conn.BeginTransaction();
-
-            return new SqlServerTransaction(conn, transaction);
+            return await BeginTransactionAsync(
+                IsolationLevel.ReadCommitted);
         }
+
+        /// <summary>
+        /// 按指定隔离级别创建数据库事务。
+        /// </summary>
+        public async Task<IDatabaseTransaction> BeginTransactionAsync(
+            IsolationLevel isolationLevel)
+        {
+            SqlConnection conn = CreateConnection();
+
+            try
+            {
+                await conn.OpenAsync();
+
+                SqlTransaction transaction =
+                    conn.BeginTransaction(isolationLevel);
+
+                return new SqlServerTransaction(
+                    conn,
+                    transaction);
+            }
+            catch
+            {
+                conn.Dispose();
+                throw;
+            }
+        }
+
 
         #endregion
 
@@ -157,14 +204,14 @@ namespace GT.Factory.Data.Providers
         /// <summary>
         /// 执行非查询语句（同步）
         /// </summary>
-        public int Execute(string sql, object param = null)
+        public int Execute(string sql, object param = null, CommandType commandType = CommandType.Text)
         {
             using (var conn = CreateConnection())
             {
                 return conn.Execute(
                     sql,
                     param,
-                    commandType: CommandType.Text);
+                    commandType: commandType);
             }
         }
 

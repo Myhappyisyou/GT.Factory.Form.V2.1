@@ -117,6 +117,23 @@ namespace GT.Factory.LIN.ProjectDebug
             private set;
         }
 
+
+        /// <summary>
+        /// 当前LIN工程。
+        ///
+        /// UI只读取工程关联信息。
+        ///
+        /// 不允许UI修改Project生命周期。
+        /// 生命周期仍由LinDebugHost负责。
+        /// </summary>
+        public LinProject Project
+        {
+            get
+            {
+                return _project;
+            }
+        }
+
         #endregion
 
         #region Event

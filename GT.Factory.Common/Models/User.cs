@@ -1,10 +1,21 @@
 ﻿using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
+using GT.Factory.Common.Helpers;
 using System;
 using System.ComponentModel;
 
 namespace GT.Factory.Common.Models
 {
+    public class UserLoginStat
+    {
+        public int ID { get; set; }
+        public string UserName { get; set; }
+        public string UserRole { get; set; }
+        public string JobNum { get; set; }
+        public int LoginCount { get; set; }
+        public DateTime? LastLoginTime { get; set; }
+    }
+
+
     public class User
     {
         [DisplayName("ID")]
@@ -23,7 +34,7 @@ namespace GT.Factory.Common.Models
         public string UID { get; set; }
 
         [DisplayName("工号")]
-        public string JobNub { get; set; }
+        public string JobNum { get; set; }
 
         [DisplayName("MES账号")]
         public string MesAccount { get; set; }
@@ -34,11 +45,11 @@ namespace GT.Factory.Common.Models
         // 是否启用
         public bool IsEnabled { get; set; } = true;
 
-        // 创建时间
-        public DateTime CreateTime { get; set; } = DateTime.Now;
+        //// 创建时间
+        //public DateTime CreateTime { get; set; } = DateTime.Now;
 
-        // 是否需要MES账号
-        public MesCredential MesCredential { get; set; }
+        //// 是否需要MES账号
+        //public MesCredential MesCredential { get; set; }
 
         public UserLevel LevelEnum
         {

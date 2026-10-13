@@ -1,21 +1,13 @@
-﻿using GT.Factory.Station.MyEnum;
-using GT.Factory.Station.ProcessConfig;
-using GT.Factory.Station.Helper.Logging;
-using GT.Factory.Station.Model;
-using GT.Factory.Station.Properties;
-using Microsoft.Extensions.Logging;
+﻿using GT.Factory.Station.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Xml.Linq;
-using TaskContracts.Models;
+using GT.Factory.Common.Models.Mes;
+using GT.Factory.Logging.Logging;
 
 namespace GT.Factory.Station.Helper
 {
@@ -290,50 +282,108 @@ namespace GT.Factory.Station.Helper
         /// <param name="MES反馈">MES反馈原始内容</param>
         /// <param name="XMLOUT">输出XML</param>
         /// <returns>解析后的响应对象</returns>
-        public static DeviceIntegrationResponse 获取设备集成信息(string SFC条码, List<TestItemInfo> TestItems, out bool 验证结果, out string MES反馈, out string XMLOUT)
+        public static DeviceIntegrationResponse 获取设备集成信息(string SFC条码, out bool 验证结果, out string MES反馈, out string XMLOUT)
         {
-            // 1. 构建请求XML
-            StringBuilder sb = new StringBuilder();
-            sb.Append("<PRODUCTION_REQUEST><SIDE>");
-            sb.Append($"<SITE>{Config.Instance.Site}</SITE>");
-            sb.Append($"<USER>{Shared.user.JobNub}</USER>");
-            sb.Append($"<SFC>{SFC条码}</SFC>");
-            sb.Append($"<OPERATION>{Config.Instance.Operation}</OPERATION>");
-            sb.Append($"<RESOURCE>{Config.Instance.Resource}</RESOURCE>");
-            sb.Append($"<ISOK>OK</ISOK>");
-            sb.Append("<LIST>");
-            foreach (var item in TestItems)
-            {
-                sb.Append($"<ITEM>{item}</ITEM>");
-            }
-            sb.Append("</LIST>");
-            sb.Append("</SIDE></PRODUCTION_REQUEST>");
+            // 默认返回失败状态，
+            // 防止发生异常时 out 参数没有正确赋值。
+            验证结果 = false;
 
-            string param = $"message={sb.ToString()}!erpautogy03!1234567@byd";
-            XMLOUT = sb.ToString();
+            // 默认 MES 返回为空。
+            MES反馈 = string.Empty;
 
-            // 2. 发送POST请求
-            MES反馈 = GetHtmlByPost($"http://" + Config.Instance.IP + ":" + Config.Instance.PORT + Config.Instance.URL, param, Config.Instance.TimeOut);
+            // 默认请求 XML 为空。
+            XMLOUT = string.Empty;
 
-            // 3. 验证结果（根据实际返回格式判断）
-            验证结果 = CutResult(MES反馈);
-
-            // 4. 解析响应
-            DeviceIntegrationResponse response = null;
             try
             {
-                response = ParseDeviceIntegrationResponse(MES反馈);
+                // 1. 构建请求XML
+                StringBuilder sb = new StringBuilder();
+                sb.Append("<PRODUCTION_REQUEST><SIDE>");
+                sb.Append($"<SITE>{Config.Instance.Site}</SITE>");
+                sb.Append($"<USER>{Shared.user.JobNub}</USER>");
+                sb.Append($"<SFC>{SFC条码}</SFC>");
+                sb.Append($"<OPERATION>{Config.Instance.FrontOperation}</OPERATION>");
+                sb.Append($"<RESOURCE>{Config.Instance.FrontResource}</RESOURCE>");
+                sb.Append($"<ISOK>PASS</ISOK>");
+                sb.Append("<LIST>");
+                if (!string.IsNullOrWhiteSpace(Config.Instance.FrontTestItem))
+                {
+                    sb.Append($"<ITEM>{Config.Instance.FrontTestItem}</ITEM>");
+                }
+                sb.Append("</LIST>");
+                sb.Append("</SIDE></PRODUCTION_REQUEST>");
+
+                string param = $"message={sb.ToString()}";
+                XMLOUT = sb.ToString();
+
+                // 2. 发送POST请求
+                MES反馈 = GetHtmlByPost($"http://" + Config.Instance.IP + ":" + Config.Instance.PORT + Config.Instance.URL, param, Config.Instance.TimeOut);
+
+                // 3. 验证结果（根据实际返回格式判断）
+                验证结果 = CutResult(MES反馈);
+
+                // 如果 MES 返回验证失败，
+                // 不再继续解析业务数据。
+                if (!验证结果)
+                {
+                    Shared.lsActionTips.Add(
+                        new ActionTipModel
+                        {
+                            Code = -1,
+
+                            Tips =
+                                $"获取设备集成信息失败："
+                                + $"{SFC条码}"
+                        });
+
+                    return null;
+                }
+                var response = ParseDeviceIntegrationResponse(MES反馈);
+
+                Shared.lsActionTips.Add(
+                    new ActionTipModel
+                    {
+                        Code = -1,
+
+                        Tips =
+                            $"获取设备集成信息-"
+                            + $"{SFC条码}-"
+                            + $"{验证结果}"
+                    });
+
+                return response;
             }
             catch (Exception ex)
             {
-                Shared.lsActionTips.Add(new ActionTipModel { Code = -1, Tips = $"解析设备集成信息失败: {ex.Message}" });
+                // 发生任何异常时，
+                // 统一返回失败状态。
                 验证结果 = false;
+
+                Shared.lsActionTips.Add(
+                    new ActionTipModel
+                    {
+                        Code = -1,
+
+                        Tips =
+                            $"获取设备集成信息异常："
+                            + $"{SFC条码}-"
+                            + $"{ex.Message}"
+                    });
+
+                // 记录完整异常，
+                // 方便后续排查网络、MES 或解析问题。
+                DisplayLog.Error(
+                    $"获取设备集成信息异常【{SFC条码}】",
+                    ex,
+                    true);
+
+                // 异常情况下返回 null，
+                // 调用方通过验证结果和返回值判断失败。
+                return null;
             }
 
-            Shared.lsActionTips.Add(new ActionTipModel { Code = -1, Tips = $"获取设备集成信息-{SFC条码}-{验证结果}" });
-
-            return response;
         }
+
 
         /// <summary>
         /// 解析设备集成信息响应
@@ -473,16 +523,7 @@ namespace GT.Factory.Station.Helper
     }
 
     //  工单信息
-    public class ShopOrderInfo
-    {
-        public string Order { get; set; }
-        public string Item { get; set; }
-        public string ItemDesc { get; set; }
-        public string Router { get; set; }
-        public string OrderNum { get; set; }
-        public string CompNum { get; set; }
-        public string CompRate { get; set; }
-    }
+    
 
 
     [Serializable]

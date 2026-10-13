@@ -1,6 +1,4 @@
-﻿
-using GT.Factory.Common.Helper;
-using GT.Factory.Common.Helpers;
+﻿using GT.Factory.Common.Helpers;
 using GT.Factory.Data.Core;
 using GT.Factory.UI.Component;
 using GT.Factory.UI.Enum;

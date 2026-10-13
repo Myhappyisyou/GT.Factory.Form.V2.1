@@ -1,4 +1,5 @@
 ﻿using GT.Factory.Common.Enums;
+using GT.Factory.Station.ProcessConfig.InstrumentHandlers;
 using GT.Factory.Station.Model;
 using GT.Factory.Station.MyEnum;
 using GT.Factory.Station.ProcessConfig;
@@ -18,6 +19,7 @@ using System.Windows.Forms;
 using Consumables = TaskContracts.Models.Consumables;
 using LogicalTable = GT.Factory.Common.Enums.LogicalTable;
 using TablePrefixType = GT.Factory.Common.Enums.TablePrefixType;
+using GT.Factory.Logging.Logging;
 
 namespace GT.Factory.Station.Helper
 {
@@ -45,7 +47,7 @@ namespace GT.Factory.Station.Helper
                 }
                 catch (Exception ex)
                 {
-                    Logging.DisplayLog.Error("解析路径时间失败", ex);
+                    DisplayLog.Error("解析路径时间失败", ex);
                     return "";
                 }
             }
@@ -277,6 +279,154 @@ namespace GT.Factory.Station.Helper
 
 
         #endregion
+
+
+        /// <summary>
+        /// 将仪器测试数据转换成系统标准的 PlcMeasureGroup 数据格式。
+        /// 仪器数据不要求必须包含上下限，未提供的上下限统一保持为空。
+        /// 仪器最终结果会应用到每一个测试项，保证后续 BuildSaveItems 可以继续使用。
+        /// </summary>
+        public static List<PlcMeasureGroup> ConvertInstrumentData(
+            IEnumerable<InstrumentMeasure> measures,
+            bool isOk)
+        {
+            // 创建标准数据集合。
+            List<PlcMeasureGroup> result =
+                new List<PlcMeasureGroup>();
+
+            // 将仪器最终结果转换成现有系统使用的 1/0。
+            int resultValue = isOk ? 1 : 0;
+
+            // 遍历仪器返回的所有测试项。
+            foreach (InstrumentMeasure item in measures)
+            {
+                // 跳过无效的测试项。
+                if (item == null)
+                    continue;
+
+                // 创建标准测点。
+                PlcMeasureGroup measure =
+                    new PlcMeasureGroup();
+
+                // 设置业务主键。
+                measure.FieldName = item.FieldName;
+
+                // 设置显示名称。
+                measure.Name = item.Name;
+
+                // 设置单位。
+                measure.Unit = item.Unit ?? string.Empty;
+
+                // 仪器没有上下限时，Value 保持为空。
+                measure.Upper.Value = item.Upper;
+                measure.Lower.Value = item.Lower;
+
+                // 设置仪器实际测量值。
+                measure.Value.Value = item.Value;
+
+                // 仪器最终结果统一转换成 1/0。
+                measure.Result.Value = resultValue;
+
+                // 加入标准数据集合。
+                result.Add(measure);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 将新仪器架构返回的 IMeasurement 数据转换成系统统一的
+        /// PlcMeasureGroup 数据。
+        ///
+        /// 该方法用于 InstrumentProcess 的 MES / 数据库数据流。
+        /// PLC 数据流仍然直接使用原始 IMeasurement。
+        ///
+        /// 结果处理规则：
+        /// 1. 如果 Handler 能获取每个测试项的独立结果，
+        ///    IMeasurement.Status 保存对应测试项结果。
+        /// 2. 如果仪器只有一个最终结果，
+        ///    Handler 将该最终结果写入每个 IMeasurement.Status。
+        /// 3. 本方法不再重新计算或覆盖单项结果。
+        /// 4. 上限和下限当前允许为空。
+        /// </summary>
+        public static List<PlcMeasureGroup> ConvertInstrumentData(
+            IEnumerable<IMeasurement> measurements)
+        {
+            // 创建统一测试数据集合。
+            List<PlcMeasureGroup> result =
+                new List<PlcMeasureGroup>();
+
+            if (measurements == null)
+                return result;
+
+            foreach (IMeasurement item in measurements)
+            {
+                // 跳过无效测试项。
+                if (item == null)
+                    continue;
+
+                // 创建系统统一测量项。
+                PlcMeasureGroup measure =
+                    new PlcMeasureGroup();
+
+                // IMeasurement 当前没有独立 FieldName，
+                // 因此使用 Name 作为系统字段名称。
+                measure.FieldName = item.Name;
+
+                // 设置测试项名称。
+                measure.Name = item.Name;
+
+                // 设置测试单位。
+                measure.Unit = item.Unit ?? string.Empty;
+
+                // 当前 IMeasurement 不包含上下限，
+                // 因此上下限允许为空。
+                measure.Upper.Value = null;
+                measure.Lower.Value = null;
+
+                // 设置实际测试值。
+                measure.Value.Value = item.Value;
+
+                // 使用 Handler 已经确定的测试结果。
+                // 如果是单项结果，则这里就是单项结果；
+                // 如果仪器只有总结果，则这里就是继承后的总结果。
+                measure.Result.Value = item.Status == "OK" ? 1 : 0;
+
+                result.Add(measure);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 将仪器返回的最终结果统一转换成系统使用的 1/0。
+        /// </summary>
+        public static int ConvertInstrumentResult(object result)
+        {
+            if (result == null)
+                return 0;
+
+            string text = result.ToString().Trim();
+
+            if (string.Equals(text, "OK", StringComparison.OrdinalIgnoreCase))
+                return 1;
+
+            if (string.Equals(text, "PASS", StringComparison.OrdinalIgnoreCase))
+                return 1;
+
+            if (string.Equals(text, "NG", StringComparison.OrdinalIgnoreCase))
+                return 0;
+
+            if (string.Equals(text, "FAIL", StringComparison.OrdinalIgnoreCase))
+                return 0;
+
+            int number;
+
+            if (int.TryParse(text, out number))
+                return number == 1 ? 1 : 0;
+
+            return 0;
+        }
 
         #region 参数组名解析
 

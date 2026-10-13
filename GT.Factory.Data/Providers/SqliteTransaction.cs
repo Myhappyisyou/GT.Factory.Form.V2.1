@@ -1,4 +1,6 @@
 ﻿using GT.Factory.Data.Abstractions;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
@@ -37,6 +39,36 @@ namespace GT.Factory.Data.Providers
             _transaction.Dispose();
             _connection.Dispose();
             return default;
+        }
+
+        public int Execute(string sql, object param = null, CommandType commandType = CommandType.Text)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public T QuerySingle<T>(string sql, object param = null)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public List<T> Query<T>(string sql, object param = null)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<int> ExecuteAsync(string sql, object param = null, CommandType commandType = CommandType.Text)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<T> QuerySingleAsync<T>(string sql, object param = null)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<List<T>> QueryAsync<T>(string sql, object param = null)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -87,9 +87,9 @@ namespace GT.Factory.Data.Service
                             case "GTProcessProperty":
 
                                 var payload =
-                                    JsonConvert.DeserializeObject<ProcessPropertyPayload>(item.DataJson);
+                                    JsonConvert.DeserializeObject<ProcessPropertyFourPayload>(item.DataJson);
 
-                                await _processRepo.UploadBasicDataAsync(payload);
+                                await _processRepo.UploadFourAsync(payload);
                                 break;
 
                                 // ✅ 后续可扩展其他类型

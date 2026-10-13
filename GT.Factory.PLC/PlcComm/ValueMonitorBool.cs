@@ -10,7 +10,7 @@ namespace GT.Factory.PLC.PlcComm
     {
         public PatchReader Plc { get; private set; }
 
-        public int AddrIndex { get; private set; }
+        public string AddrIndex { get; private set; }
 
         public int BitIndex { get; private set; }
 
@@ -30,7 +30,7 @@ namespace GT.Factory.PLC.PlcComm
         public event EventHandler<bool> ChangedEvent;
 
 
-        public ValueMonitorBool(PatchReader plc, int addrIndex, int bitIndex)
+        public ValueMonitorBool(PatchReader plc, string addrIndex, int bitIndex)
         {
             Plc = plc;
             AddrIndex = addrIndex;

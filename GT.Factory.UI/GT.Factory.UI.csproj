@@ -43,8 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apply\DialogWithMaskStyle.cs" />
     <Compile Include="Apply\StatusStyle.cs" />
     <Compile Include="Component\DraggableTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Component\GTTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Component\StatusLabel.cs">
@@ -53,6 +57,8 @@
     <Compile Include="Component\UIPasswordBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Component\UIStatus.cs" />
+    <Compile Include="Component\UITabControl.cs" />
     <Compile Include="Component\UIVerticalTitle.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -93,6 +99,7 @@
     <Compile Include="Style\UIInput.cs" />
     <Compile Include="Style\UILabel.cs" />
     <Compile Include="Layout\UILayout.cs" />
+    <Compile Include="Style\UIListBox.cs" />
     <Compile Include="Style\UIMenu.cs" />
     <Compile Include="Style\UITree.cs" />
     <Compile Include="Theme\UITheme.cs" />

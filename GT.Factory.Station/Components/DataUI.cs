@@ -1,9 +1,6 @@
 ﻿using GT.Factory.Common.Models;
 using GT.Factory.Data.Core;
-using GT.Factory.UI;
-using GT.Factory.UI.Apply;
 using GT.Factory.Station.DriverForm.DataDetail;
-using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.Helper.UIHelp;
 using System;
 using System.Collections.Generic;
@@ -11,9 +8,9 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using GT.Factory.Station.Model;
+using GT.Factory.Logging.Logging;
 
 namespace GT.Factory.Station.Components
 {
@@ -279,7 +276,9 @@ namespace GT.Factory.Station.Components
                 string[] formats =
                 {
                     "yyyy/M/d H:mm:ss", "yyyy/M/d HH:mm:ss",
-                    "yyyy/MM/dd H:mm:ss", "yyyy/MM/dd HH:mm:ss"
+                    "yyyy/MM/dd H:mm:ss", "yyyy/MM/dd HH:mm:ss",
+                    "yyyy-M-d H:mm:ss", "yyyy-M-d HH:mm:ss",
+                    "yyyy-MM-dd H:mm:ss", "yyyy-MM-dd HH:mm:ss"
                 };
 
                 if (!DateTime.TryParseExact(text, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))

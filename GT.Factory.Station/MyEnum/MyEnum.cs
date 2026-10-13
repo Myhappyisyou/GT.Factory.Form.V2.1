@@ -40,7 +40,11 @@ namespace GT.Factory.Station.MyEnum
         /// <summary>
         /// 绑定流程
         /// </summary>
-        SaveHMILogProcess
+        SaveHMILogProcess,
+        /// <summary>
+        /// 仪器通讯流程
+        /// </summary>
+        InstrumentProcess
     }
 
     public enum CheckType

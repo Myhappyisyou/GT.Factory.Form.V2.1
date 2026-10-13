@@ -148,8 +148,13 @@ namespace GT.Factory.Common.Enums
         [Description("ProcessPart")]
         Part,
 
+       
+        [Description("EquipmentRun")]
+        EquipmentRun,
+
         [Description("ProcessAlarm")]
         Alarm,
+
 
         [Description("ProcessAlarmParse")]
         AlarmParse,
@@ -164,7 +169,22 @@ namespace GT.Factory.Common.Enums
         ProcessFile,
 
         [Description("ProcessResultCodeParse")]
-        ProcessResultCodeParse
+        ProcessResultCodeParse,
+
+        [Description("CodeRule")]
+        CodeRule,
+
+        [Description("CodeRuleDetail")]
+        CodeRuleDetail,
+
+        [Description("CodeSerialNumber")]
+        CodeSerialNumber,
+
+        [Description("ProductCodeHistory")]
+        ProductCodeHistory,
+
+        [Description("ShiftConfig")]
+        ShiftConfig
     }
 
 

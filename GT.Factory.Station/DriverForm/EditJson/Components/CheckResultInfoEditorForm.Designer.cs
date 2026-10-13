@@ -1,4 +1,4 @@
-﻿namespace EditJson
+﻿namespace GT.Factory.Station.EditJson.Components
 {
     partial class CheckResultInfoEditorForm
     {

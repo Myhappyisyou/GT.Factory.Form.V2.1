@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GT.Factory.Common.Helper
+namespace GT.Factory.Common.Helpers
 {
     public static class ObjectExtensions
     {

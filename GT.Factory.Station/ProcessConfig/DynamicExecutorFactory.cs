@@ -1,10 +1,10 @@
-﻿using GT.Factory.Station.Helper;
+﻿using GT.Factory.PLC.PlcComm;
+using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
-using Consumables = GT.Factory.Common.Models.Consumables;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GT.Factory.PLC.PlcComm;
+using Consumables = GT.Factory.Common.Models.Consumables;
 
 namespace GT.Factory.Station.ProcessConfig
 {
@@ -15,31 +15,37 @@ namespace GT.Factory.Station.ProcessConfig
         private readonly ComponentManager _componentManager;
         private readonly UploadManager _uploadManager;
         private readonly Dictionary<string, Func<ProcessContext, Task>> _globalHandlers;
-        private readonly AccessMdbHelper _db;
+        //private readonly AccessMdbHelper _db;
 
         //private readonly AccessShortConnectionHelper _remoteDb;
         private readonly List<Consumables> _lsConsumables;
         protected readonly ClientTaskSender _clientTaskSender;
         protected readonly ProductionMonitor _prodMonitor;
         private readonly TestDataProcessor _testDataProcessor;
+        private readonly Dictionary<string, IInstrumentHandler> _instrumentHandlers
+          = new Dictionary<string, IInstrumentHandler>();
+        // ✅ 新增：仪器分派器字段
+        private readonly IInstrumentDispatcher _instrumentDispatcher;
         public DynamicExecutorFactory(
             PatchReader reader,
             ComponentManager componentManager,
             UploadManager uploadManager,
-            AccessMdbHelper db,
+            //AccessMdbHelper db,
             List<Consumables> lsConsumables,
             ClientTaskSender clientTaskSender,
             ProductionMonitor productionMonitor,
-            TestDataProcessor testDataProcessor)
+            TestDataProcessor testDataProcessor,
+            IInstrumentDispatcher instrumentDispatcher = null)
         {
             _reader = reader;
             _componentManager = componentManager;
             _uploadManager = uploadManager;
-            _db = db;
+            //_db = db;
             _lsConsumables = lsConsumables;
             _clientTaskSender = clientTaskSender;
             _prodMonitor = productionMonitor;
             _testDataProcessor = testDataProcessor;
+            _instrumentDispatcher = instrumentDispatcher;
             _globalHandlers = new Dictionary<string, Func<ProcessContext, Task>>();
         }
 
@@ -49,9 +55,11 @@ namespace GT.Factory.Station.ProcessConfig
             _globalHandlers[stageName] = handler;
         }
 
+
+
         // 创建动态执行器
         public BaseProcessExecutor CreateExecutor(
-            StandardProcess process,
+            ProcessBase process,
             Dictionary<string, Func<ProcessContext, Task>> specificHandlers = null)
         {
             // 合并全局和特定处理器
@@ -64,12 +72,16 @@ namespace GT.Factory.Station.ProcessConfig
                 }
             }
 
-            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _db, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers);
+            // ✅ 修改：从分派器获取仪器处理器（而不是本地空字典）
+            var instrumentHandlers = _instrumentDispatcher?.GetAllHandlers()
+                ?? new Dictionary<string, IInstrumentHandler>();
+
+            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers, instrumentHandlers);
         }
 
         // 创建动态执行器
         public BaseProcessExecutor CreateCalibrationProcessExecutor(
-            CalibrationProcess CalibrationProcess,
+            ProcessBase process,
             Dictionary<string, Func<ProcessContext, Task>> specificHandlers = null)
         {
             // 合并全局和特定处理器
@@ -82,12 +94,16 @@ namespace GT.Factory.Station.ProcessConfig
                 }
             }
 
-            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _db, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers);
+            // ✅ 修改：从分派器获取仪器处理器（而不是本地空字典）
+            var instrumentHandlers = _instrumentDispatcher?.GetAllHandlers()
+                ?? new Dictionary<string, IInstrumentHandler>();
+
+            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers, instrumentHandlers);
         }
 
         // 创建动态执行器
         public BaseProcessExecutor CreateBarBindProcessExecutor(
-            BarBindProcess BarBindProcess,
+            ProcessBase process,
             Dictionary<string, Func<ProcessContext, Task>> specificHandlers = null)
         {
             // 合并全局和特定处理器
@@ -100,7 +116,11 @@ namespace GT.Factory.Station.ProcessConfig
                 }
             }
 
-            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _db, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers);
+            // ✅ 修改：从分派器获取仪器处理器（而不是本地空字典）
+            var instrumentHandlers = _instrumentDispatcher?.GetAllHandlers()
+                ?? new Dictionary<string, IInstrumentHandler>();
+
+            return new DynamicProcessExecutor(_reader, _componentManager, _uploadManager, _lsConsumables, _clientTaskSender, _prodMonitor, _testDataProcessor, allHandlers, instrumentHandlers);
         }
     }
 }

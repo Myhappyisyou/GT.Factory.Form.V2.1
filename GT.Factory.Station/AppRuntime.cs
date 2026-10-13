@@ -1,12 +1,16 @@
-﻿using GT.Factory.Data.Core;
-using GT.Factory.Station.DriverForm.Aynettek;
+﻿using GT.Factory.Common.Interfaces;
+using GT.Factory.Data.Config;
+using GT.Factory.Data.Core;
+using GT.Factory.GTUser.Repository;
+using GT.Factory.Login.Login;
+using GT.Factory.Product.Repository;
+using GT.Factory.Product.Service;
+using GT.Factory.ProductCode.Repository;
+using GT.Factory.ProductCode.Service;
+using GT.Factory.RFID.Aynettek;
 using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
+using GT.Factory.WebApi.QueryClient;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GT.Factory.Station
 {
@@ -40,28 +44,31 @@ namespace GT.Factory.Station
 
         public IRfidService RfidService { get; }
 
+        public ProductCodeRuleService ProductCodeRuleService { get; }
 
+        public ProductModelService ProductModelService { get; }
+
+        public ProductPartService ProductPartRepository { get; }
 
         public AppRuntime()
         {
             // 数据运行环境
             DataRuntime =
-                new DataRuntime(
-                    Config.Instance.DatabaseOptions);
+                new DataRuntime(DatabaseConfigProvider.Instance.Settings);
 
 
 
             // 用户服务
             LocalUserService =
-                new LocalUserService();
+                new LocalUserService(new LocalUserRepository(DataRuntime.Database));
 
 
 
             // 远程用户接口
             UserApiService =
-                new UserApiService(
-                    Config.Instance.ServerApi,
-                    Config.Instance.ServerDbtask);
+               new UserApiService(
+                   WebApiConfigProvider.Instance.Settings.ServerApi,
+                   WebApiConfigProvider.Instance.Settings.ServerDbtask);
 
 
 
@@ -76,6 +83,15 @@ namespace GT.Factory.Station
                 new RfidService();
 
 
+            ProductCodeRuleService =
+                  new ProductCodeRuleService(new ProductCodeRuleRepository(DataRuntime.Database),
+                  new ProductCodeRepository(DataRuntime.Database));
+
+            ProductModelService =
+               new ProductModelService(new ProductModelRepository(DataRuntime.Database));
+
+            ProductPartRepository =
+               new ProductPartService(new ProductPartRepository(DataRuntime.Database));
 
             _current = this;
         }

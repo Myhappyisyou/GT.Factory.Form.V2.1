@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EditJson
+namespace GT.Factory.Station.EditJson.Components
 {
     public partial class DataItemEditorForm : UserControl, IApplyChanges
     {
@@ -70,15 +70,13 @@ namespace EditJson
 
             // 地址
             mainPanel.Controls.Add(new Label { Text = "地址:", AutoSize = true }, 0, 2);
-            var numAddress = new NumericUpDown
+            var txtAddress = new TextBox
             {
-                Name = "numAddress",
-                Minimum = 0,
-                Maximum = 99999,
-                Value = _config.Address,
-                Dock = DockStyle.Fill
+                Name = "txtAddress",
+                Dock = DockStyle.Fill,
+                Text = _config.Address ?? string.Empty
             };
-            mainPanel.Controls.Add(numAddress, 1, 2);
+            mainPanel.Controls.Add(txtAddress, 1, 2);
 
             // 长度
             mainPanel.Controls.Add(new Label { Text = "长度:", AutoSize = true }, 0, 3);
@@ -138,8 +136,11 @@ namespace EditJson
                 txtName.Text = _config.Name;
             }
 
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
-            numAddress.Value = _config.Address;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
+            if (txtAddress != null)
+            {
+                txtAddress.Text = _config.Address ?? string.Empty;
+            }
 
             var numLength = Controls.Find("numLength", true)[0] as NumericUpDown;
             numLength.Value = _config.Length;
@@ -156,8 +157,8 @@ namespace EditJson
                 _config.Name = txtName.Text;
             }
 
-            var numAddress = Controls.Find("numAddress", true)[0] as NumericUpDown;
-            _config.Address = (int)numAddress.Value;
+            var txtAddress = Controls.Find("txtAddress", true)[0] as TextBox;
+            _config.Address = txtAddress.Text;
 
             var numLength = Controls.Find("numLength", true)[0] as NumericUpDown;
             _config.Length = (int)numLength.Value;

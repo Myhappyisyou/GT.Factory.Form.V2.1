@@ -1,19 +1,21 @@
-﻿using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using EditJson;
-using System.IO;
-using System.Collections.Generic;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Common.Helpers;
+using GT.Factory.Common.Models;
+using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
 using GT.Factory.Station;
 using GT.Factory.Station.DriverForm.Batch;
-using GT.Factory.Station.Helper;
 using GT.Factory.Station.DriverForm.ComponentCache;
+using GT.Factory.Station.EditJson;
+using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.LanModelSync;
-using GT.Factory.Common.Models;
-using GT.Factory.Common.Enums;
 using GT.Factory.Station.Model;
-using GT.Factory.Common.Helper;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GT.Factory.Station.OP070
 {
@@ -22,12 +24,26 @@ namespace GT.Factory.Station.OP070
 
         private ComponentCacheForm ComponentCacheForm;
 
-        protected ControlEngine_new controlEngine;
+        protected ControlEngine controlEngine;
 
-        public MainForm() : base()
+        private readonly AppRuntime _runtime;
+
+        public MainForm(AppRuntime runtime)
+            : base(runtime)
         {
             this.Text = "MES_OP070";
+
+            if (runtime == null)
+                throw new ArgumentNullException("runtime");
+
+            _runtime = runtime;
+
         }
+
+        //public MainForm() : base()
+        //{
+        //    this.Text = "MES_OP070";
+        //}
 
         // 重写配置数据表格列
         protected override void ConfigureDataUIColumns()
@@ -55,24 +71,28 @@ namespace GT.Factory.Station.OP070
         }
 
         // 重写初始化
-        protected override async Task InitControlEngine()
-        {
-            if (controlEngine != null)
-            {
-                controlEngine.Shutdown();
-                controlEngine = null;
-            }
+        //protected override async Task InitControlEngine()
+        //{
+        //    DisplayLog.Info("[InitControlEngine] enter");
 
-            Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
-                PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
+        //    if (controlEngine != null)
+        //    {
+        //        controlEngine.Shutdown();
+        //        controlEngine = null;
+        //    }
 
-            controlEngine = new ControlEngine_new();
-            await controlEngine.Init();
-        }
+        //    Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
+        //        PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
+
+        //    controlEngine = new ControlEngine();
+        //    await controlEngine.Init();
+        //    DisplayLog.Info("[InitControlEngine] init done");
+
+        //}
 
         protected override ControlEngineBase CreateControlEngine()
         {
-            return new ControlEngine_new();
+            return new ControlEngine();
         }
 
         // 重写查询菜单，添加更多子项

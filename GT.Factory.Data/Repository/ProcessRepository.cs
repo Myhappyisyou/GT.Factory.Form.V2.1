@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
 using GT.Factory.Common.Helpers;
 using GT.Factory.Common.Models;
 using GT.Factory.Data.Abstractions;
@@ -666,23 +665,21 @@ namespace GT.Factory.Data.Repository
                 $"'', '', '0', '0', '0', {paramNames})";
 
             // 公共参数
-            var param = new List<SqlParameter>
-                    {
-                        new SqlParameter("@bar_no", processData.BarNo),
-                        new SqlParameter("@process_no", processData.ProcessNo),
-                        new SqlParameter("@vou_no", (object)processData.VouNo ?? "0"),
-                        new SqlParameter("@ok_flag", (object)processData.OkFlag ?? "NG"),
-                        new SqlParameter("@ng_msg", (object)processData.NgMsg ?? (object)processData.Data.NgMsg ?? "NG"),
-                        new SqlParameter("@user_id", (object)processData.UserId ?? "Unknown")
-                    };
+            var dp = new DynamicParameters();
+            dp.Add("@bar_no", processData.BarNo);
+            dp.Add("@process_no", processData.ProcessNo);
+            dp.Add("@vou_no", (object)processData.VouNo ?? "0");
+            dp.Add("@ok_flag", (object)processData.OkFlag ?? "NG");
+            dp.Add("@ng_msg", (object)processData.NgMsg ?? (object)processData.Data.NgMsg ?? "NG");
+            dp.Add("@user_id", (object)processData.UserId ?? "Unknown");
 
-            // 数据参数（空值用空字符串）
             for (int i = 0; i < allValues.Count; i++)
             {
-                param.Add(new SqlParameter($"@p{i}", allValues[i] ?? ""));
+                dp.Add($"@p{i}", allValues[i] ?? "");
             }
 
-            await db.ExecuteAsync(sql, param);
+
+            await db.ExecuteAsync(sql, dp);
         }
 
         /// <summary>

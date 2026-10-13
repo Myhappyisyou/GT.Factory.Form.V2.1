@@ -2,6 +2,7 @@
 using GT.Factory.LIN.Model;
 using GT.Factory.LIN.Project;
 using GT.Factory.LIN.ProjectDebug;
+using GT.Factory.LIN.Test.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
@@ -55,7 +56,7 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
             // LDF文件
             //
             string ldf =
-                @"C:\Users\ding0\Desktop\BYD_300W_HEV_ELOP_V1.2(1).ldf";
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\BYD_300W_HEV_ELOP_V1.2.ldf";
 
 
 
@@ -63,7 +64,7 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
             // LIN配置
             //
             string config =
-                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\LinConfig.json";
+                @"D:\盖特龙项目\2025\新建文件夹\程序\C#demo V2.1 - 副本\GT.Factory.LIN\bin\Config\BYD_300W\LIN\SimulationConfig.json";
 
 
 
@@ -86,7 +87,8 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
                     ldf,
                     config,
                     adapter,
-                    LinRunMode.Simulation);
+                    LinRunMode.Simulation,
+                    new LinTestProject());
 
 
 
@@ -505,62 +507,10 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
 
 
             Assert.IsTrue(
-                item.Signals.Count > 0);
+                item2.Signals.Count > 0);
 
         }
 
-
-        /// <summary>
-        /// 测试:
-        ///
-        /// Signal读写入口
-        ///
-        /// </summary>
-        [TestMethod]
-        public void Test_DebugSession_Signal_Access()
-        {
-
-
-            var project =
-                CreateProject();
-
-
-
-            var session =
-                new LinDebugSession(
-                    project);
-
-
-
-            //
-            // 设置Signal
-            //
-            session.SetSignalValue(
-                "WRITE_SPEED",
-                3000);
-
-
-
-            //
-            // 读取
-            //
-            var value =
-                session.GetSignalValue(
-                    "WRITE_SPEED");
-
-
-
-            Console.WriteLine(
-                $"Value:{value}");
-
-
-
-            Assert.IsNotNull(
-                value);
-
-
-
-        }
 
 
         [TestMethod]
@@ -618,6 +568,7 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
         project.Runtime.GetFrame(
             (byte)runtimeFrame.Id).Data)}");
 
+
             session.SetSignalValue(
                 signal.Name,
                 3000);
@@ -628,7 +579,13 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
             //
             session.RefreshFrames();
 
+            Assert.AreEqual(0x00, runtimeFrame.Data[0]);
+            Assert.AreEqual(0x00, runtimeFrame.Data[1]);
+            Assert.AreEqual(0xB8, runtimeFrame.Data[2]);
+            Assert.AreEqual(0x0B, runtimeFrame.Data[3]);
 
+            Assert.AreEqual(0xB8, runtimeFrame.Data[2]);
+            Assert.AreEqual(0x0B, runtimeFrame.Data[3]);
 
             Console.WriteLine(
                 $"Debug After:{BitConverter.ToString(runtimeFrame.Data)}");
@@ -686,6 +643,14 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
             session.SetSignalValue(
                 signal.Name,
                 3000);
+
+            Assert.AreEqual(
+    3000,
+    Convert.ToInt32(project.Runtime.GetSignalValue(signal.Name)));
+
+            Assert.AreEqual(
+                3000,
+                Convert.ToInt32(signal.Value));
 
 
 
@@ -773,8 +738,7 @@ namespace GT.Factory.LIN.Tests.ProjectDebug
 
             runtimeFrame.Data[3] = 0x78;
 
-
-
+            session.RefreshFrames();
 
             Console.WriteLine(
                 $"After Runtime:{BitConverter.ToString(runtimeFrame.Data)}");

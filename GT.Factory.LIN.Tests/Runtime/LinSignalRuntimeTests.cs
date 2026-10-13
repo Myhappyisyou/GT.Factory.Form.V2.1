@@ -172,6 +172,86 @@ namespace GT.Factory.LIN.Tests.Runtime
 
 
 
+        #region Multi-Frame Cache
+
+        [TestMethod]
+        public void Test_SetSignalValue_Updates_All_Related_FrameCaches()
+        {
+            var network =
+                new LinNetwork();
+
+            var signal =
+                new LinSignal
+                {
+                    Name = "SHARED_VALUE",
+                    InitialValue = 0,
+                    Length = 8
+                };
+
+            network.Signals.Add(signal);
+
+            var frame1 =
+                new LinFrame
+                {
+                    Name = "FrameOne",
+                    Id = 0x31,
+                    Length = 8
+                };
+
+            frame1.Signals.Add(
+                new LinFrameSignal
+                {
+                    Signal = signal,
+                    StartBit = 0
+                });
+
+            var frame2 =
+                new LinFrame
+                {
+                    Name = "FrameTwo",
+                    Id = 0x32,
+                    Length = 8
+                };
+
+            frame2.Signals.Add(
+                new LinFrameSignal
+                {
+                    Signal = signal,
+                    StartBit = 8
+                });
+
+            network.Frames.Add(frame1);
+            network.Frames.Add(frame2);
+
+            var runtime =
+                new LinRuntime(network);
+
+            var signalRuntime =
+                new LinSignalRuntime(runtime);
+
+            signalRuntime.SetValue(
+                "SHARED_VALUE",
+                0x5A);
+
+            Assert.AreEqual(
+                0x5A,
+                Convert.ToInt32(
+                    runtime.GetSignalValue(
+                        "SHARED_VALUE")));
+
+            Assert.AreEqual(
+                0x5A,
+                runtime.GetFrame(0x31).Data[0]);
+
+            Assert.AreEqual(
+                0x5A,
+                runtime.GetFrame(0x32).Data[1]);
+        }
+
+        #endregion
+
+
+
         #region Signal Value
 
 

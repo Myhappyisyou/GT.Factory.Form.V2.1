@@ -1,10 +1,10 @@
-﻿using GT.Factory.Common.Helper;
+﻿using GT.Factory.Common.Helpers;
 using GT.Factory.Common.Models;
-using GT.Factory.Station;
+using GT.Factory.Common.Models.Mes;
+using GT.Factory.Logging.Logging;
 using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.Helper;
 using GT.Factory.Station.Helper.ClientTask;
-using GT.Factory.Station.Helper.Logging;
 using GT.Factory.Station.Model;
 using GT.Factory.Station.MyEnum;
 using GT.Factory.UI.Apply;
@@ -24,16 +24,16 @@ namespace GT.Factory.Station.ProcessConfig
     {
         private readonly ComponentManager _componentManager;
         private readonly UploadManager _uploadManager;
-        private readonly AccessMdbHelper _db;
+        //private readonly AccessMdbHelper _db;
         private readonly List<Consumables> _consumables;
         private ClientTaskSender _sender;
         private readonly ProductionMonitor _productionMonitor;
 
-        public TestDataProcessor(ComponentManager componentManager, UploadManager uploadManager, AccessMdbHelper db, List<Consumables> Consumables, ClientTaskSender clientTask, ProductionMonitor productionMonitor)
+        public TestDataProcessor(ComponentManager componentManager, UploadManager uploadManager,  List<Consumables> Consumables, ClientTaskSender clientTask, ProductionMonitor productionMonitor)
         {
             _componentManager = componentManager;
             _uploadManager = uploadManager;
-            _db = db;
+            //_db = db;
             _consumables= Consumables;
             _sender = clientTask;
             _productionMonitor = productionMonitor;
@@ -48,17 +48,17 @@ namespace GT.Factory.Station.ProcessConfig
 
                 // ================= 第一阶段：前置准备(判断是否需要正式MES流程) =================
 
-                if (GetHistoryKindBySn(context.Sn) != HistoryKind.MyCsvData)
-                {
-                    var localList = BuildSaveItems(context);
+                //if (GetHistoryKindBySn(context.Sn) != HistoryKind.MyCsvData)
+                //{
+                //    var localList = BuildSaveItems(context);
 
-                    ShowCurrentDataOnUI(context, context.Sn, context.Data);
+                //    ShowCurrentDataOnUI(context, context.Sn, context.Data);
 
-                    SaveLocally(context, context.Sn, localList);
+                //    SaveLocally(context, context.Sn, localList);
 
-                    context.WritePlcResult = 1;
-                    return;
-                }
+                //    context.WritePlcResult = 1;
+                //    return;
+                //}
                 // ================= 第二阶段：条码解析(确定 MainBar、PartBar) =================
 
                 bool mainBarOk = ResolveBarInfo(context);
@@ -70,13 +70,24 @@ namespace GT.Factory.Station.ProcessConfig
                 DisplayLog.LogProcessFinishedBuildTestData(context.Process.Name, context.MainBar);
 
                 // ================= 第四阶段：MES相关逻辑 =================
-                bool needRemove = context.Process.PlcReadConfig.CombinedUpload?.IsFinalStep == true 
-                                   || context.Result == "NG";
+                // 获取当前流程的组合上传配置。
+                // PLC流程和仪器流程统一通过此方法获取。
+
+                CombinedUpload combinedUpload = GetCombinedUploadConfig(context);
+
+                bool needRemove = false;
+
+                // 组合上传最后一步时，需要更新当前产品状态。
+                if (combinedUpload != null && combinedUpload.IsFinalStep)
+                {
+                    needRemove = true;
+                }
+
+                needRemove = needRemove || context.Result == "NG";
 
                 if (needRemove)
                 {
                     Shared.currentBarNo = context.MainBar;
-
                     Shared.currentProductStatus = (ProductStatus)(context.Result == "NG" ? 2 : 1);
                 }
 
@@ -84,7 +95,8 @@ namespace GT.Factory.Station.ProcessConfig
                 bool mesOk = true;
                 bool shopOrderResult = true;
 
-                if (context.Process.PlcReadConfig.CombinedUpload?.IsEnabled == true)
+                // ========== 修改：使用接口判断 ==========
+                if (IsCombinedUploadEnabled(context))
                 {
                     var dataItem = UploadCombinedData(context, newList);
 
@@ -153,51 +165,114 @@ namespace GT.Factory.Station.ProcessConfig
         {
             bool mainBarOk = true;
 
-            switch (context.Process.SearchBarType)
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IBarSearchable searchable)
             {
-                case SearchBarType.NonFunctional:
-                    context.MainBar = context.Sn;
-                    context.PartBar = null;
+                switch (searchable.SearchBarType)
+                {
+                    case SearchBarType.NonFunctional:
+                        context.MainBar = context.Sn;
+                        context.PartBar = null;
+                        break;
 
-                    break;
-                case SearchBarType.MainBar:
+                    case SearchBarType.MainBar:
+                        context.PartBar = context.Sn;
+                        if (_componentManager.TryGetAssemblyCode(context.Sn, out var assembly))
+                        {
+                            context.MainBar = assembly;
+                            DisplayLog.Info($"流程【{context.Process.Name}】【{context.Sn}】查询到主码 【{assembly}】", true);
+                        }
+                        else
+                        {
+                            mainBarOk = false;
+                            DisplayLog.Warn($"流程【{context.Process.Name}】【{context.Sn}】需要主码但未绑定，降级使用SN", true);
+                            context.MainBar = context.Sn;
+                        }
+                        break;
 
-                    context.PartBar = context.Sn;
+                    case SearchBarType.PartBar:
+                        context.MainBar = context.Sn;
+                        if (_componentManager.TryGetComponentCode(context.Sn, out var component))
+                        {
+                            context.PartBar = component;
+                            DisplayLog.Info($"流程【{context.Process.Name}】【{context.Sn}】查询到部件码 【{component}】", true);
+                        }
+                        else
+                        {
+                            mainBarOk = false;
+                            DisplayLog.Warn($"流程【{context.Process.Name}】【{context.Sn}】未查询到部件码，降级使用SN", true);
+                            context.PartBar = "";
+                        }
+                        break;
 
-                    if (_componentManager.TryGetAssemblyCode(context.Sn, out var assembly))
-                    {
-                        context.MainBar = assembly;
-                        DisplayLog.Info($"流程【{context.Process.Name}】【{context.Sn}】查询到主码 【{assembly}】", true);
-                    }
-                    else
-                    {
-                        mainBarOk = false;
-                        DisplayLog.Warn($"流程【{context.Process.Name}】【{context.Sn}】需要主码但未绑定，降级使用SN", true);
-                        context.MainBar = context.Sn; // 降级
-                    }
-                    break;
-                case SearchBarType.PartBar:
-
-                    context.MainBar = context.Sn;
-
-                    if (_componentManager.TryGetComponentCode(context.Sn, out var component))
-                    {
-                        context.PartBar = component;
-                        DisplayLog.Info($"流程【{context.Process.Name}】【{context.Sn}】查询到部件码 【{component}】", true);
-                    }
-                    else
-                    {
-                        mainBarOk = false;
-                        DisplayLog.Warn($"流程【{context.Process.Name}】【{context.Sn}】未查询到部件码，降级使用SN", true);
-                        context.PartBar = "";
-                    }
-                    break;
-                default:
-                    context.MainBar = context.Sn;
-
-                    break;
+                    default:
+                        context.MainBar = context.Sn;
+                        break;
+                }
             }
+            else
+            {
+                // 如果流程不支持 SearchBarType，默认使用 Sn
+                context.MainBar = context.Sn;
+            }
+
             return mainBarOk;
+        }
+
+        /// <summary>
+        /// 判断当前流程是否启用组合数据上传。
+        /// PLC流程从 PlcReadConfig 获取配置，仪器流程从 InstrumentProcess 获取配置。
+        /// </summary>
+        private bool IsCombinedUploadEnabled(ProcessContext context)
+        {
+            IPlcReadable plcReadable = context.Process as IPlcReadable;
+
+            if (plcReadable != null
+                && plcReadable.PlcReadConfig != null
+                && plcReadable.PlcReadConfig.CombinedUpload != null
+                && plcReadable.PlcReadConfig.CombinedUpload.IsEnabled)
+            {
+                return true;
+            }
+
+            InstrumentProcess instrumentProcess = context.Process as InstrumentProcess;
+
+            if (instrumentProcess != null
+                && instrumentProcess.CombinedUpload != null
+                && instrumentProcess.CombinedUpload.IsEnabled)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 获取当前流程的组合上传配置。
+        /// PLC流程从 PlcReadConfig 获取，仪器流程从 InstrumentProcess 获取。
+        /// </summary>
+        private CombinedUpload GetCombinedUploadConfig(ProcessContext context)
+        {
+            // PLC流程使用原有的 PLC 组合上传配置。
+            IPlcReadable plcReadable = context.Process as IPlcReadable;
+
+            if (plcReadable != null
+                && plcReadable.PlcReadConfig != null)
+            {
+                return plcReadable.PlcReadConfig.CombinedUpload;
+            }
+
+            // 仪器流程使用 InstrumentProcess 自身的组合上传配置。
+            InstrumentProcess instrumentProcess =
+                context.Process as InstrumentProcess;
+
+            if (instrumentProcess != null)
+            {
+                return instrumentProcess.CombinedUpload;
+            }
+
+            // 当前流程不支持组合上传。
+            return null;
         }
 
         //  构建上传数据
@@ -206,8 +281,8 @@ namespace GT.Factory.Station.ProcessConfig
             var newList = context.Data.Select(x => new SaveItem
             {
                 Test_item_name = string.IsNullOrEmpty(x.Unit) ? x.Name : $"{x.Name}({x.Unit})",
-                Test_item_up = x.Upper.Value.ToString(),
-                Test_item_down = x.Lower.Value.ToString(),
+                Test_item_up = x.Upper.Value?.ToString(),
+                Test_item_down = x.Lower.Value?.ToString(),
                 Test_item_value = x.Value.Value.ToString(),
                 Test_item_unit = x.Unit,
                 Ok_flag = Convert.ToInt32(x.Result.Value) == 1 ? "OK" : "NG"
@@ -224,8 +299,8 @@ namespace GT.Factory.Station.ProcessConfig
             {
                 try
                 {
-                    ShowOnUI(context);
-                    await SendConsumablesTaskAsync(context);
+                    ShowOnUI(context, dataItem);
+                    //await SendConsumablesTaskAsync(context);
                     StandardProcessSaveToAccess(context, dataItem);
                     await UpdateConsumables(context);
                     await SendProcessPropertyAsync(context, dataItem);
@@ -238,18 +313,22 @@ namespace GT.Factory.Station.ProcessConfig
             });
         }
 
-        //  解绑
+        // 解绑
         private void RemoveBindingIfNeed(ProcessContext context)
         {
-            switch (context.Process.SearchBarType)
+            // ========== 修改：使用接口判断 ==========
+            if (context.Process is IBarSearchable searchable)
             {
-                case SearchBarType.MainBar:
-                    _componentManager.Remove(context.MainBar, true);
-                    break;
+                switch (searchable.SearchBarType)
+                {
+                    case SearchBarType.MainBar:
+                        _componentManager.Remove(context.MainBar, true);
+                        break;
 
-                case SearchBarType.PartBar:
-                    _componentManager.Remove(context.MainBar);
-                    break;
+                    case SearchBarType.PartBar:
+                        _componentManager.Remove(context.MainBar);
+                        break;
+                }
             }
         }
 
@@ -269,9 +348,9 @@ namespace GT.Factory.Station.ProcessConfig
                     DataItem = dataItem,
                     Process_no = context.Process.ProcessNo,
                     Order_no = Shared.workOrder,
-                    Operator_no = Shared.user.JobNub,
+                    Operator_no = Shared.user.JobNum,
                     Ok_flag = dataItem.Data_result,
-                    Do_time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Do_time = dataItem.Do_time,
                     Test_beat = context.TaktTime
                 });
 
@@ -373,7 +452,7 @@ namespace GT.Factory.Station.ProcessConfig
                 Process_no = context.Process.ProcessNo,
                 Order_no = Shared.workOrder,
                 Bar_no = sn,
-                Operator_no = Shared.user.JobNub,
+                Operator_no = Shared.user.JobNum,
                 Do_time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 Ok_flag = t.Ok_flag,
                 Test_beat = context.TaktTime,
@@ -432,22 +511,22 @@ namespace GT.Factory.Station.ProcessConfig
             lock (_lock)
             {
 
-                DatabaseSessionManager.EnsureDatabase();
+                //DatabaseSessionManager.EnsureDatabase();
                 AppRuntime.Current.DataRuntime.Repositories.Access.InsertProcessPropertyAsync(
                           context.Process.ProcessNo,
                           Shared.workOrder,
                           context.MainBar,
-                          Shared.user.JobNub,
+                          Shared.user.JobNum,
                           testData.Data_result,
                           context.TaktTime,
                           testData.Data_name,
                           testData.Data_up,
                           testData.Data_down,
                           testData.Data,
-                          DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                          testData.Do_time
                         ).GetAwaiter().GetResult();
 
-                var db = DbContext.CurrentDb;
+                //var db = DbContext.CurrentDb;
                 //bool result = UploadSql.Ac_InsertProcessPropertyWithResult(
                 //db,
                 //context.Process.ProcessNo,
@@ -470,9 +549,9 @@ namespace GT.Factory.Station.ProcessConfig
         {
             try
             {
-                DatabaseSessionManager.EnsureDatabase();
+                //DatabaseSessionManager.EnsureDatabase();
 
-                var db = DbContext.CurrentDb;
+                //var db = DbContext.CurrentDb;
 
                 foreach (var item in _consumables)
                 {
@@ -490,7 +569,7 @@ namespace GT.Factory.Station.ProcessConfig
         }
 
         //  下料DataUI显示
-        private void ShowOnUI(ProcessContext context)
+        private void ShowOnUI(ProcessContext context,DataItem dataItem)
         {
             Shared.Instance.dispItem.Enqueue(new TestDispItem
             {
@@ -498,8 +577,8 @@ namespace GT.Factory.Station.ProcessConfig
                 BarNo = context.MainBar,
                 MainBar = context.MainBar,
                 PartBar = context.PartBar,
-                DoTime = DateTime.Now.ToString(),
-                UserName = Shared.user.JobNub,
+                DoTime = dataItem.Do_time,
+                UserName = Shared.user.JobNum,
                 Ok_flag = context.Result,
                 MesResult = context.MesResult,
                 TaktTime = context.TaktTime,
@@ -522,21 +601,32 @@ namespace GT.Factory.Station.ProcessConfig
                 testData);  
         }
 
-        //  缓存绑定
+        // 缓存绑定
         private DataItem UploadCombinedData(ProcessContext context, List<SaveItem> testData)
         {
-            return ProcessMethods.UploadCombinedData(
-                context.MainBar,
-                context.Result,
-                context.ResultCode,
-                testData.Select(t => t.Test_item_name).ToArray(),
-                testData.Select(t => t.Ok_flag).ToArray(),
-                testData.Select(t => t.Test_item_value).ToArray(),
-                testData.Select(t => t.Test_item_up).ToArray(),
-                testData.Select(t => t.Test_item_down).ToArray(),
-                context.Process,
-                _uploadManager
-            );
+            // 没有测试数据时，不执行组合上传。
+            if (testData == null || testData.Count == 0)
+                return null;
+
+            // 获取当前流程的组合上传配置。
+            CombinedUpload combinedUpload = GetCombinedUploadConfig(context);
+
+            // 没有组合上传配置时，不执行组合上传。
+            if (combinedUpload == null || !combinedUpload.IsEnabled)
+                return null;
+
+                return ProcessMethods.UploadCombinedData(
+                    context.MainBar,
+                    context.Result,
+                    context.ResultCode,
+                    testData.Select(t => t.Test_item_name).ToArray(),
+                    testData.Select(t => t.Ok_flag).ToArray(),
+                    testData.Select(t => t.Test_item_value).ToArray(),
+                    testData.Select(t => t.Test_item_up).ToArray(),
+                    testData.Select(t => t.Test_item_down).ToArray(),
+                    combinedUpload,
+                    _uploadManager
+                );
         }
 
         //  展示CurrentProductDataUI
@@ -546,9 +636,9 @@ namespace GT.Factory.Station.ProcessConfig
                    testData.Select(item => new TestItemMD
                    {
                        Col0 = item.Name,
-                       Col1 = item.Upper.Value.ToString() + item.Unit,
+                       Col1 = string.IsNullOrEmpty(item.Upper.Value?.ToString()) ? item.Upper.Value?.ToString():item.Upper.Value?.ToString() + item.Unit,
                        Col2 = item.Value.Value.ToString() + item.Unit,
-                       Col3 = item.Lower.Value.ToString() + item.Unit,
+                       Col3 = string.IsNullOrEmpty(item.Lower.Value?.ToString()) ? item.Lower.Value?.ToString() : item.Lower.Value?.ToString() + item.Unit,
                        Col4 = Convert.ToInt32(item.Result.Value) == 1 ? "OK" : "NG"
                    }).ToList()
                );
@@ -582,15 +672,15 @@ namespace GT.Factory.Station.ProcessConfig
            壳体批次号,,AAAA!
            "*/
 
-            string testTitle = $"!总成条码,测试信息,{context.MainBar}!产线名称,测试信息,L型自动2线!工位名称,测试信息,{Shared.ProcessName}!当前工单,测试信息,{context.MesOrder}!当前配方名,测试信息,{Shared.productName}!操作人工号,测试信息,{Shared.user.JobNub}!测试时间,测试信息,{DateTime.Now}!测试总结果,测试信息,{context.Result}!实际节拍,测试信息,{context.TaktTime}!MES上传结果,测试信息,";
+            string testTitle = $"!总成条码,测试信息,{context.MainBar}!产线名称,测试信息,L型自动2线!工位名称,测试信息,{Shared.ProcessName}!当前工单,测试信息,{context.MesOrder}!当前配方名,测试信息,{Shared.productName}!操作人工号,测试信息,{Shared.user.JobNum}!测试时间,测试信息,{DateTime.Now}!测试总结果,测试信息,{context.Result}!实际节拍,测试信息,{context.TaktTime}!MES上传结果,测试信息,";
 
-            string partBarInfo = string.IsNullOrEmpty(context.PartBar) ? "" : $"!零部件1条码,测试信息,{context.PartBar}!";
+            string partBarInfo = string.IsNullOrEmpty(context.PartBar) ? "" : $"!零部件1条码,测试信息,{context.PartBar}";
 
             string partList = BuildMesText(Shared.Instance.partRuntimes);
 
             string testItme = $"{testTitle}{partBarInfo}{partList}{GenerateResultStr(testData)}{GenerateFieldStr(testData)}";
             //  BYD-MES 
-            BydMesCom.条码上传(context.Result == "OK", context.MainBar, testItme, out bool 验证成功, out string MES反馈, out string XMLOUT);
+            BydMesCom.条码上传(context.Result == "OK", context.MainBar, Shared.user.JobNum, testItme, out bool 验证成功, out string MES反馈, out string XMLOUT);
 
             return 验证成功;
         }

@@ -46,15 +46,7 @@ namespace GT.Factory.LIN.Test.Model
             set;
         }
 
-        /// <summary>
-        /// LIN协议文件
-        /// </summary>
-        public string LdfFile
-        {
-            get;
-            set;
-        }
-
+        
         /// <summary>
         /// 测试案例集合
         /// </summary>

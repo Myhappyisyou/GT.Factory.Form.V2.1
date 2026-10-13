@@ -31,9 +31,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=9.0.0.6, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.9.0.6\lib\net462\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,7 +61,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ProductCodeEnums\CodeSegmentType.cs" />
+    <Compile Include="Enums\ProductCodeEnums\DateFormatType.cs" />
+    <Compile Include="Enums\ProductCodeEnums\DatePartMode.cs" />
+    <Compile Include="Enums\ProductCodeEnums\PaddingDirection.cs" />
+    <Compile Include="Enums\ProductCodeEnums\SerialResetMode.cs" />
+    <Compile Include="Helpers\ConfigManager.cs" />
+    <Compile Include="Helpers\JsonService.cs" />
     <Compile Include="Helpers\ObjectExtensions.cs" />
+    <Compile Include="Helpers\PropertyOrderSort.cs" />
+    <Compile Include="Helpers\SerializeHelper.cs" />
+    <Compile Include="Interfaces\IConfigProvider.cs" />
+    <Compile Include="Interfaces\IMesService.cs" />
+    <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Models\AccessModel.cs" />
     <Compile Include="Models\AlarmParse.cs" />
     <Compile Include="Helpers\CommMethod.cs" />
@@ -53,8 +84,15 @@
     <Compile Include="Models\CalibrationOrPeriodInspection.cs" />
     <Compile Include="Models\Consumables.cs" />
     <Compile Include="Models\DataItem.cs" />
+    <Compile Include="Models\Mes\ShopOrderInfo.cs" />
     <Compile Include="Models\ParamatersLimit.cs" />
     <Compile Include="Models\ProcessPropertyPayload.cs" />
+    <Compile Include="Models\ProductCode\CodeRule.cs" />
+    <Compile Include="Models\ProductCode\CodeRuleDetail.cs" />
+    <Compile Include="Models\ProductCode\ProductCodeResult.cs" />
+    <Compile Include="Models\ProductCode\SerialNumberRecord.cs" />
+    <Compile Include="Models\ProductModel\GTProductModel.cs" />
+    <Compile Include="Models\ProductModel\GTProductPart.cs" />
     <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Models\ResultCodeParse.cs" />
     <Compile Include="Models\ReworkQueryResult.cs" />
@@ -65,7 +103,8 @@
     <Compile Include="Models\RequestModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Interfaces\" />
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

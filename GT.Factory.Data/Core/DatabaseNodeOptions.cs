@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace GT.Factory.Data.Core
 {
+
+
     /// <summary>
     /// 单个数据库节点配置
     /// 表示一个数据库连接

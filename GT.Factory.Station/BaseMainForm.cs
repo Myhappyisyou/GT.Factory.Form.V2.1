@@ -1,32 +1,35 @@
-﻿using EditJson;
-using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
+﻿using GT.Factory.Common.Enums;
+using GT.Factory.Common.Helpers;
 using GT.Factory.Common.Models;
+using GT.Factory.Data.Config;
 using GT.Factory.Data.Core;
 using GT.Factory.Data.Repository;
 using GT.Factory.Data.Service;
+using GT.Factory.GTUser.Repository;
+using GT.Factory.Logging.Logging;
+using GT.Factory.Login;
+using GT.Factory.Login.Login;
+using GT.Factory.Management.UI.ConfigCenter;
+using GT.Factory.Management.UI.GTUser;
+using GT.Factory.Management.UI.ProductCode.Forms;
+using GT.Factory.MES.BydMes;
+using GT.Factory.RFID.Aynettek;
 using GT.Factory.Station.Components;
 using GT.Factory.Station.DriverForm.Alarm;
-using GT.Factory.Station.DriverForm.Aynettek;
 using GT.Factory.Station.DriverForm.Batch;
 using GT.Factory.Station.DriverForm.CacheViewer;
-using GT.Factory.Station.DriverForm.ConfigCenter;
 using GT.Factory.Station.DriverForm.ConsumableEdit;
 using GT.Factory.Station.DriverForm.Database;
-using GT.Factory.Station.DriverForm.Login;
+using GT.Factory.Station.DriverForm.Instrument;
 using GT.Factory.Station.DriverForm.ModelSelectForm;
 using GT.Factory.Station.DriverForm.Order;
 using GT.Factory.Station.DriverForm.ProductCode;
 using GT.Factory.Station.DriverForm.Recipe;
 using GT.Factory.Station.DriverForm.SearchForm;
 using GT.Factory.Station.DriverForm.SpecialForm;
-using GT.Factory.Station.DriverForm.UserEdit;
+using GT.Factory.Station.EditJson;
 using GT.Factory.Station.Helper;
-using GT.Factory.Station.Helper.BydMes;
-using GT.Factory.Station.Helper.BydUser;
 using GT.Factory.Station.Helper.LanModelSync;
-using GT.Factory.Station.Helper.Logging;
-using GT.Factory.Station.Helper.Mssql;
 using GT.Factory.Station.Helper.UIHelp;
 using GT.Factory.Station.Model;
 using RecipeParameter;
@@ -44,7 +47,10 @@ namespace GT.Factory.Station
 {
     public partial class BaseMainForm : Form
     {
+        #region 属性
+
         protected JsonService _jsonService = new JsonService();
+        protected readonly AppRuntime Runtime;
 
         protected DeviceStatus currentStatus;
         protected DeviceStatusReporter reporter;
@@ -68,13 +74,18 @@ namespace GT.Factory.Station
         protected ContextMenuStrip trayMenu;
         protected bool isRealExit = false;
 
-        protected DataRuntime _dataRuntime;
+
+        #endregion
+
+
         #region 窗口字段（声明为 protected，子类可访问）
+
         protected AynettekForm aynettekForm;
         protected SyncMonitorForm syncMonitorForm;
         protected SearchForm searchForm;
         protected SearchCheckForm searchCheckForm;
-        protected EditJsonForm editJsonForm;
+        protected EditPlcConfigJsonForm plcConfigEditJsonForm;
+        protected InstrumentConfigForm instrumentConfigForm;
         protected RecipeForm recipeForm;
         protected SearchRecipeForm searchRecipeForm;
         protected AlarmForm AlarmForm;
@@ -87,14 +98,39 @@ namespace GT.Factory.Station
         protected RecipeChangeLogForm RecipeChangeLogForm;
         protected ConfigCenterForm ConfigCenterForm;
         protected ProductCodeConfigForm ProductCodeConfigForm;
+        protected ProductCodeRuleManageForm ProductCodeRuleForm;
+
         protected BydMesForm OrderForm;
         protected UserManageForm userManageForm;
+
+        
         #endregion
 
         public static event Action OnAppClosing;
 
+        //protected BaseMainForm(AppRuntime runtime)
+        //{
+        //    if (runtime == null)
+        //        throw new ArgumentNullException("runtime");
+
+        //    Runtime = runtime;
+
+        //    // 将原 BaseMainForm 无参构造函数中的公共初始化代码
+        //    // 迁移到这里，确保公共初始化逻辑只执行一次。
+        //    // 例如：托盘、菜单、状态栏、公共 UI 等。
+        //}
+
         public BaseMainForm()
         {
+           
+        }
+
+        protected BaseMainForm(AppRuntime runtime)
+        {
+            if (runtime == null)
+                throw new ArgumentNullException("runtime");
+
+            Runtime = runtime;
 
             this.WindowState = FormWindowState.Maximized;
             this.MaximizeBox = true;
@@ -104,12 +140,27 @@ namespace GT.Factory.Station
             if (IsDesignMode)
                 return;
 
+            ConfigManager.Register(
+                LoginConfigProvider.Instance);
+
+            ConfigManager.Register(
+                MesConfigProvider.Instance);
+
+            ConfigManager.Register(
+               DatabaseConfigProvider.Instance);
+
+            ConfigManager.Register(
+              WebApiConfigProvider.Instance);
+
+            ConfigManager.Register(
+              UIDConfigProvider.Instance);
+
             Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
              PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
 
-            _dataRuntime = new DataRuntime(Config.Instance.DatabaseOptions);
 
             InitTrayIcon();
+
             this.FormClosing += MainForm_FormClosing;
 
             InitFormLayout();
@@ -121,6 +172,8 @@ namespace GT.Factory.Station
             this.Load += MainForm_Load;
             UiRefreshCenter.Start();
         }
+
+        #region 初始化托盘
 
         protected virtual void InitTrayIcon()
         {
@@ -137,6 +190,11 @@ namespace GT.Factory.Station
             };
             trayIcon.DoubleClick += (s, e) => ShowMainForm(s, e);
         }
+
+        #endregion
+
+
+        #region 初始化服务
 
         protected virtual void InitServices()
         {
@@ -158,6 +216,14 @@ namespace GT.Factory.Station
             };
             heartbeatMonitor.Start();
         }
+
+
+        #endregion
+
+
+
+        #region UI初始化
+
 
         // 虚方法，子类可重写布局
         protected virtual void InitFormLayout()
@@ -201,7 +267,7 @@ namespace GT.Factory.Station
             currentProductDataUI = new CurrentProductDataUI { Dock = DockStyle.Fill };
             leftLayout.Controls.Add(currentProductDataUI, 0, 1);
 
-            dataUI = new DataUI(Config.Instance.ProcessName, _dataRuntime) { Dock = DockStyle.Fill };
+            dataUI = new DataUI(Config.Instance.ProcessName, Runtime.DataRuntime) { Dock = DockStyle.Fill };
             ConfigureDataUIColumns(); // 子类可重写
             leftLayout.Controls.Add(dataUI, 0, 2);
 
@@ -271,6 +337,8 @@ namespace GT.Factory.Station
             AddMenuItem(menu, "生产数据查询", tsm_SearchFormClicked);
             AddMenuItem(menu, "点检数据查询", tsm_SearchCheckFormClicked);
             AddMenuItem(menu, "缓存查看", tsm_CacheViewerClicked);
+            AddMenuItem(menu, "易损件查看", tsm_ConsumableEditClicked);
+
             AddMenuItem(menu, "查看参数配置展示", tsm_SearchRecipeFormClicked);
             AddMenuItem(menu, "配方参数修改日志", tsm_RecipeChangeLogClicked);
 
@@ -282,11 +350,14 @@ namespace GT.Factory.Station
         {
             var menu = new ToolStripMenuItem("配置");
             AddMenuItem(menu, "PLC配置", tsm_JsonFormClicked);
+            AddMenuItem(menu, "仪器配置", tsm_InstrumentFormClicked);
             AddMenuItem(menu, "参数配置", tsm_RecipeFormClicked);
             AddMenuItem(menu, "报警配置", tsm_AlarmFormClicked);
             AddMenuItem(menu, "系统配置", tsm_ConfigCenterFormClicked);
             AddMenuItem(menu, "用户管理", tsm_UserManageClicked);
             AddMenuItem(menu, "产品码配置", tsm_ProductCodeConfigFormClicked);
+            AddMenuItem(menu, "编码规则配置", tsm_ProductCodeRuleFormClicked);
+
             AddMenuItem(menu, "BYD_MES测试", tsm_BydMesViewerClicked);
             AddMenuItem(menu, "屏蔽", tsm_BlockViewerClicked);
 
@@ -325,7 +396,11 @@ namespace GT.Factory.Station
             parent.DropDownItems.Add(item);
         }
 
+        #endregion
+
+
         #region 公共方法
+
         protected virtual void InitStatus()
         {
             string lastModel = LoadLastUsedModel();
@@ -337,28 +412,11 @@ namespace GT.Factory.Station
             Shared.productName = currentStatus.ModelName;
         }
 
-        //protected virtual void InitControlEngine()
-        //{
-        //    if (controlEngine != null)
-        //    {
-        //        controlEngine.Shutdown();
-        //        controlEngine = null;
-        //    }
 
-        //    Shared.productModel = _jsonService.LoadFromFile<ProductModel>(
-        //        PathCenter.ConfigFile(Path.Combine("model", $"{Shared.productName}.json")));
-
-        //    controlEngine = new ControlEngine();
-        //    controlEngine.Init();
-        //}
-
-        protected virtual ControlEngineBase CreateControlEngine()
-        {
-            // 给个默认实现，这样才不会报错
-            return null;
-        }
         protected virtual async Task InitControlEngine()
         {
+            DisplayLog.Info("[InitControlEngine] enter");
+
             if (controlEngine != null)
             {
                 controlEngine.Shutdown();
@@ -370,18 +428,28 @@ namespace GT.Factory.Station
 
             controlEngine = CreateControlEngine();
             await controlEngine.Init();
+            DisplayLog.Info("[InitControlEngine] init done");
+
+        }
+
+        protected virtual ControlEngineBase CreateControlEngine()
+        {
+            // 给个默认实现
+            return null;
         }
 
         protected virtual void ApplyModel(ProductModel model)
         {
             Invoke((MethodInvoker)(async () =>
             {
+                DisplayLog.Info($"[ApplyModel] controlEngine is null = {controlEngine == null}");
+
                 currentStatus.Status = "Busy";
                 Shared.productName = model.BaseInfo.ProductName;
                 Shared.productCode = model.BaseInfo.ProductCode;
                 Shared.productModel = model;
                 _jsonService.SaveToFile<ProductModel>(
-                    PathCenter.ConfigFile(Path.Combine("model", $"{model.BaseInfo.ProductName}.json")), model);
+                    PathCenter.ConfigFile(PathCenter.ModelFile(model.BaseInfo.ProductName, $"{model.BaseInfo.ProductName}.json")), model);
 
                 SaveLastUsedModel(model.BaseInfo.ProductName);
                 await Task.Delay(2000);
@@ -449,7 +517,7 @@ namespace GT.Factory.Station
         protected virtual void tsm_AynettekFormClicked(object sender, EventArgs e)
         {
             if (aynettekForm?.IsDisposed != false)
-                aynettekForm = new AynettekForm(LocalConfig.Instance.UIDIP, LocalConfig.Instance.UIDPort);
+                aynettekForm = new AynettekForm(UIDConfigProvider.Instance.Settings.UIDIP, UIDConfigProvider.Instance.Settings.UIDPort);
             aynettekForm.Show();
         }
         /// <summary>
@@ -487,7 +555,7 @@ namespace GT.Factory.Station
                 Data = new[] { "12.3", "45.6", "78.9" }
             };
 
-            _dataRuntime.ProcessService.UploadAsync(payload);
+            Runtime.DataRuntime.ProcessService.UploadAsync(payload).ConfigureAwait(false);
 
             if (syncMonitorForm?.IsDisposed != false)
                 syncMonitorForm = new SyncMonitorForm(healthMonitor,syncRepo,syncService, dbManager.Primary);
@@ -501,7 +569,7 @@ namespace GT.Factory.Station
         protected virtual void tsm_SearchFormClicked(object sender, EventArgs e)
         {
             if (searchForm?.IsDisposed != false)
-                searchForm = new SearchForm(LocalConfig.Instance.ProcessName, _dataRuntime);
+                searchForm = new SearchForm(LocalConfig.Instance.ProcessName, Runtime.DataRuntime);
             //searchForm = new SearchForm();
 
             searchForm.Show();
@@ -515,7 +583,7 @@ namespace GT.Factory.Station
         private void tsm_SearchCheckFormClicked(object sender, EventArgs e)
         {
             if (searchCheckForm?.IsDisposed != false)
-                searchCheckForm = new SearchCheckForm(LocalConfig.Instance.ProcessName, _dataRuntime);
+                searchCheckForm = new SearchCheckForm(LocalConfig.Instance.ProcessName, Runtime.DataRuntime);
             searchCheckForm.Show();
         }
 
@@ -529,6 +597,18 @@ namespace GT.Factory.Station
             if (CacheViewerForm?.IsDisposed != false)
                 CacheViewerForm = new CacheViewerForm();
             CacheViewerForm.Show();
+        }
+
+        /// <summary>
+        /// 缓存查看
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void tsm_ConsumableEditClicked(object sender, EventArgs e)
+        {
+            //if (ConsumableEditForm?.IsDisposed != false)
+            //    ConsumableEditForm = new ConsumableEditForm(LocalConfig.Instance.ProcessName);
+            //ConsumableEditForm.Show();
         }
 
         /// <summary>
@@ -562,9 +642,21 @@ namespace GT.Factory.Station
         /// <param name="e"></param>
         protected virtual void tsm_JsonFormClicked(object sender, EventArgs e)
         {
-            if (editJsonForm?.IsDisposed != false)
-                editJsonForm = new EditJsonForm();
-            editJsonForm.Show();
+            if (plcConfigEditJsonForm?.IsDisposed != false)
+                plcConfigEditJsonForm = new EditPlcConfigJsonForm();
+            plcConfigEditJsonForm.Show();
+        }
+
+        /// <summary>
+        /// PLC配置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void tsm_InstrumentFormClicked(object sender, EventArgs e)
+        {
+            if (instrumentConfigForm?.IsDisposed != false)
+                instrumentConfigForm = new InstrumentConfigForm();
+            instrumentConfigForm.Show();
         }
 
         /// <summary>
@@ -622,7 +714,8 @@ namespace GT.Factory.Station
             AuthHelper.RequireLogin(UserLevel.PE, user =>
             {
                 if (userManageForm?.IsDisposed != false)
-                    userManageForm = new UserManageForm(_dataRuntime);
+                    userManageForm = new UserManageForm(new LocalUserService(
+                    new LocalUserRepository(Runtime.DataRuntime.Database)));
                 userManageForm.Show();
             });
         }
@@ -639,6 +732,21 @@ namespace GT.Factory.Station
                 if (ProductCodeConfigForm?.IsDisposed != false)
                     ProductCodeConfigForm = new ProductCodeConfigForm();
                 ProductCodeConfigForm.Show();
+            });
+        }
+
+        /// <summary>
+        /// 编码规则配置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tsm_ProductCodeRuleFormClicked(object sender, EventArgs e)
+        {
+            AuthHelper.RequireLogin(UserLevel.PE, user =>
+            {
+                if (ProductCodeRuleForm?.IsDisposed != false)
+                    ProductCodeRuleForm = new ProductCodeRuleManageForm(Runtime.ProductModelService, Runtime.ProductPartRepository, Runtime.ProductCodeRuleService);
+                ProductCodeRuleForm.Show();
             });
         }
 
@@ -728,9 +836,9 @@ namespace GT.Factory.Station
             //if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             //    return;
 
-            Config.Save();
-            LocalConfig.Save();
-            DbShiftManager.EnsureShiftDb();
+            //Config.Save();
+            //LocalConfig.Save();
+            //DbShiftManager.EnsureShiftDb();
 
             InitServices();
 

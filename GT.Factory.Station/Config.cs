@@ -1,8 +1,7 @@
 ﻿using GT.Factory.Common.Enums;
-using GT.Factory.Common.Helper;
+using GT.Factory.Common.Helpers;
 using GT.Factory.Data.Core;
-using GT.Factory.Station.DriverForm.Login;
-using GT.Factory.Station.Helper;
+using GT.Factory.Login.Login;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -63,15 +62,10 @@ namespace GT.Factory.Station
 
         public string Vison { get; set; } = "V1.0";
 
-        #endregion
-
-        #region 公司信息
-
-        public string SupplierInformation { get; set; } = "均普";
-
-        public string AfterSaleCall { get; set; } = "*******";
 
         #endregion
+
+     
 
         #region plc配方数据信息
 
@@ -99,19 +93,7 @@ namespace GT.Factory.Station
 
         #region Access
 
-        //public string userdbPath { get; set; } = @"\\192.168.4.239\Access\Users_Data.mdb"; // 目标电脑 IP 和共享名
-        //public string datadbPath { get; set; } = @"\\192.168.4.239\Access\生产数据"; // 目标电脑 IP 和共享名
-
-        //public string sharedbPath { get; set; } = @"\\127.0.0.1\Access"; // 目标电脑 IP 和共享名
-        //public string remoteDbUserdbPath { get; set; } = @"\\127.0.0.1\Access\Users_Data.mdb"; // 目标电脑 IP 和共享名
-        //public string remoteDbDatadbPath { get; set; } = @"\\127.0.0.1\Access\生产数据"; // 目标电脑 IP 和共享名
-        //public string serverDbtask { get; set; } = @"http://127.0.0.1:4444/dbtask/"; // 目标电脑 IP 和共享名
-        //public string serverApi { get; set; } = @"http://127.0.0.1:4443/"; // 目标电脑 IP 和共享名
-
-
-        //public string sharedbPath { get; set; } = @"\\192.168.1.232\生产数据"; // 目标电脑 IP 和共享名
-        //public string remoteDbUserdbPath { get; set; } = @"\\192.168.1.232\BYD_Users\Users_Data.mdb"; // 目标电脑 IP 和共享名
-        //public string remoteDbDatadbPath { get; set; } = @"\\192.168.1.232\生产数据"; // 目标电脑 IP 和共享名
+     
         [Category("服务配置"), DisplayName("用户信息数据库")]
         [Browsable(false)]
         public string UserdbPath { get; set; } = @"D:\BYD_Users\Users_Data.mdb"; // 目标电脑 IP 和共享名
@@ -131,8 +113,6 @@ namespace GT.Factory.Station
 
         #endregion
 
-        //public List<ActionTipModel> lsActionTipModels { get; set; }
-
 
         #region  过站检前站及当站名
 
@@ -142,16 +122,6 @@ namespace GT.Factory.Station
 
         #endregion
 
-        #region  UID
-
-        public bool EnableCardReader { get; set; } = false;
-
-        // UID
-        public string UIDIP { get; set; } = "192.168.4.91"; //    OP070
-
-        public int UIDPort { get; set; } = 1030;
-
-        #endregion
 
         #region csv保存
 
@@ -232,6 +202,15 @@ namespace GT.Factory.Station
 
         [Category("MES配置"), DisplayName("物料版本")]
         public string MeterVison { get; set; } = "V1.0"; //请求服务器超时
+
+        [Category("MES配置"), DisplayName("前道资源号")]
+        public string FrontResource { get; set; } = "Z1-SAB-01-ZP"; //资源号 MES 中对应资源
+
+        [Category("MES配置"), DisplayName("前道工序")]
+        public string FrontOperation { get; set; } = "SAB-ZP"; //操作号 MES 中对应工序
+
+        [Category("MES配置"), DisplayName("前道查询项")]
+        public string FrontTestItem { get; set; } = "SAB-ZP"; //操作号 MES 中对应工序
 
         [Category("MES_API配置"), DisplayName("接口Url")]
         public string ApiUrl { get; set; } = "http://qngcpms.byd.com:2080"; //API接口路由

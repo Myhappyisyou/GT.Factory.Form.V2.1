@@ -78,6 +78,14 @@
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.2.1.79\lib\net461\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="GT.Factory.Instrument">
+      <HintPath>bin\Config\GT.Factory.Instrument.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GT.Factory.Instrument.ItechPower">
+      <HintPath>bin\Config\GT.Factory.Instrument.ItechPower.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="HslCommunication">
       <HintPath>bin\Config\HslCommunication.dll</HintPath>
     </Reference>
@@ -263,9 +271,6 @@
     <Compile Include="DriverForm\Alarm\AlarmForm.Designer.cs">
       <DependentUpon>AlarmForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DriverForm\Aynettek\AynettekMethode.cs" />
-    <Compile Include="DriverForm\Aynettek\IRfidService.cs" />
-    <Compile Include="DriverForm\Aynettek\RfidService.cs" />
     <Compile Include="DriverForm\Batch\BatchConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -308,7 +313,6 @@
     <Compile Include="DriverForm\ComponentCache\ComponentCacheForm.Designer.cs">
       <DependentUpon>ComponentCacheForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DriverForm\ConfigCenter\CategoryWrapper.cs" />
     <Compile Include="DriverForm\ConsumableEdit\ConsumableEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -369,6 +373,9 @@
     <Compile Include="DriverForm\EditJson\Components\PlcReadConfigEditor.Designer.cs">
       <DependentUpon>PlcReadConfigEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="DriverForm\EditJson\Components\PlcWriteConfigEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="DriverForm\EditJson\Components\ResultConfigEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -384,12 +391,11 @@
     <Compile Include="DriverForm\EditJson\ConfigValidator.cs" />
     <Compile Include="DriverForm\EditJson\DescriptiveWrapper.cs" />
     <Compile Include="DriverForm\EditJson\IApplyChanges.cs" />
-    <Compile Include="DriverForm\EditJson\JsonService.cs" />
-    <Compile Include="DriverForm\EditJson\EditJsonForm.cs">
+    <Compile Include="DriverForm\EditJson\EditPlcConfigJsonForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DriverForm\EditJson\EditJsonForm.Designer.cs">
-      <DependentUpon>EditJsonForm.cs</DependentUpon>
+    <Compile Include="DriverForm\EditJson\EditPlcConfigJsonForm.Designer.cs">
+      <DependentUpon>EditPlcConfigJsonForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DriverForm\EditJson\ProcessEditorForm.cs">
       <SubType>Form</SubType>
@@ -397,41 +403,14 @@
     <Compile Include="DriverForm\EditJson\ProcessEditorForm.Designer.cs">
       <DependentUpon>ProcessEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DriverForm\ConfigCenter\ConfigCenterForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DriverForm\ConfigCenter\ConfigCenterForm.Designer.cs">
-      <DependentUpon>ConfigCenterForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="DriverForm\InputDialog\InputDialogForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DriverForm\Login\AccountIdentityProvider.cs" />
-    <Compile Include="DriverForm\Login\CardIdentityProvider.cs" />
-    <Compile Include="DriverForm\Login\IdentityProviderFactory.cs" />
-    <Compile Include="DriverForm\Login\IIdentityProvider.cs" />
-    <Compile Include="DriverForm\Login\ILoginView.cs" />
-    <Compile Include="DriverForm\Login\LoginConfig.cs" />
-    <Compile Include="DriverForm\Login\LoginForm .cs">
+    <Compile Include="DriverForm\Instrument\InstrumentConfigEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DriverForm\Login\LoginForm .Designer.cs">
-      <DependentUpon>LoginForm .cs</DependentUpon>
-    </Compile>
-    <Compile Include="DriverForm\Login\LoginService.cs" />
-    <Compile Include="DriverForm\Login\LoginTheme.cs" />
-    <Compile Include="DriverForm\Login\PasswordDialog.cs">
+    <Compile Include="DriverForm\Instrument\InstrumentConfigForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DriverForm\Login\PasswordDialog.Designer.cs">
-      <DependentUpon>PasswordDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DriverForm\Login\RoleIdentityProvider.cs" />
-    <Compile Include="DriverForm\Login\RoleLoginView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="DriverForm\Login\RoleLoginView.Designer.cs">
-      <DependentUpon>RoleLoginView.cs</DependentUpon>
     </Compile>
     <Compile Include="DriverForm\ModelSelectForm\ModelSelectForm.cs">
       <SubType>Form</SubType>
@@ -522,60 +501,20 @@
     <Compile Include="DriverForm\SpecialForm\SpecialForm.Designer.cs">
       <DependentUpon>SpecialForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DriverForm\UserEdit\UserEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DriverForm\UserEdit\UserEditForm.Designer.cs">
-      <DependentUpon>UserEditForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DriverForm\UserEdit\UserManageForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DriverForm\UserEdit\UserManageForm.Designer.cs">
-      <DependentUpon>UserManageForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Helper\AccessDbManager.cs" />
-    <Compile Include="Helper\AccessMdbHelper.cs" />
-    <Compile Include="Helper\AccessShortConnectionHelper.cs" />
     <Compile Include="Helper\Alarms\Alarm.cs" />
     <Compile Include="Helper\Alarms\UploadAlarm.cs" />
-    <Compile Include="Helper\AuthHelper.cs" />
-    <Compile Include="Helper\BydMes\BydMesCom.cs" />
-    <Compile Include="Helper\BydMes\BydMesComAsync.cs" />
-    <Compile Include="Helper\BydMes\IMesService.cs" />
-    <Compile Include="Helper\BydMes\MesService.cs" />
-    <Compile Include="Helper\BydUser\ILocalUserService.cs" />
-    <Compile Include="Helper\BydUser\IUserService.cs" />
-    <Compile Include="Helper\BydUser\LocalUserService.cs" />
-    <Compile Include="Helper\BydUser\UserApiService.cs" />
     <Compile Include="Helper\ClientTask\ClientTaskSender.cs" />
     <Compile Include="Helper\CommMethod.cs" />
     <Compile Include="Helper\ComponentManager.cs" />
     <Compile Include="Helper\ConsumablesConfigManager.cs" />
     <Compile Include="Helper\CsvSaver.cs" />
     <Compile Include="Helper\CsvSaverAsync.cs" />
-    <Compile Include="Helper\DatabaseInitializer.cs" />
-    <Compile Include="Helper\DatabaseSessionManager.cs" />
-    <Compile Include="Helper\DbContext.cs" />
     <Compile Include="Helper\EnumHelper.cs" />
     <Compile Include="Helper\FacilityState.cs" />
     <Compile Include="Helper\FtpHelper.cs" />
     <Compile Include="Helper\HightFindFiles.cs" />
     <Compile Include="Helper\LanModelSync\DeviceStatus.cs" />
-    <Compile Include="Helper\Logging\DisplayLog.cs" />
-    <Compile Include="Helper\Logging\ILogDisplay.cs" />
-    <Compile Include="Helper\Logging\ILogWriter.cs" />
-    <Compile Include="Helper\Logging\LogBootstrapper.cs" />
-    <Compile Include="Helper\Logging\LogLevel.cs" />
-    <Compile Include="Helper\Logging\MesLog.cs" />
-    <Compile Include="Helper\Logging\RichTextBoxLogDisplay.cs" />
-    <Compile Include="Helper\Logging\SerilogWriter.cs" />
-    <Compile Include="Helper\MelsecPlc\MelsecPlcComm.cs" />
-    <Compile Include="Helper\MelsecPlc\MyDataType.cs" />
     <Compile Include="Helper\MonthlyAccessDbManager.cs" />
-    <Compile Include="Helper\Mssql\DbShiftManager.cs" />
-    <Compile Include="Helper\Mssql\ShiftService.cs" />
-    <Compile Include="Helper\MySqlHelper.cs" />
     <Compile Include="Helper\NetworkShareConnector.cs" />
     <Compile Include="Helper\Keithley2790Helper.cs" />
     <Compile Include="Helper\ObjectExtensions.cs" />
@@ -583,27 +522,23 @@
     <Compile Include="Helper\Oee\OeeService.cs" />
     <Compile Include="Helper\PasswordHelper.cs" />
     <Compile Include="Helper\ProductionMonitorIndustrial.cs" />
-    <Compile Include="Helper\QueryClient\QueryClient.cs" />
-    <Compile Include="Helper\QueryClient\ConsumablesApiClient.cs" />
-    <Compile Include="Helper\QueryClient\UserApiClient.cs" />
     <Compile Include="Helper\TwhHelper.cs" />
     <Compile Include="Helper\TwhPowerDataParser.cs" />
     <Compile Include="Helper\UIHelp\UiRefreshCenter.cs" />
     <Compile Include="Helper\UIHelp\UiState.cs" />
     <Compile Include="Helper\UpdateSql.cs" />
-    <Compile Include="Helper\UploadSql.cs" />
     <Compile Include="Helper\UserLevelHelper.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\Configuration\InstrumentCommunicationConfig.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\Configuration\InstrumentConfig.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\Configuration\InstrumentConfigFileStore.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\Configuration\InstrumentDeviceConfig.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\InstrumentFactory.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\InstrumentHandlers.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\InstrumentMeasure.cs" />
     <Compile Include="LocalConfig.cs" />
-    <Compile Include="LoginForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LoginForm.Designer.cs">
-      <DependentUpon>LoginForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Model\ActionTipModel.cs" />
     <Compile Include="Model\AlarmParse.cs" />
     <Compile Include="Model\BydMesApi.cs" />
-    <Compile Include="Model\ChangeModel.cs" />
     <Compile Include="Model\CommonConfig.cs" />
     <Compile Include="Model\Consumables.cs" />
     <Compile Include="Model\currentProductDataModel.cs" />
@@ -624,10 +559,14 @@
     <Compile Include="ProcessConfig\BaseProcessExecutor.cs" />
     <Compile Include="ProcessConfig\DynamicExecutorFactory.cs" />
     <Compile Include="ProcessConfig\DynamicProcessExecutor.cs" />
+    <Compile Include="ProcessConfig\InstrumentDispatcher.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\InstrumentRuntime.cs" />
+    <Compile Include="ProcessConfig\InstrumentHandlers\ItechPowerHandler.cs" />
     <Compile Include="ProcessConfig\IProcessStageHandler.cs" />
     <Compile Include="ProcessConfig\ITestDataProcessor.cs" />
     <Compile Include="ProcessConfig\Measurement.cs" />
     <Compile Include="ProcessConfig\PlcConfig.cs" />
+    <Compile Include="ProcessConfig\PlcConnectionConfig.cs" />
     <Compile Include="ProcessConfig\ProcessContext.cs" />
     <Compile Include="ProcessConfig\ProcessMethods.cs" />
     <Compile Include="ProcessConfig\ProcessStageKeys.cs" />
@@ -635,23 +574,12 @@
     <Compile Include="ProcessConfig\SnContextManager.cs" />
     <Compile Include="ProcessConfig\StageStep.cs" />
     <Compile Include="ProcessConfig\TestDataProcessor.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Shared.cs" />
     <Compile Include="Util\DataProvider.cs" />
-    <Compile Include="DriverForm\Aynettek\AynettekForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DriverForm\Aynettek\AynettekForm.Designer.cs">
-      <DependentUpon>AynettekForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DriverForm\Aynettek\ErrReason.cs" />
-    <Compile Include="DriverForm\Aynettek\BaseConversion.cs" />
     <Compile Include="Helper\LanModelSync\DeviceStatusReporter.cs" />
     <Compile Include="Helper\LanModelSync\MasterHeartbeatMonitor.cs" />
     <Compile Include="Helper\LanModelSync\ModelConfig.cs" />
     <Compile Include="Helper\LanModelSync\ModelConfigReceiver.cs" />
-    <Compile Include="Helper\Mssql\MSSqlHelper.cs" />
-    <Compile Include="Helper\SerializeHelper.cs" />
     <Compile Include="Helper\StrHelper.cs" />
     <Compile Include="Helper\UploadManager.cs" />
     <Compile Include="MyEnum\MyEnum.cs" />
@@ -691,9 +619,6 @@
     <EmbeddedResource Include="DriverForm\Alarm\AlarmForm.resx">
       <DependentUpon>AlarmForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DriverForm\Aynettek\AynettekForm.resx">
-      <DependentUpon>AynettekForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="DriverForm\EditJson\Components\CheckResultInfoEditorForm.resx">
       <DependentUpon>CheckResultInfoEditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -715,14 +640,11 @@
     <EmbeddedResource Include="DriverForm\EditJson\Components\ResultWriteConfigEditor.resx">
       <DependentUpon>ResultWriteConfigEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DriverForm\EditJson\EditJsonForm.resx">
-      <DependentUpon>EditJsonForm.cs</DependentUpon>
+    <EmbeddedResource Include="DriverForm\EditJson\EditPlcConfigJsonForm.resx">
+      <DependentUpon>EditPlcConfigJsonForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DriverForm\EditJson\ProcessEditorForm.resx">
       <DependentUpon>ProcessEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DriverForm\ConfigCenter\ConfigCenterForm.resx">
-      <DependentUpon>ConfigCenterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DriverForm\Recipe\RecipeForm.resx">
       <DependentUpon>RecipeForm.cs</DependentUpon>
@@ -732,9 +654,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DriverForm\SearchForm\SearchForm.resx">
       <DependentUpon>SearchForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="LoginForm.resx">
-      <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -790,14 +709,54 @@
       <Project>{6869136e-4f00-4914-a7ac-666518f6942a}</Project>
       <Name>GT.Factory.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.GTUser\GT.Factory.GTUser.csproj">
+      <Project>{1f502a97-4b27-4e48-b390-a25338a27ea4}</Project>
+      <Name>GT.Factory.GTUser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Logging\GT.Factory.Logging.csproj">
+      <Project>{2A3BC6F2-6E12-45CF-AD59-6C53EE280A76}</Project>
+      <Name>GT.Factory.Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Login\GT.Factory.Login.csproj">
+      <Project>{FA5A71DC-4398-4947-BBE9-2BCC5BE76740}</Project>
+      <Name>GT.Factory.Login</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Management.UI\GT.Factory.Management.UI.csproj">
+      <Project>{919efc4f-a8e2-4edf-a5e5-86c6afd2a673}</Project>
+      <Name>GT.Factory.Management.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.MES\GT.Factory.MES.csproj">
+      <Project>{E84F271D-6D8F-4002-BA62-A7BFD06DDE23}</Project>
+      <Name>GT.Factory.MES</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GT.Factory.PLC\GT.Factory.PLC.csproj">
       <Project>{e03acb3f-97bf-4353-af7c-eac8d1187ad1}</Project>
       <Name>GT.Factory.PLC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.ProductCode\GT.Factory.ProductCode\GT.Factory.ProductCode.csproj">
+      <Project>{5AF64A53-5E86-43D3-8F98-C949DBAF9173}</Project>
+      <Name>GT.Factory.ProductCode</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.Product\GT.Factory.Product.csproj">
+      <Project>{D4BED9C9-0F83-4692-8862-5178A9B81DB6}</Project>
+      <Name>GT.Factory.Product</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.RFID\GT.Factory.RFID.csproj">
+      <Project>{9F74E752-48F5-4D27-8B58-3FEC5FEBF0B2}</Project>
+      <Name>GT.Factory.RFID</Name>
     </ProjectReference>
     <ProjectReference Include="..\GT.Factory.UI\GT.Factory.UI.csproj">
       <Project>{43748b7a-dd23-46c3-9627-26a6692f0394}</Project>
       <Name>GT.Factory.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GT.Factory.WebApi\GT.Factory.WebApi.csproj">
+      <Project>{2719e05b-c0de-4c1d-beb8-9faf36a27cdf}</Project>
+      <Name>GT.Factory.WebApi</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helper\BydMes\" />
+    <Folder Include="Helper\BydUser\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Serilog.4.4.0\build\Serilog.targets" Condition="Exists('..\packages\Serilog.4.4.0\build\Serilog.targets')" />

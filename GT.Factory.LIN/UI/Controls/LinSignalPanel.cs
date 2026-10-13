@@ -237,15 +237,14 @@ namespace GT.Factory.LIN.UI.Controls
             IEnumerable<LinSignalInfo> signals)
         {
 
-            if (signals == null)
-                return;
-
-
             _signals.Clear();
 
 
-            _signals.AddRange(
-                signals);
+            if (signals != null)
+            {
+                _signals.AddRange(
+                    signals);
+            }
 
 
             RefreshGrid();
@@ -1232,7 +1231,50 @@ namespace GT.Factory.LIN.UI.Controls
 
         #endregion
 
+
+
+
+        /// <summary>
+        /// 清空Signal显示。
+        ///
+        /// 同时清空当前Signal缓存和UI。
+        /// </summary>
+        public void Clear()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(
+                    new Action(Clear));
+
+                return;
+            }
+
+            _initializing = true;
+
+            try
+            {
+                //
+                // 清空Signal缓存
+                //
+                _signals.Clear();
+
+                //
+                // 清空Grid
+                //
+                _grid.Rows.Clear();
+
+                //
+                // 清除选择
+                //
+                _grid.ClearSelection();
+            }
+            finally
+            {
+                _initializing = false;
+            }
+        }
     }
+
 
 
     /// <summary>
@@ -1267,9 +1309,7 @@ namespace GT.Factory.LIN.UI.Controls
         }
 
     }
-
 }
-
 
 
 
