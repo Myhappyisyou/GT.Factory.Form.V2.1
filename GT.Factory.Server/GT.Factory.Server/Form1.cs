@@ -46,7 +46,6 @@ namespace GT.Factory.Server
 
         private UC_ChangeOrder _ucChangeOrder;
         private UC_UserEdit uc_useredit;
-        private UC_Consumable uc_consumable;
         private UC_ModelConfig uC_ModelConfig;
 
         public Form1()
@@ -167,8 +166,6 @@ namespace GT.Factory.Server
                 case nameof(btnUserEdit):
                     ShowUserEdit();
                     break;
-                case nameof(btnConsumableEdit):
-                    ShowConsumable();
                     break;
             }
         }
@@ -199,13 +196,7 @@ namespace GT.Factory.Server
             AddControlsToPanel(uc_useredit);
         }
 
-        private void ShowConsumable()
-        {
-            if (uc_consumable == null)
-                uc_consumable = new UC_Consumable();
 
-            AddControlsToPanel(uc_consumable);
-        }
 
         /// <summary>
         /// 退出程序
